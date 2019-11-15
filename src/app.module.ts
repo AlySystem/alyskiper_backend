@@ -152,7 +152,7 @@ import { CountryPaymentCurrencyModule } from './mapping/country-payment-currency
     //CountryPaymentCurrencyModule,
   ],
   providers: [AppService, AppResolver],
-  controllers: [AppController],
+  controllers: [AppController]
 })
 export class AppModule {
 }

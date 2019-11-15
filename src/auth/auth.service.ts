@@ -73,6 +73,7 @@ export class AuthService {
         if (userbysponsor == undefined) {
             return new SignResponse(null, new ErrorResponse('Sponsor ID is not valid!', 400, false));
         }
+        
         let result = await this.userService.create(input);
         if (result === null) {
             return new SignResponse(null, new ErrorResponse('This email or phone is already exist in the database!', 400, false));
@@ -83,7 +84,6 @@ export class AuthService {
             result.email, result.phone, result.avatar, result.country
         ), null);
     }
-
     // ------------------------------------------------------------------------------------------
     // Generar token con expiracion de 15 dias
     // ------------------------------------------------------------------------------------------

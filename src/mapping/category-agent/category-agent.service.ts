@@ -37,7 +37,6 @@ export class CategoryAgentService {
                 .where("CategoryAgent.id = :id", { id })
                 .andWhere("User.sponsor_id = :id_sponsor", { id_sponsor })
                 .getMany();
-                // console.log(result);
             return result;
         } catch (error) {
             console.log(error);

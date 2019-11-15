@@ -1,12 +1,15 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { SkiperCommerce } from './skiper-commerce.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, createQueryBuilder } from 'typeorm';
+import { Repository, createQueryBuilder, getConnection } from 'typeorm';
 import { SkiperAgentService } from '../skiper-agent/skiper-agent.service';
 import { CountrieService } from '../countries/countrie.service';
 import { SkiperCatCommerceService } from '../skiper-cat-commerce/skiper-cat-commerce.service';
 import { CommerceInput, UserWithoutCommerceDto } from './skiper-commerce.dto';
 import { CitiesService } from '../cities/cities.service';
+import { UserInput } from '../users/user.dto';
+import { AgentInput } from '../skiper-agent/skiper-agent.dto';
+import { UserService } from '../users/user.service';
 require('isomorphic-fetch');
 
 @Injectable()
@@ -14,6 +17,7 @@ export class SkiperCommerceService {
 
     constructor(
         @InjectRepository(SkiperCommerce) private readonly repository: Repository<SkiperCommerce>,
+        private readonly userService: UserService,
         private readonly agentService: SkiperAgentService,
         private readonly countryService: CountrieService,
         private readonly skiperCatService: SkiperCatCommerceService,
@@ -120,9 +124,9 @@ export class SkiperCommerceService {
     async getById(id: number): Promise<SkiperCommerce> {
         return await this.repository.findOne({
             relations: ["skiperAgent", "skiperAgent.user",
-            "skiperAgent.categoryAgent","catCommerce", "country","city",
-            "skiperCatProductsCommerce","skiperCatProductsCommerce.skiperProductCommerce"
-        ],
+                "skiperAgent.categoryAgent", "catCommerce", "country", "city",
+                "skiperCatProductsCommerce", "skiperCatProductsCommerce.skiperProductCommerce"
+            ],
             where: { id: id }
         });
     }
@@ -195,6 +199,42 @@ export class SkiperCommerceService {
                 .getMany();
         }
         return result;
+    }
+
+    async createCommerceTransaction(user: UserInput, agent: AgentInput, commerce: CommerceInput) {
+
+        const connection = getConnection();
+        const queryRunner = connection.createQueryRunner();
+
+        let result = null;
+        let value: boolean = false;
+        await queryRunner.startTransaction();
+        try {
+            let userCreate = await this.userService.create(user);
+            if (!userCreate) {
+                await queryRunner.rollbackTransaction();
+                return false;
+            }
+            agent.user_id = userCreate.id;
+            let agentCreate = await this.agentService.register(agent);
+            if (!agentCreate) {
+                await queryRunner.rollbackTransaction();
+                return false;
+            }
+            commerce.skiperAgentID = agentCreate.id;
+            result = await queryRunner.manager.save(commerce);
+            if (result) {
+                value = true;
+            }
+            await queryRunner.commitTransaction();
+            return value;
+        } catch (error) {
+            console.log(error);
+            await queryRunner.rollbackTransaction();
+            value = false;
+        } finally {
+            return value;
+        }
     }
 
     private parseCommerce(input: CommerceInput, agent?, country?, catCommerce?): SkiperCommerce {

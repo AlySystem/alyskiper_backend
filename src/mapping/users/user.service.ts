@@ -97,7 +97,7 @@ export class UserService {
             }
             let country = await this.country.getById(input.country_id);
             if (city !== undefined && country !== undefined && civil_status !== undefined) {
-                let user: User = this.parseUser(input, city, country, civil_status);
+                let user: User = UserService.parseUser(input, city, country, civil_status);
                 return await this.userRepository.save(user);
             }
             return null;
@@ -218,7 +218,7 @@ export class UserService {
     }
 
     // Metodo para parsear de UserInput a User
-    parseUser(input: UserInput, city?, country?, civil_status?): User {
+    public static parseUser(input: UserInput, city?, country?, civil_status?): User {
         let user: User = new User();
         user.firstname = input.firstname;
         user.lastname = input.lastname;

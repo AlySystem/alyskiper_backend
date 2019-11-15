@@ -28,9 +28,9 @@ input AgentDriveInput {
 
 input AgentInput {
     id: Int
-    state: Boolean
+    state: Boolean #Activo
     identity: String
     create_at: DateTime
-    categoryAgent_id: Int
+    categoryAgent_id: Int!
     user_id: Int
 }

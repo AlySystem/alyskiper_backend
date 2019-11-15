@@ -1,5 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
-import { Min, Length, IsOptional } from 'class-validator';
+import { Min, Length, IsOptional, MaxLength } from 'class-validator';
 import { Countrie } from '../countries/countrie.entity';
 import { Cities } from '../cities/cities.entity';
 import * as bcrypt from 'bcryptjs';
@@ -13,29 +13,28 @@ export class User {
     @PrimaryGeneratedColumn() id: number;
 
     @Column({ nullable: false, length: 100 })
-    @Length(100) firstname: string;
+    @MaxLength(100) firstname: string;
 
     @Column({ nullable: false, length: 100 })
-    @Length(100) lastname: string;
+    @MaxLength(100) lastname: string;
 
     @Column({ nullable: false, unique: true, length: 100 })
-    @Length(100) email: string;
+    @MaxLength(100) email: string;
 
     @Column({ nullable: true, length: 50 })
-    @Length(50) user: string;
+    @MaxLength(50) user: string;
 
     @BeforeInsert()
-    // @BeforeUpdate()
     async hashPassword() {
         this.password = await bcrypt.hash(this.password, parseInt(process.env.SALT));
     }
 
     @Column({ length: 255 })
-    @Min(8, { message: 'the password must be have 8 characters at least' }) @Length(255) password: string;
+    @Min(8, { message: 'the password must be have 8 characters at least' }) @MaxLength(255) password: string;
 
     @Column({ nullable: true, default: 1 }) @IsOptional() sponsor_id: number;
 
-    @Column({ nullable: true, length: 255 }) @Length(255) address: string;
+    @Column({ nullable: true, length: 255 }) @MaxLength(255) address: string;
 
     @Column({ nullable: false, length: 100 }) phone: string;
 

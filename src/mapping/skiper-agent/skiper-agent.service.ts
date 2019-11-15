@@ -119,11 +119,13 @@ export class SkiperAgentService {
             let user = await this.userService.getUserById(agent.user_id);
             let category = await this.categoryAgentService.getById(agent.categoryAgent_id);
             if (user !== undefined && category !== undefined) {
-                let agentInsert: SkiperAgent = this.parseAgent(agent, user, category);
+                let agentInsert: SkiperAgent = SkiperAgentService.parseAgent(agent, user, category);
                 return await this.agentRepository.save(agentInsert);
             }
+            return null;
         } catch (error) {
             console.log(error)
+            return null;
         }
     }
 
@@ -162,7 +164,7 @@ export class SkiperAgentService {
         }
     }
 
-    private parseAgent(input: AgentInput, user?, category?): SkiperAgent {
+    public static parseAgent(input: AgentInput, user?, category?): SkiperAgent {
         let agent: SkiperAgent = new SkiperAgent();
         agent.identity = input.identity;
         agent.state = input.state;

@@ -9,6 +9,7 @@ import { CountriesModule } from '../countries/countries.module';
 import { SkiperCatCommerceModule } from '../skiper-cat-commerce/skiper-cat-commerce.module';
 import {SkiperSubCatCommercesModule} from '../skiper-sub-cat-commerces/skiper-sub-cat-commerces.module';
 import { CitiesModule } from '../cities/cities.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
     imports:[
@@ -17,6 +18,7 @@ import { CitiesModule } from '../cities/cities.module';
         CountriesModule,
         SkiperAgentModule,
         CitiesModule,
+        UsersModule,
         TypeOrmModule.forFeature([SkiperCommerce])],
     providers: [SkiperCommerceService, SkiperCommerceResolver],
     exports:[SkiperCommerceService]
