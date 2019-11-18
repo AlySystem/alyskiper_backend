@@ -43,13 +43,13 @@ export class User {
         if (this.create_at == null) {
             this.create_at = new Date();
         }
-        if(this.sponsor_id == null){
+        if (this.sponsor_id == null) {
             this.sponsor_id = 1;
         }
-        if(this.date_birth == null){
+        if (this.date_birth == null) {
             this.date_birth = new Date();
         }
-        if(this.is_online == null){
+        if (this.is_online == null) {
             this.is_online = false;
         }
     }
@@ -60,7 +60,7 @@ export class User {
 
     @Column('boolean', { nullable: true }) is_online: boolean;
 
-    @Column('longtext',{ nullable: true}) avatar: string;
+    @Column('longtext', { nullable: true }) avatar: string;
 
     @ManyToOne(type => Countrie, { nullable: false })
     @JoinColumn({ name: 'idcountry' }) country: Countrie;

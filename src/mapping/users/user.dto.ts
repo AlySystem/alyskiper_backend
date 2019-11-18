@@ -19,29 +19,30 @@ export class UserInput {
     create_at: Date;
     date_birth: Date;
     is_online: boolean;
-    avatar:string;
+    avatar: string;
     country_id: number;
     city_id: number;
-    idcivil_status:number;
+    idcivil_status: number;
 }
 
 @InputType()
 export class UserUpdatePassword {
-    id:number;
-    oldPassword:string;
-    newPassword:string;
+    id: number;
+    oldPassword: string;
+    newPassword: string;
 }
 
 @InputType()
 export class UserUpdateInput {
-    id:number;
-    firstname:string;
-    lastname:string;
-    username:string;
-    email:string;
-    phone:string;
-    country_id:number;
-    avatar:string;
+    id: number;
+    firstname: string;
+    lastname: string;
+    username: string;
+    email: string;
+    phone: string;
+    country_id: number;
+    city_id: number;
+    avatar: string;
 }
 
 @ObjectType()
@@ -58,7 +59,7 @@ export class UserDto {
     create_at: Date;
     date_birth: Date;
     is_online: boolean = false;
-    avatar:string;
+    avatar: string;
     city: citiesDto;
     country: countrieDto;
     civilStatus: UserCivilStatusDto;
