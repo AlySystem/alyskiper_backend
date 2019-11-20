@@ -16,11 +16,17 @@ export class SkiperRatingService {
         return await this.repository.find({ relations: ["driver", "user"] });
     }
 
-    async registerSkiperRating(input: SkiperRatingInput): Promise<SkiperRating> {
+    async registerSkiperRating(input: SkiperRatingInput) {
         try {
+            input.created = new Date();
+            input.modified = new Date();
             let skiperRating = this.parseSkiperRating(input);
-            return await this.repository.save(skiperRating);;
-
+            let result = await this.repository.save(skiperRating);
+            if (result) {
+                return 'your rating has been received';
+            } else {
+                return 'transaction error';
+            }
         } catch (error) {
             console.error(error);
         }

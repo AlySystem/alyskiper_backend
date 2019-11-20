@@ -3,8 +3,6 @@ input SkiperRatingInput {
     iduser: Int
     ratingNumber: Float
     comments: String
-    created: DateTime
-    modified: DateTime
     status: Boolean
 }
 
@@ -23,6 +21,6 @@ type Query {
     skiperrating:[SkiperRatingDto]
 }
 type Mutation {
-    RegisterSkiperRating(input: SkiperRatingInput): SkiperRatingDto
+    RegisterSkiperRating(input: SkiperRatingInput): String!
 }
 
