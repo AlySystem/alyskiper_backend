@@ -22,6 +22,6 @@ export class SkiperRatingDto {
     created: Date;
     modified: Date;
     status: boolean;
-    driver: SkiperAgentDto;
-    user: UserDto;
+    driver: SkiperAgentDto[];
+    user: UserDto[];
 }

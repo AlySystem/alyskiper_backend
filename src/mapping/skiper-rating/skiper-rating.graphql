@@ -15,8 +15,8 @@ type SkiperRatingDto {
     created: DateTime
     modified: DateTime
     status: Boolean
-    driver: SkiperAgentDto
-    user: UserDto
+    driver:[SkiperAgentDto]
+    user: [UserDto]
 }
 
 type Query {

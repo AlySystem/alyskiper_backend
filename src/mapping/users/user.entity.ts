@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { UserCivilStatus } from '../user-civil-status/user-civil-status.entity';
 import { SkiperAgent } from '../skiper-agent/skiper-agent.entity';
 import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
+import { SkiperRating } from '../skiper-rating/skiper-rating.entity';
 
 @Entity('users')
 export class User {
@@ -77,5 +78,7 @@ export class User {
     @OneToMany(type => SkiperWallet, x => x.userID)
     skiperWallet: SkiperWallet[];
 
+    @OneToMany(type => SkiperRating, x => x.iduser)
+    SkiperRating: SkiperRating[];
 
 }
