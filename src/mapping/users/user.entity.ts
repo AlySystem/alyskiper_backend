@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
-import { Min, Length, IsOptional, MaxLength } from 'class-validator';
+import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, ManyToOne, BeforeInsert, OneToMany } from 'typeorm';
+import { Min, IsOptional, MaxLength } from 'class-validator';
 import { Countrie } from '../countries/countrie.entity';
 import { Cities } from '../cities/cities.entity';
 import * as bcrypt from 'bcryptjs';
@@ -76,6 +76,4 @@ export class User {
 
     @OneToMany(type => SkiperWallet, x => x.userID)
     skiperWallet: SkiperWallet[];
-
-
 }

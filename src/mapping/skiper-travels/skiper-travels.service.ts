@@ -34,7 +34,7 @@ export class SkiperTravelsService {
         }
     }
 
-    async getTravelPayment(id: number): Promise<any>{
+    async getTravelPayment(id: number): Promise<any> {
         return await this.repository.findOneOrFail({
             select: ["total"],
             where: { id }
@@ -46,8 +46,8 @@ export class SkiperTravelsService {
         return parseInt(t[0], 10) * 1 + parseInt(t[1], 10) / 60;
     }
 
-    async CalcularTarifa(idcountry: number,
-        idcity: number, idcategoriaviaje: number, date_init: Date): Promise<TravelTarifaDTo> {
+    async CalcularTarifa(idcountry: number, idcity: number, idcategoriaviaje: number, date_init: Date): Promise<TravelTarifaDTo> {
+        console.log('entre aqui')
         //vamos a obtener el precio base
         var time = this.timeToDecimal(moment(new Date(date_init)).format("HH:mm:ss"))
         var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
@@ -56,7 +56,8 @@ export class SkiperTravelsService {
             .andWhere("SkiperTariffs.idcity = :idcity", { idcity })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
-
+        console.log('tarifas')
+        console.log(tarifas)
         if (tarifas.length == 0)
             throw new HttpException(
                 "No hay tarifa configurada para los parametros de entrada",
@@ -103,9 +104,12 @@ export class SkiperTravelsService {
                 .getOne()
 
             var usuario = await this.userService.findById(vehiculo.skiperVehicleAgent[0].skiperAgent.user.id)
-            var tarifa = await this.CalcularTarifa(usuario.country.id, usuario.city.id,
-                vehiculo.id_cat_travel, inputviaje.date_init)
-
+            // se rompe aqui
+                console.log(usuario.country.id)
+                console.log(usuario.city.id)
+                console.log(vehiculo.id_cat_travel)
+                var tarifa = await this.CalcularTarifa(usuario.country.id, usuario.city.id,
+                    vehiculo.id_cat_travel, inputviaje.date_init)
             var ValorXKm = tarifa.priceckilometer * inputviaje.distance
             var ValorXMin = tarifa.priceminute * inputviaje.time
             var valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())

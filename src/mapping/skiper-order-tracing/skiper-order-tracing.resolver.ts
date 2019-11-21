@@ -20,7 +20,7 @@ export class SkiperOrderTracingResolver {
     }
 
     public NotificarCambiosEnPedido(pedido){
-        pubSub.publish('skiperOrders', { skiperOrders: pedido, idcomercio: pedido.skiperCommerce.id })
+        pubSub.publish('skiperOrders', { skiperOrders: pedido, idcomercio: pedido.skiperCommerce.id });
     }
 
     @Mutation()

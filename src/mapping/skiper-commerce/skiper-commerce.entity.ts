@@ -31,6 +31,11 @@ export class SkiperCommerce {
 
     @Column('longtext', { nullable: true }) url_logo: string;
 
+    @Column('int',{nullable: false}) idagent:number;
+    @Column('int',{nullable: false}) id_cat_commerce:number;
+    @Column('int',{nullable: false}) idcountry:number;
+    @Column('int',{nullable: false}) idcity:number;
+
     @ManyToOne(type => SkiperAgent, { nullable: false })
     @JoinColumn({ name: 'idagent' }) skiperAgent: SkiperAgent;
 
