@@ -39,8 +39,8 @@ export class UserService {
         return result;
     }
 
-    async getUserById(id: number){
-        return await this.userRepository.findOneOrFail({id});
+    async getUserById(id: number) {
+        return await this.userRepository.findOneOrFail({ id });
     }
 
     async findBySponsorId(id: number) {
@@ -51,12 +51,12 @@ export class UserService {
     }
 
     async GetUserWallets(id: number) {
-        let result : any = await createQueryBuilder("User")
-        .innerJoinAndSelect("User.skiperWallet", "SkiperWallet")
-        .innerJoinAndSelect("SkiperWallet.currencyID", "Currency")
-        .innerJoinAndSelect("SkiperWallet.countryID", "Countrie")
-        .where("User.id = :iduser", { iduser: id })
-        .getOne();
+        let result: any = await createQueryBuilder("User")
+            .innerJoinAndSelect("User.skiperWallet", "SkiperWallet")
+            .innerJoinAndSelect("SkiperWallet.currencyID", "Currency")
+            .innerJoinAndSelect("SkiperWallet.countryID", "Countrie")
+            .where("User.id = :iduser", { iduser: id })
+            .getOne();
         return result;
     }
 
@@ -119,6 +119,7 @@ export class UserService {
             userUpdate.phone = input.phone;
             // userUpdate.avatar = input.avatar;
             userUpdate.country = await this.country.getById(input.country_id);
+            userUpdate.city = await this.city.getById(input.city_id);
             return await this.userRepository.save(userUpdate);
         } catch (error) {
             console.log(error)
@@ -201,10 +202,10 @@ export class UserService {
             console.log(error);
         }
     }
-    
-    async getUserWhenAddressNullAndSkiperAgentIdNull(){
+
+    async getUserWhenAddressNullAndSkiperAgentIdNull() {
         let result = await createQueryBuilder("User")
-            .leftJoin("User.skiperAgent","Agent")
+            .leftJoin("User.skiperAgent", "Agent")
             .where("Agent.id IS NULL")
             .andWhere("User.address IS NULL")
             .getMany();

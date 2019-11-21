@@ -52,6 +52,7 @@ input UserUpdateInput {
     email: String
     phone: String
     country_id: Int
+    city_id: Int
     avatar: String
 }
 

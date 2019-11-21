@@ -6,6 +6,7 @@ import * as bcrypt from 'bcryptjs';
 import { UserCivilStatus } from '../user-civil-status/user-civil-status.entity';
 import { SkiperAgent } from '../skiper-agent/skiper-agent.entity';
 import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
+import { SkiperRating } from '../skiper-rating/skiper-rating.entity';
 
 @Entity('users')
 export class User {
@@ -43,13 +44,13 @@ export class User {
         if (this.create_at == null) {
             this.create_at = new Date();
         }
-        if(this.sponsor_id == null){
+        if (this.sponsor_id == null) {
             this.sponsor_id = 1;
         }
-        if(this.date_birth == null){
+        if (this.date_birth == null) {
             this.date_birth = new Date();
         }
-        if(this.is_online == null){
+        if (this.is_online == null) {
             this.is_online = false;
         }
     }
@@ -60,7 +61,7 @@ export class User {
 
     @Column('boolean', { nullable: true }) is_online: boolean;
 
-    @Column('longtext',{ nullable: true}) avatar: string;
+    @Column('longtext', { nullable: true }) avatar: string;
 
     @ManyToOne(type => Countrie, { nullable: false })
     @JoinColumn({ name: 'idcountry' }) country: Countrie;
@@ -76,4 +77,7 @@ export class User {
 
     @OneToMany(type => SkiperWallet, x => x.userID)
     skiperWallet: SkiperWallet[];
+    
+    @OneToMany(type => SkiperRating, x => x.iduser)
+    SkiperRating: SkiperRating[];
 }

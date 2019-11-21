@@ -56,6 +56,8 @@ import { TransactionTypeModule } from './mapping/transaction-type/transaction-ty
 import { UsersCommissionsModule } from './mapping/users-commissions/users-commissions.module';
 import { CategoryLevelModule } from './mapping/category-level/category-level.module';
 import { CountryPaymentCurrencyModule } from './mapping/country-payment-currency/country-payment-currency.module';
+import { PaymentCryptoCurrencyModule } from './mapping/payment-crypto-currency/payment-crypto-currency.module';
+import { SkiperRatingModule } from './mapping/skiper-rating/skiper-rating.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -149,6 +151,8 @@ import { CountryPaymentCurrencyModule } from './mapping/country-payment-currency
     SkiperWalletsHistoryModule,
     PaymentMethodsModule,
     TransactionTypeModule,
+    SkiperRatingModule,
+    //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,
   ],
   providers: [AppService, AppResolver],
