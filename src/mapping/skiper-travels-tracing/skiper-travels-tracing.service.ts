@@ -138,7 +138,7 @@ export class SkiperTravelsTracingService {
             let subtotaldebit = valorviaje * (parseInt(amoutcommision.paycommission.toString()) / 100);
             let calciva = subtotaldebit * 0.15;
             let totaldebit = subtotaldebit + calciva;
-            wallet.amount = parseFloat(wallet.amount.toString()) - totaldebit;
+            wallet.amount = parseFloat(wallet.amount.toString()) + totaldebit;
             let walletHistory = new SkiperWalletsHistory();
             walletHistory.idskiperwallet = wallet.id;
             walletHistory.idtransactiontype = transactiontype.id;
