@@ -211,6 +211,7 @@ export class SkiperCommerceService {
         await queryRunner.startTransaction();
         try {
             let userCreate = await this.userService.create(user);
+            let commerceCreate: SkiperCommerce;
             if (!userCreate) {
                 await queryRunner.rollbackTransaction();
                 return false;
@@ -221,18 +222,30 @@ export class SkiperCommerceService {
                 await queryRunner.rollbackTransaction();
                 return false;
             }
-            commerce.skiperAgentID = agentCreate.id;
+            commerceCreate.idagent = agentCreate.id;
+            commerceCreate.id_cat_commerce = commerce.catCommerceID;
+            commerceCreate.idcity = user.city_id;
+            commerceCreate.idcountry = user.country_id;
+            commerceCreate.namecommerce = commerce.namecommerce;
+            commerceCreate.manager = commerce.manager;
+            commerceCreate.lat = commerce.lat;
+            commerceCreate.lon = commerce.lon;
+            commerceCreate.address = commerce.address;
+            commerceCreate.identification_ruc = commerce.identification_ruc;
+            commerceCreate.url_art = commerce.url_art;
+            commerceCreate.url_logo = commerce.url_logo;
             result = await queryRunner.manager.save(commerce);
             if (result) {
                 value = true;
             }
             await queryRunner.commitTransaction();
-            return value;
+            // return value;
         } catch (error) {
             console.log(error);
             await queryRunner.rollbackTransaction();
             value = false;
         } finally {
+            await queryRunner.release();
             return value;
         }
     }

@@ -117,7 +117,7 @@ export class UserService {
             userUpdate.user = input.username;
             userUpdate.email = input.email;
             userUpdate.phone = input.phone;
-            userUpdate.avatar = input.avatar;
+            // userUpdate.avatar = input.avatar;
             userUpdate.country = await this.country.getById(input.country_id);
             userUpdate.city = await this.city.getById(input.city_id);
             return await this.userRepository.save(userUpdate);
