@@ -26,6 +26,7 @@ export class SkiperTravelsInput {
     address_initial: string;
     address_final: string;
     address_suggested: string;
+    categoryId: number;
 }
 
 @ObjectType()
@@ -50,6 +51,7 @@ export class SkiperTravelsDto {
     skiperTravelsTracing: SkiperTravelsTracingDto;
     currency: CurrencyDto;
     paymentMethods: PaymentMethodDto;
+    categoryId:number;
 }
 
 @ObjectType()

@@ -17,6 +17,7 @@ input SkiperTravelsInput {
     address_suggested: String
     idcurrency: Int!
     idpayment_methods: Int!
+    categoryId: Int
 }
 
 
@@ -41,6 +42,7 @@ type SkiperTravelsDto {
     skiperagent: SkiperAgentDto
     currency: CurrencyDto
     paymentMethods: PaymentMethodDto
+    categoryId: Int
 }
 
 type TravelTarifaDTo {

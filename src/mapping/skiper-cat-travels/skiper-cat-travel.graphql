@@ -7,6 +7,7 @@ input SkiperCatTravelInput {
     btaxy: Boolean!
     bdelivery: Boolean!
     btransporte: Boolean!
+    paycommission: Int
 }
 
 type SkiperCatTravelDto {
@@ -18,11 +19,12 @@ type SkiperCatTravelDto {
     btaxy: Boolean
     bdelivery: Boolean
     btransporte: Boolean
+    paycommission: Int
 }
 
 type Query {
     skipercattravels: [SkiperCatTravelDto!]!
-    searchSkiperCatTravel(id: Int): AppsDto
+    searchSkiperCatTravel(id: Int): SkiperCatTravelDto
 }
 
 type Mutation {

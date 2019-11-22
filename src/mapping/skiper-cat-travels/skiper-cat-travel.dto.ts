@@ -7,9 +7,10 @@ export class SkiperCatTravelsInput {
     url_img_category: string;
     url_img_drive: string;
     mode_drive: string;
-    btaxy:boolean;
-    bdelivery:boolean;
-    btransporte:boolean;
+    btaxy: boolean;
+    bdelivery: boolean;
+    btransporte: boolean;
+    paycommission: number;
 }
 
 @ObjectType()
@@ -19,4 +20,5 @@ export class SkiperCatTravelDto {
     url_img_category: string;
     url_img_drive: string;
     mode_drive: string;
+    paycommission: number;
 }

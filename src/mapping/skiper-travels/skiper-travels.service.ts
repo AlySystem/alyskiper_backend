@@ -34,7 +34,7 @@ export class SkiperTravelsService {
         }
     }
 
-    async getTravelPayment(id: number): Promise<any>{
+    async getTravelPayment(id: number): Promise<any> {
         return await this.repository.findOneOrFail({
             select: ["total"],
             where: { id }
@@ -278,7 +278,9 @@ export class SkiperTravelsService {
         skipertravel.address_initial = input.address_initial;
         skipertravel.address_final = input.address_final;
         skipertravel.address_suggested = input.address_suggested;
-        skipertravel.duration = input.time
+        skipertravel.duration = input.time;
+        skipertravel.idcattravel = input.categoryId;
+
         console.log(skipertravel)
         return skipertravel;
     }

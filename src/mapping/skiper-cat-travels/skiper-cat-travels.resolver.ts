@@ -7,7 +7,7 @@ import { ParseIntPipe } from '@nestjs/common';
 export class SkiperCatTravelsResolver {
     constructor(
         private readonly skiperCatTravelsService: SkiperCatTravelsService
-    ){}
+    ) { }
 
     @Query('skipercattravels')
     async skipercattravels() {
@@ -20,12 +20,11 @@ export class SkiperCatTravelsResolver {
     }
 
     @Mutation()
-    async registerSkiperCatTravel(@Args('input') input: SkiperCatTravelsInput){
+    async registerSkiperCatTravel(@Args('input') input: SkiperCatTravelsInput) {
         try {
             return this.skiperCatTravelsService.registerSkiperCatTravel(input);
         }
-        catch (error)
-        {
+        catch (error) {
             console.error(error);
         }
     }
