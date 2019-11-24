@@ -13,7 +13,7 @@ import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
 import { SkiperWalletsHistory } from '../skiper-wallets-history/skiper-wallets-history.entity';
 import { TransactionType } from '../transaction-type/transaction-type.entity';
 import { SkiperCatTravelsService } from '../skiper-cat-travels/skiper-cat-travels.service';
-
+import { Countrie } from '../countries/countrie.entity';
 @Injectable()
 export class SkiperTravelsTracingService {
     constructor(
@@ -21,7 +21,7 @@ export class SkiperTravelsTracingService {
         private readonly repository: Repository<SkiperTravelsTracing>,
         private readonly skiperTravelsStatusService: SkiperTravelsStatusService,
         private readonly skiperTravelsService: SkiperTravelsService,
-        private readonly skiperCatTrevelsService: SkiperCatTravelsService,
+        private readonly skiperCatTrevelsService: SkiperCatTravelsService
     ) { }
 
     async getAll(): Promise<SkiperTravelsTracing[]> {
@@ -131,12 +131,13 @@ export class SkiperTravelsTracingService {
 
         try {
             let user = await this.getUserDatafromDriver(travel.iddriver);
+            let taxcountry = await this.getCountryByDrive(user.id);
             let amoutcommision = await this.skiperCatTrevelsService.getById(travel.idcattravel);
             let wallet = await this.getWalletFromDriver(user.id, travel.idcurrency);
             let transactiontype = await this.getTransactionType("DEBITO X VIAJE");
             let valorviaje = (parseFloat(travel.total.toString()) * parseFloat(transactiontype.sign.toString()));
             let subtotaldebit = valorviaje * (parseInt(amoutcommision.paycommission.toString()) / 100);
-            let calciva = subtotaldebit * 0.15;
+            let calciva = subtotaldebit * ((taxcountry.tax) / 100);
             let totaldebit = subtotaldebit + calciva;
             wallet.amount = parseFloat(wallet.amount.toString()) + totaldebit;
             let walletHistory = new SkiperWalletsHistory();
@@ -179,6 +180,20 @@ export class SkiperTravelsTracingService {
             .where("SkiperWallet.iduser = :iduser", { iduser })
             .andWhere("SkiperWallet.idcurrency = :idcurrency", { idcurrency })
             .getOne();
+    }
+    /*  
+    select c.* from countries c			
+			left join users u on u.idcountry = c.id
+			left join skiper_agent sa on sa.iduser = u.id 
+			where sa.id = 205;        
+    */
+
+    private async getCountryByDrive(iduser: number): Promise<Countrie> {
+        return await createQueryBuilder(Countrie, "Countrie")
+            .leftJoin("Countrie.user", "User")
+            .where("User.id = :id", { id: iduser })
+            .getOne();
+
     }
 
     private async getTransactionType(name: string): Promise<TransactionType> {

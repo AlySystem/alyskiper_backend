@@ -77,7 +77,7 @@ export class User {
 
     @OneToMany(type => SkiperWallet, x => x.userID)
     skiperWallet: SkiperWallet[];
-    
+
     @OneToMany(type => SkiperRating, x => x.iduser)
     SkiperRating: SkiperRating[];
 }

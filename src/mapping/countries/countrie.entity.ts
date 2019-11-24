@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { Cities } from "../cities/cities.entity";
 import { CountryPaymentCurrency } from "../country-payment-currency/country-payment-currency.entity";
+import { User } from '../users/user.entity';
 
 
 @Entity('countries')
@@ -22,8 +23,14 @@ export class Countrie {
 
     @Column({ type: "int", nullable: false }) phonecode: number;
 
+    @Column({ type: "int", nullable: false }) tax: number;
+
+
     @OneToMany(type => Cities, x => x.country)
     cities: Cities[];
+
+    @OneToMany(type => User, x => x.country)
+    user: User[];
 
     @OneToMany(type => CountryPaymentCurrency, x => x.countrie)
     countrypaymentcurrency: CountryPaymentCurrency[];
