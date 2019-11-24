@@ -143,7 +143,7 @@ export class SkiperTravelsTracingService {
             let walletHistory = new SkiperWalletsHistory();
             walletHistory.idskiperwallet = wallet.id;
             walletHistory.idtransactiontype = transactiontype.id;
-            walletHistory.amount = totaldebit;
+            walletHistory.amount = -(totaldebit);
             walletHistory.idpayment_methods = travel.idpayment_methods;
             walletHistory.description = `Deduccion por el viaje ${travel.id}`;
             walletHistory.date_in = new Date();
