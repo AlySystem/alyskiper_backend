@@ -47,7 +47,7 @@ export class SkiperTravelsService {
     }
 
     async CalcularTarifa(idcountry: number, idcity: number, idcategoriaviaje: number, date_init: Date): Promise<TravelTarifaDTo> {
-        console.log('entre aqui')
+        //console.log('entre aqui')
         //vamos a obtener el precio base
         var time = this.timeToDecimal(moment(new Date(date_init)).format("HH:mm:ss"))
         var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
@@ -56,8 +56,8 @@ export class SkiperTravelsService {
             .andWhere("SkiperTariffs.idcity = :idcity", { idcity })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
-        console.log('tarifas')
-        console.log(tarifas)
+        // console.log('tarifas')
+        // console.log(tarifas)
         if (tarifas.length == 0)
             throw new HttpException(
                 "No hay tarifa configurada para los parametros de entrada",
@@ -92,6 +92,9 @@ export class SkiperTravelsService {
             var zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
             var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
             inputviaje.date_init = fecha;
+            inputviaje.distance = (inputviaje.distance / 1000);
+            inputviaje.time = (inputviaje.time / 60)
+            //console.log("distancia " + inputviaje.distance, "tiempo " + inputviaje.time)
             let viaje = new SkiperTravels();
             //vamos a calcular la tarifa del viaje
             //vamos a obtener la categoria de drive y el pais y ciudad del drive
@@ -105,19 +108,21 @@ export class SkiperTravelsService {
 
             var usuario = await this.userService.findById(vehiculo.skiperVehicleAgent[0].skiperAgent.user.id)
             // se rompe aqui
-                console.log(usuario.country.id)
-                console.log(usuario.city.id)
-                console.log(vehiculo.id_cat_travel)
-                var tarifa = await this.CalcularTarifa(usuario.country.id, usuario.city.id,
-                    vehiculo.id_cat_travel, inputviaje.date_init)
+            //console.log(usuario.country.id)
+            //console.log(usuario.city.id)
+            //console.log(vehiculo.id_cat_travel)
+            var tarifa = await this.CalcularTarifa(usuario.country.id, usuario.city.id,
+                vehiculo.id_cat_travel, inputviaje.date_init)
+            //console.log(tarifa);
+            //console.log(inputviaje);
             var ValorXKm = tarifa.priceckilometer * inputviaje.distance
             var ValorXMin = tarifa.priceminute * inputviaje.time
             var valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
-
+           // console.log("valorviaje " + valorviaje, "valorxkm " + ValorXKm, "valorxmin " + ValorXMin);
             await getManager().transaction(async transactionalEntityManager => {
                 viaje = this.parseSkiperTravel(inputviaje)
-                console.log(viaje)
+                //console.log(viaje)
                 var viajeregistrado = await transactionalEntityManager.save(viaje)
                 let travelstracing = new SkiperTravelsTracing();
                 travelstracing.datetracing = fecha;
