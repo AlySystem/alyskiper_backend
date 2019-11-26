@@ -10,7 +10,7 @@ type SkiperProductCommerceDto {
     discount: Int
     time: Int
     skiperCommerce: CommerceDto!
-    skiperCatProducts: SkiperCatProductDto!
+    skiperProducts: SkiperCatProductDto!
     optionAddon: [OptionAddonDto!]
 }
 

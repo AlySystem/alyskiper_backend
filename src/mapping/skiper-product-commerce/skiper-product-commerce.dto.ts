@@ -31,7 +31,7 @@ export class SkiperProductCommerceDto {
     discount:number;
     time: number;
     skiperCommerce: CommerceDto;
-    skiperCatProducts: SkiperCatProductDto;
+    skiperProducts: SkiperCatProductDto;
     optionAddon: OptionAddonDto;
 }
 
