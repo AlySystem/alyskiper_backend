@@ -11,4 +11,6 @@ export class SkiperCatTravel {
     @Column('boolean', { nullable: false }) bdelivery: boolean;
     @Column('boolean', { nullable: false }) btransporte: boolean;
     @Column('int', { nullable: true }) paycommission: number;
+    @Column('int', { nullable: true }) percentageagent: number;
+
 }

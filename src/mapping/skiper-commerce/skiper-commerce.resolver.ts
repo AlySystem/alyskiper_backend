@@ -52,7 +52,7 @@ export class SkiperCommerceResolver {
         @Args('user') user: UserInput,
         @Args('agent') agent: AgentInput,
         @Args('commerce') commerce: CommerceInput
-    ){
+    ) {
         return this.skiperCommerceService.createCommerceTransaction(user, agent, commerce);
     }
 

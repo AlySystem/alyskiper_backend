@@ -4,19 +4,19 @@ import { SkiperProductCommerceDto } from '../skiper-product-commerce/skiper-prod
 
 @InputType()
 export class SkiperCatProductInput {
-    id:number;
-    name:string;
-    description:string;
-    url_img_product:string;
+    id: number;
+    name: string;
+    description: string;
+    url_img_product: string;
     skiperCommerceID: number;
 }
 
 @ObjectType()
 export class SkiperCatProductDto {
-    id:number;
-    name:string;
-    description:string;
-    url_img_product:string;
+    id: number;
+    name: string;
+    description: string;
+    url_img_product: string;
     skiperCommerce: CommerceDto;
     skiperProductCommerce: SkiperProductCommerceDto;
 }

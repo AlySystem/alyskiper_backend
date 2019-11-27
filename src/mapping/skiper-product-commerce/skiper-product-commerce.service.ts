@@ -26,8 +26,8 @@ export class SkiperProductCommerceService {
     async getAllByCommerceId(id: number): Promise<SkiperProductCommerce[]> {
         try {
             let commerce = await createQueryBuilder("SkiperCommerce", "sc").where("sc.id = :id", { id }).getOne();
-            
-            let result =  await this.repository.find({
+
+            let result = await this.repository.find({
                 relations: ["skiperCommerce", "skiperProducts"],
                 where: { skiperCommerce: commerce }
             });

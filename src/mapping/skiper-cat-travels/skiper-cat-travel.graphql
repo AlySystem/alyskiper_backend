@@ -8,6 +8,7 @@ input SkiperCatTravelInput {
     bdelivery: Boolean!
     btransporte: Boolean!
     paycommission: Int
+    percentageagent: Int
 }
 
 type SkiperCatTravelDto {
@@ -20,6 +21,7 @@ type SkiperCatTravelDto {
     bdelivery: Boolean
     btransporte: Boolean
     paycommission: Int
+    percentageagent: Int
 }
 
 type Query {

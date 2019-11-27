@@ -33,6 +33,7 @@ export class SkiperCatTravelsService {
             skiperCatTravelUpdate.url_img_category = input.url_img_category;
             skiperCatTravelUpdate.mode_drive = input.mode_drive;
             skiperCatTravelUpdate.paycommission = input.paycommission;
+            skiperCatTravelUpdate.percentageagent = input.percentageagent;
             //console.log(appUpdate);
             return await this.repository.save(skiperCatTravelUpdate);
         } catch (error) {
@@ -58,6 +59,7 @@ export class SkiperCatTravelsService {
         skipercattravel.url_img_drive = input.url_img_drive;
         skipercattravel.mode_drive = input.mode_drive;
         skipercattravel.paycommission = input.paycommission;
+        skipercattravel.percentageagent = input.percentageagent;
         return skipercattravel;
     }
 
