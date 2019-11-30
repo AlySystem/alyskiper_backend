@@ -1,0 +1,12 @@
+input ExecutiveCommissionsInput {
+    id: Int
+    agentID: Int
+    amountcomission: Float
+    idcurrency: Int
+    state: Boolean
+    date_in: DateTime
+}
+
+type Mutation {
+    registerCommissions(input: ExecutiveCommissionsInput):Int
+}

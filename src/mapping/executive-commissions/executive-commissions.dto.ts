@@ -8,6 +8,7 @@ import { CurrencyDto } from '../currency/currency.dto';
 export class ExecutiveCommissionsInput {
     id: number;
     agentID: number;
+    idreference: number;
     amountcomission: number;
     idcurrency: number;
     state: boolean;
@@ -17,6 +18,7 @@ export class ExecutiveCommissionsInput {
 @ObjectType()
 export class ExecutiveCommissionsDTO {
     id: number;
+    idreference: number;
     amountcomission: number;
     idcurrency: number;
     state: boolean;

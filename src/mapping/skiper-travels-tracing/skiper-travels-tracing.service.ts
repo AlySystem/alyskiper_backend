@@ -14,6 +14,8 @@ import { SkiperWalletsHistory } from '../skiper-wallets-history/skiper-wallets-h
 import { TransactionType } from '../transaction-type/transaction-type.entity';
 import { SkiperCatTravelsService } from '../skiper-cat-travels/skiper-cat-travels.service';
 import { Countrie } from '../countries/countrie.entity';
+import { SkiperAgent } from '../skiper-agent/skiper-agent.entity';
+import { ExecutiveCommissions } from '../executive-commissions/executive-commissions.entity';
 @Injectable()
 export class SkiperTravelsTracingService {
     constructor(
@@ -131,6 +133,7 @@ export class SkiperTravelsTracingService {
 
         try {
             let user = await this.getUserDatafromDriver(travel.iddriver);
+            let userAgent = await this.getSponsorByidUser(user.sponsor_id);
             let taxcountry = await this.getCountryByDrive(user.id);
             let amoutcommision = await this.skiperCatTrevelsService.getById(travel.idcattravel);
             let wallet = await this.getWalletFromDriver(user.id, travel.idcurrency);
@@ -149,6 +152,17 @@ export class SkiperTravelsTracingService {
             walletHistory.description = `Deduccion por el viaje ${travel.id}`;
             walletHistory.date_in = new Date();
             walletHistory.idcurrency = travel.idcurrency;
+
+            let executivecommision = new ExecutiveCommissions();
+            executivecommision.agentID = userAgent.id;
+            executivecommision.idreference = travel.id;
+            executivecommision.amountcomission = -(commisionexecutive);
+            executivecommision.idcurrency = travel.idcurrency;
+            executivecommision.state = false;
+            executivecommision.date_in = new Date();
+
+
+            await queryRunner.manager.save(executivecommision);
             await queryRunner.manager.save(wallet);
             await queryRunner.manager.save(walletHistory);
             result = await queryRunner.manager.save(travel_tracing);
@@ -158,6 +172,17 @@ export class SkiperTravelsTracingService {
         } finally {
             await queryRunner.release();
             return result;
+        }
+    }
+
+    private async getSponsorByidUser(iduser: number): Promise<SkiperAgent> {
+        try {
+            return await createQueryBuilder(SkiperAgent, "SkiperAgent")
+                .leftJoin("SkiperAgent.user", "User")
+                .where("User.id = :id", { id: iduser })
+                .getOne();
+        } catch (error) {
+            console.error(error)
         }
     }
 
