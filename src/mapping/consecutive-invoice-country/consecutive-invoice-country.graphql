@@ -1,0 +1,11 @@
+type ConsecutiveInvoiceCountryInput {
+    id: Int
+    consecutive: Int
+    idcountry: Int
+}
+
+type ConsecutiveInvoiceCountryDto {   
+     id: Int
+    consecutive: Int
+    idcountry: countrieDto
+}

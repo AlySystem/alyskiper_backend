@@ -27,54 +27,54 @@ export class SkiperOrderService {
 
     async GetOrdenes(idcommerce: number, status: number[]): Promise<SkiperOrder[]> {
         return await this.repository.createQueryBuilder("SkiperOrder")
-        .innerJoinAndSelect("SkiperOrder.user", "User")
-        .innerJoinAndSelect("SkiperOrder.skiperCommerce", "SkiperCommerce","SkiperCommerce.id = :idcommerce", { idcommerce })
-        .innerJoinAndSelect("SkiperOrder.skiperOrderTracing", "SkiperOrderTracing","SkiperOrderTracing.orderStatus IN (:idstatus)", { idstatus: status })
-        .innerJoinAndSelect("SkiperOrder.skiperOrderDetail", "SkiperOrderDetail")
-        .leftJoinAndSelect("SkiperOrderDetail.skiperProductCommerce", "SkiperProductCommerce")
-        .innerJoinAndSelect(subQuery => {
-            return subQuery
-            .select("skiperOrderTracing.idorder", "idorder").addSelect("MAX(skiperOrderTracing.datetracing)", "fecha")
-            .from(SkiperOrderTracing, "skiperOrderTracing")
-            .groupBy("skiperOrderTracing.idorder")
-        }, "d", "SkiperOrderTracing.idorder = d.idorder and SkiperOrderTracing.datetracing = d.fecha")
-        .innerJoinAndSelect("SkiperOrderTracing.orderStatus", "SkiperOrdersStatus")
-        .getMany();
+            .innerJoinAndSelect("SkiperOrder.user", "User")
+            .innerJoinAndSelect("SkiperOrder.skiperCommerce", "SkiperCommerce", "SkiperCommerce.id = :idcommerce", { idcommerce })
+            .innerJoinAndSelect("SkiperOrder.skiperOrderTracing", "SkiperOrderTracing", "SkiperOrderTracing.orderStatus IN (:idstatus)", { idstatus: status })
+            .innerJoinAndSelect("SkiperOrder.skiperOrderDetail", "SkiperOrderDetail")
+            .leftJoinAndSelect("SkiperOrderDetail.skiperProductCommerce", "SkiperProductCommerce")
+            .innerJoinAndSelect(subQuery => {
+                return subQuery
+                    .select("skiperOrderTracing.idorder", "idorder").addSelect("MAX(skiperOrderTracing.datetracing)", "fecha")
+                    .from(SkiperOrderTracing, "skiperOrderTracing")
+                    .groupBy("skiperOrderTracing.idorder")
+            }, "d", "SkiperOrderTracing.idorder = d.idorder and SkiperOrderTracing.datetracing = d.fecha")
+            .innerJoinAndSelect("SkiperOrderTracing.orderStatus", "SkiperOrdersStatus")
+            .getMany();
     }
 
     async GetOrderByID(idorder: number): Promise<SkiperOrder> {
         return await this.repository.createQueryBuilder("SkiperOrder")
-        .innerJoinAndSelect("SkiperOrder.user", "User")
-        .innerJoinAndSelect("SkiperOrder.skiperCommerce", "SkiperCommerce")
-        .innerJoinAndSelect("SkiperOrder.skiperOrderTracing", "SkiperOrderTracing")
-        .innerJoinAndSelect("SkiperOrder.skiperOrderDetail", "SkiperOrderDetail")
-        .leftJoinAndSelect("SkiperOrderDetail.skiperProductCommerce", "SkiperProductCommerce")
-        .innerJoinAndSelect(subQuery => {
-            return subQuery
-            .select("skiperOrderTracing.idorder", "idorder").addSelect("MAX(skiperOrderTracing.datetracing)", "fecha")
-            .from(SkiperOrderTracing, "skiperOrderTracing")
-            .groupBy("skiperOrderTracing.idorder")
-        }, "d", "SkiperOrderTracing.idorder = d.idorder and SkiperOrderTracing.datetracing = d.fecha")
-        .innerJoinAndSelect("SkiperOrderTracing.orderStatus", "SkiperOrdersStatus")
-        .where("SkiperOrder.id = :idorder", { idorder })
-        .getOne();
+            .innerJoinAndSelect("SkiperOrder.user", "User")
+            .innerJoinAndSelect("SkiperOrder.skiperCommerce", "SkiperCommerce")
+            .innerJoinAndSelect("SkiperOrder.skiperOrderTracing", "SkiperOrderTracing")
+            .innerJoinAndSelect("SkiperOrder.skiperOrderDetail", "SkiperOrderDetail")
+            .leftJoinAndSelect("SkiperOrderDetail.skiperProductCommerce", "SkiperProductCommerce")
+            .innerJoinAndSelect(subQuery => {
+                return subQuery
+                    .select("skiperOrderTracing.idorder", "idorder").addSelect("MAX(skiperOrderTracing.datetracing)", "fecha")
+                    .from(SkiperOrderTracing, "skiperOrderTracing")
+                    .groupBy("skiperOrderTracing.idorder")
+            }, "d", "SkiperOrderTracing.idorder = d.idorder and SkiperOrderTracing.datetracing = d.fecha")
+            .innerJoinAndSelect("SkiperOrderTracing.orderStatus", "SkiperOrdersStatus")
+            .where("SkiperOrder.id = :idorder", { idorder })
+            .getOne();
     }
 
     async CountOrders(idcommerce: number, status: number[]): Promise<number> {
         return await this.repository.createQueryBuilder("SkiperOrder")
-        .innerJoinAndSelect("SkiperOrder.user", "User")
-        .innerJoinAndSelect("SkiperOrder.skiperCommerce", "SkiperCommerce","SkiperCommerce.id = :idcommerce", { idcommerce })
-        .innerJoinAndSelect("SkiperOrder.skiperOrderTracing", "SkiperOrderTracing","SkiperOrderTracing.orderStatus IN (:idstatus)", { idstatus: status })
-        .innerJoinAndSelect("SkiperOrder.skiperOrderDetail", "SkiperOrderDetail")
-        .leftJoinAndSelect("SkiperOrderDetail.skiperProductCommerce", "SkiperProductCommerce")
-        .innerJoinAndSelect(subQuery => {
-            return subQuery
-            .select("skiperOrderTracing.idorder", "idorder").addSelect("MAX(skiperOrderTracing.datetracing)", "fecha")
-            .from(SkiperOrderTracing, "skiperOrderTracing")
-            .groupBy("skiperOrderTracing.idorder")
-        }, "d", "SkiperOrderTracing.idorder = d.idorder and SkiperOrderTracing.datetracing = d.fecha")
-        .innerJoinAndSelect("SkiperOrderTracing.orderStatus", "SkiperOrdersStatus")
-        .getCount();
+            .innerJoinAndSelect("SkiperOrder.user", "User")
+            .innerJoinAndSelect("SkiperOrder.skiperCommerce", "SkiperCommerce", "SkiperCommerce.id = :idcommerce", { idcommerce })
+            .innerJoinAndSelect("SkiperOrder.skiperOrderTracing", "SkiperOrderTracing", "SkiperOrderTracing.orderStatus IN (:idstatus)", { idstatus: status })
+            .innerJoinAndSelect("SkiperOrder.skiperOrderDetail", "SkiperOrderDetail")
+            .leftJoinAndSelect("SkiperOrderDetail.skiperProductCommerce", "SkiperProductCommerce")
+            .innerJoinAndSelect(subQuery => {
+                return subQuery
+                    .select("skiperOrderTracing.idorder", "idorder").addSelect("MAX(skiperOrderTracing.datetracing)", "fecha")
+                    .from(SkiperOrderTracing, "skiperOrderTracing")
+                    .groupBy("skiperOrderTracing.idorder")
+            }, "d", "SkiperOrderTracing.idorder = d.idorder and SkiperOrderTracing.datetracing = d.fecha")
+            .innerJoinAndSelect("SkiperOrderTracing.orderStatus", "SkiperOrdersStatus")
+            .getCount();
     }
 
     async getById(id: number): Promise<SkiperOrder> {
@@ -84,7 +84,7 @@ export class SkiperOrderService {
         });
     }
 
-    async update(input: SkiperOrderInput): Promise<SkiperOrder>{
+    async update(input: SkiperOrderInput): Promise<SkiperOrder> {
         try {
             let skiperorderUpdate = await this.getById(input.id);
             skiperorderUpdate.userphone = input.userphone;
@@ -102,7 +102,7 @@ export class SkiperOrderService {
 
     async registerSkiperOrder(input: SkiperOrderInput): Promise<SkiperOrder> {
         try {
-            
+
             let skiperorder = this.parseSkiperOder(input);
             console.log(skiperorder);
             return this.repository.save(skiperorder);
@@ -113,12 +113,12 @@ export class SkiperOrderService {
         return null;
     }
 
-    async GenereSkiperOrder(inputorder: SkiperOrderInput, 
-        inputorderdetalle: SkiperOrderDetailInput[]): Promise<SkiperOrder> {
+    async GenereSkiperOrder(inputorder: SkiperOrderInput,
+        inputorderdetalle: SkiperOrderDetailInput[]): Promise<SkiperOrder> {        
         try {
             let order = new SkiperOrder();
             await getManager().transaction(async transactionalEntityManager => {
-                order =  this.parseSkiperOder(inputorder)
+                order = this.parseSkiperOder(inputorder)
                 var orderreg = await transactionalEntityManager.save(order);
                 inputorderdetalle.forEach(async x => {
                     x.orderID = order.id
@@ -154,5 +154,5 @@ export class SkiperOrderService {
         return skiperorder;
     }
 
-    
+
 }

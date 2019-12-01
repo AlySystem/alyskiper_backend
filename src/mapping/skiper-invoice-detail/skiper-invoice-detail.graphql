@@ -1,0 +1,11 @@
+type SkiperInvoiceDetailInput {
+    id: Int
+    idanyservice: Int
+    total: Float
+}
+
+type SkiperInvoiceDetailDto {
+    id: Int
+    idanyservice: SkiperTravelsDto
+    total: Float
+}

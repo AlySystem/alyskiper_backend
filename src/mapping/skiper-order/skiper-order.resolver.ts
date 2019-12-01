@@ -20,31 +20,31 @@ export class SkiperOrderResolver {
 
     @Query()
     async skiperNewOrders(@Args('idcommerce', ParseIntPipe) idcommerce: number) {
-        let result = this.skiperOrderService.GetOrdenes(idcommerce, [1,2]);
+        let result = this.skiperOrderService.GetOrdenes(idcommerce, [1, 2]);
         return result;
     }
 
     @Query()
     async skiperOrdersInProcess(@Args('idcommerce', ParseIntPipe) idcommerce: number) {
-        let result = this.skiperOrderService.GetOrdenes(idcommerce, [3,4]);
+        let result = this.skiperOrderService.GetOrdenes(idcommerce, [3, 4]);
         return result;
     }
 
     @Query()
     async skiperOrdersFinish(@Args('idcommerce', ParseIntPipe) idcommerce: number) {
-        let result = this.skiperOrderService.GetOrdenes(idcommerce, [5,6,7]);
+        let result = this.skiperOrderService.GetOrdenes(idcommerce, [5, 6, 7]);
         return result;
     }
 
     @Query()
     async skiperCountNewOrders(@Args('idcommerce', ParseIntPipe) idcommerce: number) {
-        let result = this.skiperOrderService.CountOrders(idcommerce, [1,2]);
+        let result = this.skiperOrderService.CountOrders(idcommerce, [1, 2]);
         return result;
     }
 
     @Query()
     async skiperCountOrdersInProces(@Args('idcommerce', ParseIntPipe) idcommerce: number) {
-        let result = this.skiperOrderService.CountOrders(idcommerce, [3,4]);
+        let result = this.skiperOrderService.CountOrders(idcommerce, [3, 4]);
         return result;
     }
 
@@ -64,12 +64,11 @@ export class SkiperOrderResolver {
 
     @Mutation()
     async GenereSkiperOrder(@Args('inputorder') inputorder: SkiperOrderInput,
-    @Args('inputorderdetalle') inputorderdetalle: SkiperOrderDetailInput[]) {
-        try {
+        @Args('inputorderdetalle') inputorderdetalle: SkiperOrderDetailInput[]) {
+        try {           
             var result = await this.skiperOrderService.GenereSkiperOrder(inputorder, inputorderdetalle);
-            if(result != null)
-            {
-                let pedido = await this.skiperOrderService.GetOrderByID (result.id)
+            if (result != null) {
+                let pedido = await this.skiperOrderService.GetOrderByID(result.id)
                 this.skiperOrderTracingResolver.NotificarCambiosEnPedido(pedido)
                 return result
             }

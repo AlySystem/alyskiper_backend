@@ -2,10 +2,10 @@ import { InputType, ObjectType } from 'type-graphql';
 import { UserDto } from '../users/user.dto';
 import { CommerceDto } from '../skiper-commerce/skiper-commerce.dto';
 import { SkiperOrderTracingDto } from '../skiper-order-tracing/skiper-order-tracing.dto';
-import { SkiperOrderDetailDto } from '../skiper-order-detail/skiper-order-detail.dto';
+import { SkiperOrderDetailDto, SkiperOrderDetailInput } from '../skiper-order-detail/skiper-order-detail.dto';
 
 
-@InputType() 
+@InputType()
 export class SkiperOrderInput {
     id: number;
     userphone: string;
