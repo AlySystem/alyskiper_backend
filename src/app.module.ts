@@ -59,7 +59,6 @@ import { CountryPaymentCurrencyModule } from './mapping/country-payment-currency
 import { PaymentCryptoCurrencyModule } from './mapping/payment-crypto-currency/payment-crypto-currency.module';
 import { SkiperRatingModule } from './mapping/skiper-rating/skiper-rating.module';
 import { ExecutiveCommissionsModule } from './mapping/executive-commissions/executive-commissions.module';
-import { ConsecutiveInvoiceCountryModule } from './mapping/consecutive-invoice-country/consecutive-invoice-country.module';
 import { SkiperUserInvoiceModule } from './mapping/skiper-user-invoice/skiper-user-invoice.module';
 import { SkiperInvoiceDetailModule } from './mapping/skiper-invoice-detail/skiper-invoice-detail.module';
 // var multerGoogleStorage = require("multer-google-storage")
@@ -156,7 +155,6 @@ import { SkiperInvoiceDetailModule } from './mapping/skiper-invoice-detail/skipe
     PaymentMethodsModule,
     TransactionTypeModule,
     SkiperRatingModule,
-    ConsecutiveInvoiceCountryModule,
     SkiperUserInvoiceModule,
     SkiperInvoiceDetailModule,
    // ExecutiveCommissionsModule,

@@ -16,6 +16,9 @@ import { SkiperCatTravelsService } from '../skiper-cat-travels/skiper-cat-travel
 import { Countrie } from '../countries/countrie.entity';
 import { SkiperAgent } from '../skiper-agent/skiper-agent.entity';
 import { ExecutiveCommissions } from '../executive-commissions/executive-commissions.entity';
+import { SkiperUserInvoice } from '../skiper-user-invoice/skiper-user-invoice.entity';
+import { SkiperInvoiceDetail } from '../skiper-invoice-detail/skiper-invoice-detail.entity';
+import { UserInput } from '../users/user.dto';
 @Injectable()
 export class SkiperTravelsTracingService {
     constructor(
@@ -161,7 +164,28 @@ export class SkiperTravelsTracingService {
             executivecommision.state = false;
             executivecommision.date_in = new Date();
 
+            let consecutiveinvoice = await this.getCorrelativeInvoice(taxcountry.id);
+            let skiperuserinvoice = await new SkiperUserInvoice();
+            let skiperinvoicedetail = await new SkiperInvoiceDetail();
+            if (consecutiveinvoice != undefined) {
+                skiperuserinvoice.idcountry = taxcountry.id;
+                skiperuserinvoice.numfac = consecutiveinvoice.numfac + 1;
+                skiperuserinvoice.iduser = travel.idusers;
+                skiperuserinvoice.anyagent = travel.iddriver;
+                skiperuserinvoice.date_in = new Date();
+            } else {
+                skiperuserinvoice.idcountry = taxcountry.id;
+                skiperuserinvoice.numfac = 1;
+                skiperuserinvoice.iduser = travel.idusers;
+                skiperuserinvoice.anyagent = travel.iddriver;
+                skiperuserinvoice.date_in = new Date();
+            }
+            let resultuserinvoice = await queryRunner.manager.save(skiperuserinvoice);
+            skiperinvoicedetail.iduserinvoice = resultuserinvoice.id;
+            skiperinvoicedetail.idanyservice = travel.id;
+            skiperinvoicedetail.total = travel.total;
 
+            await queryRunner.manager.save(skiperinvoicedetail);
             await queryRunner.manager.save(executivecommision);
             await queryRunner.manager.save(wallet);
             await queryRunner.manager.save(walletHistory);
@@ -175,6 +199,18 @@ export class SkiperTravelsTracingService {
         }
     }
 
+    private async getCorrelativeInvoice(idcountry: number): Promise<SkiperUserInvoice> {
+        try {
+            return await createQueryBuilder(SkiperUserInvoice, "SkiperUserInvoice")
+                .where("SkiperUserInvoice.idcountry = :idcountry", { idcountry: idcountry })
+                .addOrderBy('SkiperUserInvoice.id', 'DESC')
+                .limit(1)
+                .getOne();
+        } catch (error) {
+            console.error(error)
+        }
+
+    }
     private async getSponsorByidUser(iduser: number): Promise<SkiperAgent> {
         try {
             return await createQueryBuilder(SkiperAgent, "SkiperAgent")

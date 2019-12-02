@@ -1,11 +1,21 @@
-type ConsecutiveInvoiceCountryInput {
+type SkiperUserInvoiceInput {
     id: Int
-    consecutive: Int
+    numfac: Int
+    iduser: Int
+    anyagent: Int
     idcountry: Int
+    date_in: DateTime
 }
 
-type ConsecutiveInvoiceCountryDto {
+type SkiperUserInvoiceDto {
     id: Int
-    consecutive: Int
-    idcountry: countrieDto
+    numfac: Int
+    iduser: Int
+    anyagent: Int
+    country: countrieDto
+    date_in: DateTime
+}
+
+type Query {
+    getInvoinceByIdUser(iduser:Int): SkiperUserInvoiceDto
 }

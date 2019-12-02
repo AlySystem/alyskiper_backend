@@ -9,4 +9,17 @@ export class SkiperInvoiceDetailService {
         @InjectRepository(SkiperInvoiceDetail)
         private readonly repository: Repository<SkiperInvoiceDetail>
     ) { }
+
+    async getInvoiceByServiceId(idservice: number): Promise<SkiperInvoiceDetail> {
+        try {
+            return await this.repository.findOneOrFail(
+                {
+                    relations: ["anyservice", "invoice"],
+                    where: { idanyservice: idservice }
+                }
+            )
+        } catch (error) {
+            console.log(error)
+        }
+    }
 }

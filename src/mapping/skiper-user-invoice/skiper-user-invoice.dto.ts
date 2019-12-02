@@ -1,16 +1,23 @@
 import { InputType, ObjectType } from 'type-graphql';
 import { countrieDto } from '../countries/countrie.dto';
+import { SkiperAgentDto } from '../skiper-agent/skiper-agent.dto';
 
 @InputType()
-export class ConsecutiveInvoiceCountryInput {
+export class SkiperUserInvoiceInput {
     id: number;
-    consecutive: number;
+    numfac: number;
+    iduser: number;
+    anyagent: number;
     idcountry: number;
+    date_in: Date;
 }
 
 @ObjectType()
-export class ConsecutiveInvoiceCountryDto {
+export class SkiperUserInvoiceDto {
     id: number;
-    consecutive: number;
-    idcountry: countrieDto;
+    numfac: number;
+    iduser: number;
+    anyagent: SkiperAgentDto;
+    country: countrieDto;
+    date_in: Date;
 }
