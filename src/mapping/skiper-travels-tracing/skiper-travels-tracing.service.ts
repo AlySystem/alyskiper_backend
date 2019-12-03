@@ -141,6 +141,7 @@ export class SkiperTravelsTracingService {
             let amoutcommision = await this.skiperCatTrevelsService.getById(travel.idcattravel);
             let wallet = await this.getWalletFromDriver(user.id, travel.idcurrency);
             let transactiontype = await this.getTransactionType("DEBITO X VIAJE");
+            let transactiontype2 = await this.getTransactionType("CREDITO");
             let valorviaje = (parseFloat(travel.total.toString()) * parseFloat(transactiontype.sign.toString()));
             let subtotaldebit = valorviaje * (parseInt(amoutcommision.paycommission.toString()) / 100);
             let commisionexecutive = subtotaldebit * (parseInt(amoutcommision.percentageagent.toString()) / 100)
@@ -155,6 +156,15 @@ export class SkiperTravelsTracingService {
             walletHistory.description = `Deduccion por el viaje ${travel.id}`;
             walletHistory.date_in = new Date();
             walletHistory.idcurrency = travel.idcurrency;
+
+            let walletHistory2 = new SkiperWalletsHistory();
+            walletHistory2.idskiperwallet = wallet.id;
+            walletHistory2.idtransactiontype = transactiontype2.id;
+            walletHistory2.amount = valorviaje;
+            walletHistory2.idpayment_methods = travel.idpayment_methods;
+            walletHistory2.description = `Acreditacion del viaje numero ${travel.id}`;
+            walletHistory2.date_in = new Date();
+            walletHistory2.idcurrency = travel.idcurrency;
 
             let executivecommision = new ExecutiveCommissions();
             executivecommision.agentID = userAgent.id;
@@ -185,6 +195,7 @@ export class SkiperTravelsTracingService {
             skiperinvoicedetail.idanyservice = travel.id;
             skiperinvoicedetail.total = travel.total;
 
+            await queryRunner.manager.save(walletHistory2)
             await queryRunner.manager.save(skiperinvoicedetail);
             await queryRunner.manager.save(executivecommision);
             await queryRunner.manager.save(wallet);
