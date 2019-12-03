@@ -13,6 +13,6 @@ export class SkiperInvoiceDetail {
     @JoinColumn({ name: 'idanyservice' }) anyservice: SkiperTravels;
 
     @ManyToOne(type => SkiperUserInvoice, { nullable: false })
-    @JoinColumn({ name: 'iduserinvoice' }) invoice: SkiperUserInvoice;
+    @JoinColumn({ name: "iduserinvoice" }) invoice: SkiperUserInvoice;
 
 }

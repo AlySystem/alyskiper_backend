@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SkiperInvoiceDetail } from './skiper-invoice-detail.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, QueryBuilder } from 'typeorm';
 
 @Injectable()
 export class SkiperInvoiceDetailService {
@@ -12,12 +12,16 @@ export class SkiperInvoiceDetailService {
 
     async getInvoiceByServiceId(idservice: number): Promise<SkiperInvoiceDetail> {
         try {
-            return await this.repository.findOneOrFail(
+            let r = await this.repository.findOneOrFail(
                 {
                     relations: ["anyservice", "invoice"],
                     where: { idanyservice: idservice }
                 }
             )
+            
+            console.log(r);
+            return r;
+
         } catch (error) {
             console.log(error)
         }

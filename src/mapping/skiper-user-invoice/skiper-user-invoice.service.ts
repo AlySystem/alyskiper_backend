@@ -13,7 +13,7 @@ export class SkiperUserInvoiceService {
         try {
             return await this.repository.findOneOrFail(
                 {
-                    relations: ["agent", "country", "invoinces"],
+                    relations: ["agent", "country", "invoices"],
                     where: { iduser: id },
                     order: { date_in: "DESC" }
                 }

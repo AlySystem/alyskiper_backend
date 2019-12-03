@@ -24,7 +24,6 @@ export class SkiperUserInvoice {
     @ManyToOne(type => Countrie, { nullable: false })
     @JoinColumn({ name: 'idcountry' }) country: Countrie;
 
-    @OneToMany(type => SkiperInvoiceDetail, x => x.invoice) invoinces: SkiperInvoiceDetail[];
-
+    @OneToMany(type => SkiperInvoiceDetail, x => x.invoice) invoices: SkiperInvoiceDetail[];
 
 }

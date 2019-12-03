@@ -5,6 +5,7 @@ import { SkiperTravelsTracingDto } from '../skiper-travels-tracing/skiper-travel
 import { SkiperTariffsDto } from '../skiper-tariffs/skiper-tariffs.dto';
 import { CurrencyDto } from '../currency/currency.dto';
 import { PaymentMethodDto } from '../payment-methods/payment-methods.dto';
+import { SkiperCatTravelDto } from '../skiper-cat-travels/skiper-cat-travel.dto';
 
 @InputType()
 export class SkiperTravelsInput {
@@ -16,7 +17,7 @@ export class SkiperTravelsInput {
     lat_initial: number;
     lng_initial: number;
     lat_final_seggested: number;
-    lng_final_seggested:number;
+    lng_final_seggested: number;
     lat_final: number;
     lng_final: number;
     date_init: Date;
@@ -35,7 +36,7 @@ export class SkiperTravelsDto {
     lat_initial: number;
     lng_initial: number;
     lat_final_seggested: number;
-    lng_final_seggested:number;
+    lng_final_seggested: number;
     lat_final: number;
     lng_final: number;
     date_init: number;
@@ -51,7 +52,7 @@ export class SkiperTravelsDto {
     skiperTravelsTracing: SkiperTravelsTracingDto;
     currency: CurrencyDto;
     paymentMethods: PaymentMethodDto;
-    categoryId:number;
+    skipercattravel: SkiperCatTravelDto;
 }
 
 @ObjectType()

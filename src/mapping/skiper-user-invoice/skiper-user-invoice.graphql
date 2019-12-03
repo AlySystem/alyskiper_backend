@@ -12,7 +12,7 @@ type SkiperUserInvoiceDto {
     numfac: Int
     iduser: Int
     anyagent: Int
-    country: countrieDto
+    country: [countrieDto]
     date_in: DateTime
 }
 

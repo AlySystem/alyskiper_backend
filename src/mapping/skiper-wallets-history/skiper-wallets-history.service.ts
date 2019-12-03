@@ -70,7 +70,7 @@ export class SkiperWalletsHistoryService {
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
                 .where(`SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}'`, { fecha })
                 .andWhere("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
-                .andWhere("TransactionType.name = :tipotransaccion", { tipotransaccion: "DEBITO X VIAJE" })
+                .andWhere("TransactionType.name = :tipotransaccion", { tipotransaccion: "CREDITO" })
                 .getRawOne();
         } else {
             result = await createQueryBuilder("SkiperWalletsHistory")
@@ -78,7 +78,7 @@ export class SkiperWalletsHistoryService {
                 .addSelect("COUNT(1)", "viajes")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
                 .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
-                .andWhere("TransactionType.name = :tipotransaccion", { tipotransaccion: "DEBITO X VIAJE" })
+                .andWhere("TransactionType.name = :tipotransaccion", { tipotransaccion: "CREDITO" })
                 .getRawOne();
         }
         return (result === undefined) ? null : result;

@@ -6,6 +6,7 @@ import { SkiperTravelsTracing } from '../skiper-travels-tracing/skiper-travels-t
 import { Currency } from '../currency/currency.entity';
 import { Pay } from 'twilio/lib/twiml/VoiceResponse';
 import { PaymentMethods } from '../payment-methods/payment-methods.entity';
+import { SkiperCatTravel } from '../skiper-cat-travels/skiper-cat-travel.entity';
 
 @Entity('skiper_travels')
 export class SkiperTravels {
@@ -44,6 +45,9 @@ export class SkiperTravels {
 
     @OneToMany(type => SkiperTariffs, x => x.driverShedule)
     skiperTariffs: SkiperTariffs[];
+
+    @ManyToOne(type => SkiperCatTravel, { nullable: false })
+    @JoinColumn({ name: "idcattravel" }) skipercattravel: SkiperCatTravel;
 
     @OneToMany(type => SkiperTravelsTracing, x => x.travel)
     skiperTravelsTracing: SkiperTravelsTracing[]

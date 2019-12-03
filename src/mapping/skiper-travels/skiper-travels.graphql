@@ -42,7 +42,7 @@ type SkiperTravelsDto {
     skiperagent: SkiperAgentDto
     currency: CurrencyDto
     paymentMethods: PaymentMethodDto
-    categoryId: Int
+    skipercattravel: SkiperCatTravelDto
 }
 
 type TravelTarifaDTo {

@@ -23,7 +23,7 @@ export class SkiperTravelsService {
     async getAll(): Promise<SkiperTravels[]> {
         try {
             return await this.repository.find({
-                relations: ['users', 'skiperagent'],
+                relations: ['users', 'skiperagent', 'skipercattravel'],
             });
 
         } catch (error) {
@@ -119,7 +119,7 @@ export class SkiperTravelsService {
             var ValorXMin = tarifa.priceminute * inputviaje.time
             var valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
-           // console.log("valorviaje " + valorviaje, "valorxkm " + ValorXKm, "valorxmin " + ValorXMin);
+            // console.log("valorviaje " + valorviaje, "valorxkm " + ValorXKm, "valorxmin " + ValorXMin);
             await getManager().transaction(async transactionalEntityManager => {
                 viaje = this.parseSkiperTravel(inputviaje)
                 //console.log(viaje)
