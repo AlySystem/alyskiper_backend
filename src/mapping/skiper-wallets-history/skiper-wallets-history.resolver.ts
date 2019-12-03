@@ -25,12 +25,17 @@ export class SkiperWalletsHistoryResolver {
         @Args('lat') lat: number,
         @Args('lng') lng: number,
         @Args('flat') flat: boolean = false
-    ){
+    ) {
         return this.skiperWalletHistoryService.getGanaciaDelDia(idwallet, lat, lng, flat);
     }
 
+    @Query()
+    getBalanceEnabled(@Args('idwallet') idwallet: number) {
+        return this.skiperWalletHistoryService.getSaldoHabilitado(idwallet);
+    }
+
     @Mutation()
-    registerSkiperWalletHistory(@Args('input') input: SkiperWalletsHistoryInput){
+    registerSkiperWalletHistory(@Args('input') input: SkiperWalletsHistoryInput) {
         return this.skiperWalletHistoryService.registerSkiperWalletHistory(input);
     }
 }

@@ -58,7 +58,7 @@ export class SkiperWalletService {
     }
 
     async getSaldoHabilitado(idwallet: number) {
-
+        
     }
 
     async registerDeposit(id: number, idtransaction: number, idpayment_method: number, deposit: number) {

@@ -83,6 +83,16 @@ export class SkiperWalletsHistoryService {
         }
         return (result === undefined) ? null : result;
     }
+    async getSaldoHabilitado(idwallet: number) {
+        let result = await createQueryBuilder("SkiperWalletsHistory")
+            .select("IFNULL(SUM(SkiperWalletsHistory.amount), 0)", "benabled")
+            .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
+            .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
+            .andWhere("SkiperWalletsHistory.paidout = 0")
+            .andWhere("TransactionType.name = :tipotransaccion", { tipotransaccion: "CREDITO" })
+            .getRawOne();
+        return (result === undefined) ? null : result;
+    }
 
     private parseSkiperWalletHistory(input: SkiperWalletsHistoryInput): SkiperWalletsHistory {
         let skiperwallethistory: SkiperWalletsHistory = new SkiperWalletsHistory();
