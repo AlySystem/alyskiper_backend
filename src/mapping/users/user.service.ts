@@ -144,12 +144,16 @@ export class UserService {
         try {
             if (parseInt(input.password) != parseInt(input.repeatpassword)) {
                 return 0;
-            } else {                
-                let result = await this.userRepository.findOneOrFail({ where: { email: input.email } });
-                result.password = await bcrypt.hash(input.password, parseInt(process.env.SALT));
-                let user = await this.userRepository.save(result)
-                if (user) {
-                    return 1;
+            } else {
+                let result = await this.userRepository.findOne({ where: { email: input.email } });
+                if (result) {
+                    result.password = await bcrypt.hash(input.password, parseInt(process.env.SALT));
+                    let user = await this.userRepository.save(result)
+                    if (user) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
                 }
                 return 0;
             }
