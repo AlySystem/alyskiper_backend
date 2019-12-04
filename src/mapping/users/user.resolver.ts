@@ -1,6 +1,6 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { UserService } from './user.service';
-import { UserInput, UserUpdatePassword, UserUpdateInput } from './user.dto';
+import { UserInput, UserUpdatePassword, UserUpdateInput, ChangePasswordByEmailInput } from './user.dto';
 import { ParseIntPipe, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '../../shared/auth.guard';
 @Resolver('User')
@@ -48,7 +48,7 @@ export class UserResolver {
     }
 
     @Query()
-    getUserWhenAddressNullAndSkiperAgentIdNull(){
+    getUserWhenAddressNullAndSkiperAgentIdNull() {
         return this.userService.getUserWhenAddressNullAndSkiperAgentIdNull();
     }
 
@@ -67,6 +67,20 @@ export class UserResolver {
     @Mutation()
     updatePassword(@Args('input') input: UserUpdatePassword) {
         return this.userService.updatePassword(input);
+    }
+
+    @Mutation()
+    changePasswordByEmail(@Args('input') input: ChangePasswordByEmailInput) {
+        try {
+            let result = this.changePasswordByEmail(input);
+            if (result != null) {
+                return true
+            } else {
+                return false
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     @Mutation()

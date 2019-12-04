@@ -2,7 +2,7 @@ import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { User } from './user.entity';
 import { Repository, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserInput, UserUpdatePassword, UserUpdateInput } from './user.dto';
+import { UserInput, UserUpdatePassword, UserUpdateInput, ChangePasswordByEmailInput } from './user.dto';
 import { CitiesService } from '../cities/cities.service';
 import { CountrieService } from '../countries/countrie.service';
 import { UserCivilStatusService } from '../user-civil-status/user-civil-status.service';
@@ -134,8 +134,22 @@ export class UserService {
             }
             result.password = await bcrypt.hash(input.newPassword, parseInt(process.env.SALT));
             return await this.userRepository.save(result);
+
         } catch (error) {
             console.log(error)
+        }
+    }
+    async updatePasswordByEmail(input: ChangePasswordByEmailInput) {
+        try {
+            console.log(input)
+            if (input.email != input.repeatpassword) {
+                return null;
+            }
+            let result = await this.userRepository.findOneOrFail({ where: { email: input.email } });
+            result.password = await bcrypt.hash(input.password, parseInt(process.env.SALT));
+            return await this.userRepository.save(result)
+        } catch (error) {
+            console.log(error);
         }
     }
 

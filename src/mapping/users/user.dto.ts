@@ -33,6 +33,13 @@ export class UserUpdatePassword {
 }
 
 @InputType()
+export class ChangePasswordByEmailInput {
+    email: string;
+    password: string;
+    repeatpassword: string;
+}
+
+@InputType()
 export class UserUpdateInput {
     id: number;
     firstname: string;
@@ -65,4 +72,9 @@ export class UserDto {
     civilStatus: UserCivilStatusDto;
     skiperAgent: SkiperAgentDto[]
     skiperWallet: SkiperWalletDto[]
+}
+
+@ObjectType()
+export class ChangePassDto {
+    message: string;
 }

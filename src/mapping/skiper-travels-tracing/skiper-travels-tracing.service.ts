@@ -160,9 +160,9 @@ export class SkiperTravelsTracingService {
             let walletHistory2 = new SkiperWalletsHistory();
             walletHistory2.idskiperwallet = wallet.id;
             walletHistory2.idtransactiontype = transactiontype2.id;
-            walletHistory2.amount = valorviaje;
+            walletHistory2.amount = -(valorviaje - totaldebit);
             walletHistory2.idpayment_methods = travel.idpayment_methods;
-            walletHistory2.description = `Acreditacion del viaje numero ${travel.id}`;
+            walletHistory2.description = `Ganancia del viaje numero ${travel.id}`;
             walletHistory2.date_in = new Date();
             walletHistory2.idcurrency = travel.idcurrency;
 
