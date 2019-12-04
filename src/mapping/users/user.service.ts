@@ -2,11 +2,12 @@ import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { User } from './user.entity';
 import { Repository, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserInput, UserUpdatePassword, UserUpdateInput, ChangePasswordByEmailInput } from './user.dto';
+import { UserInput, UserUpdatePassword, UserUpdateInput, ChangePasswordEmailInput } from './user.dto';
 import { CitiesService } from '../cities/cities.service';
 import { CountrieService } from '../countries/countrie.service';
 import { UserCivilStatusService } from '../user-civil-status/user-civil-status.service';
 import * as bcrypt from 'bcryptjs';
+import { Length } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -139,15 +140,19 @@ export class UserService {
             console.log(error)
         }
     }
-    async updatePasswordByEmail(input: ChangePasswordByEmailInput) {
+    async updatePasswordByEmail(input: ChangePasswordEmailInput): Promise<number> {
         try {
-            console.log(input)
-            if (input.email != input.repeatpassword) {
-                return null;
+            if (parseInt(input.password) != parseInt(input.repeatpassword)) {
+                return 0;
+            } else {                
+                let result = await this.userRepository.findOneOrFail({ where: { email: input.email } });
+                result.password = await bcrypt.hash(input.password, parseInt(process.env.SALT));
+                let user = await this.userRepository.save(result)
+                if (user) {
+                    return 1;
+                }
+                return 0;
             }
-            let result = await this.userRepository.findOneOrFail({ where: { email: input.email } });
-            result.password = await bcrypt.hash(input.password, parseInt(process.env.SALT));
-            return await this.userRepository.save(result)
         } catch (error) {
             console.log(error);
         }

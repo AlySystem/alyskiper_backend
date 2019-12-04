@@ -1,6 +1,6 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { UserService } from './user.service';
-import { UserInput, UserUpdatePassword, UserUpdateInput, ChangePasswordByEmailInput } from './user.dto';
+import { UserInput, UserUpdatePassword, UserUpdateInput, ChangePasswordEmailInput } from './user.dto';
 import { ParseIntPipe, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '../../shared/auth.guard';
 @Resolver('User')
@@ -70,13 +70,13 @@ export class UserResolver {
     }
 
     @Mutation()
-    changePasswordByEmail(@Args('input') input: ChangePasswordByEmailInput) {
+    async changePasswordByEmail(@Args('input') input: ChangePasswordEmailInput) {
         try {
-            let result = this.changePasswordByEmail(input);
-            if (result != null) {
-                return true
+            let result = await this.userService.updatePasswordByEmail(input);           
+            if (result) {
+                return await true
             } else {
-                return false
+                return await false
             }
         } catch (error) {
             console.error(error);

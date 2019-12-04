@@ -33,7 +33,7 @@ export class UserUpdatePassword {
 }
 
 @InputType()
-export class ChangePasswordByEmailInput {
+export class ChangePasswordEmailInput {
     email: string;
     password: string;
     repeatpassword: string;
@@ -76,5 +76,5 @@ export class UserDto {
 
 @ObjectType()
 export class ChangePassDto {
-    message: string;
+    message: Boolean;
 }

@@ -39,7 +39,7 @@ type UserDto {
 }
 
 type ChangePassDto {
-    message: String
+    message: Boolean
 }
 
 input UserUpdatePassword {
@@ -59,11 +59,12 @@ input UserUpdateInput {
     city_id: Int
     avatar: String
 }
-input ChangePasswordByEmailInput {
+input ChangePasswordEmailInput {
     email: String
     password: String
     repeatpassword: String
 }
+
 
 type Mutation {
   createUser(input: UserInput!): UserDto
@@ -72,7 +73,7 @@ type Mutation {
   setAvatarImage(id: Int!,image: String!): String!
   getAvatarImage(id: Int!): String!
   defaultPassword(id: Int!): String!
-  changePasswordByEmail(input: ChangePasswordByEmailInput): ChangePassDto
+  changePasswordByEmail(input: ChangePasswordEmailInput):Int
 }
 
 type Query {
