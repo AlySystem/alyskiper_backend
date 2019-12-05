@@ -1,7 +1,7 @@
 input SkiperWalletInput {
     id: Int
     iduser: Int!
-    amount: Float!
+    amount: Float
     idcurrency: Int!
     idcountry: Int!
     minimun: Float!
@@ -15,9 +15,9 @@ type SkiperWalletDto {
     date_in: DateTime!
     minimun: Float!
     bretirar: Boolean!
-    userID: UserDto!
-    currencyID: CurrencyDto!
-    countryID: countrieDto!
+    userID: UserDto
+    currencyID: CurrencyDto
+    countryID: countrieDto
 }
 
 type Query {
@@ -28,5 +28,5 @@ type Query {
 type Mutation {
     registerSkiperWallet(input: SkiperWalletInput!):SkiperWalletDto
     updateSkiperWallet(input: SkiperWalletInput): SkiperWalletDto
-    registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!): SkiperWalletDto
+    registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!, description:String!): SkiperWalletDto
 }

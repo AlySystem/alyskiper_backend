@@ -33,8 +33,14 @@ export class SkiperWalletService {
     async registerSkiperwallet(input: SkiperWalletInput) {
         try {
             let result = this.parseSkiperWallet(input);
-            result = await this.repository.save(result);
+            let searchWallet = await this.getAllByUserId(input.iduser);
+            console.log(searchWallet.length)
+            if (!searchWallet.length) {
+                result = await this.repository.save(result);
+                return result;
+            }
             return result;
+
         } catch (error) {
             console.error(error);
             throw new HttpException('Error al registrar la wallet', HttpStatus.NOT_FOUND)
@@ -57,14 +63,11 @@ export class SkiperWalletService {
         }
     }
 
-    async getSaldoHabilitado(idwallet: number) {
-        
-    }
 
-    async registerDeposit(id: number, idtransaction: number, idpayment_method: number, deposit: number) {
+    async registerDeposit(id: number, idtransaction: number, idpayment_method: number, deposit: number, description: string) {
         try {
             let wallet = await this.repository.findOneOrFail({ id });
-            let result = await this.walletDepositTransaction(wallet, deposit, idtransaction, idpayment_method);
+            let result = await this.walletDepositTransaction(wallet, deposit, idtransaction, idpayment_method, description);
             if (result) {
                 return await this.getById(result.id);
             }
@@ -74,7 +77,7 @@ export class SkiperWalletService {
         }
     }
 
-    private async walletDepositTransaction(wallet: SkiperWallet, deposit: number, idtransaction: number, idpayment_method: number): Promise<SkiperWallet> {
+    private async walletDepositTransaction(wallet: SkiperWallet, deposit: number, idtransaction: number, idpayment_method: number, description: string): Promise<SkiperWallet> {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
@@ -88,7 +91,7 @@ export class SkiperWalletService {
             walletHistory.idcurrency = wallet.idcurrency;
             walletHistory.idskiperwallet = wallet.id;
             walletHistory.idpayment_methods = idpayment_method;
-            walletHistory.description = "Deposito Inicial de la billetera";
+            walletHistory.description = description;
             walletHistory.idtransactiontype = idtransaction;
             walletHistory.date_in = new Date();
             //Save entity

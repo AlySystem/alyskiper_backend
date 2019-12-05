@@ -36,8 +36,9 @@ export class SkiperWalletResolver {
         @Args('idwallet') idwallet: number,
         @Args('idtransaction') idtransaction: number,
         @Args('idpayment_method') idpayment_method: number,
-        @Args('deposit') deposit: number) {
-        return this.skiperWalletService.registerDeposit(idwallet, idtransaction, idpayment_method, deposit);
+        @Args('deposit') deposit: number,
+        @Args('description') description) {
+        return this.skiperWalletService.registerDeposit(idwallet, idtransaction, idpayment_method, deposit, description);
     }
 
     @Mutation()
