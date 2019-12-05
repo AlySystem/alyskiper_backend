@@ -63,14 +63,13 @@ export class SkiperTravelsTracingService {
         //vamos a validar que el estado exista con el estado previo.
         let estado = await this.skiperTravelsStatusService.getByStatusCode(input.idtravelstatus)
         let travel = await this.skiperTravelsService.GetTravelByID(input.idtravel)
-
+        console.log(travel.skiperTravelsTracing[0].travelstatus.id, " ", estado.prevstatus)
         if (travel == undefined)
             throw new HttpException(
                 "El viaje no existe",
                 HttpStatus.BAD_REQUEST,
-            );
-
-        if (travel.skiperTravelsTracing[0].travelstatus.id != estado.prevstatus)
+            );        
+        if (travel.skiperTravelsTracing[0].travelstatus.id != estado.prevstatus && estado.prevstatus != 8)
             throw new HttpException(
                 estado.errorstatusprev,
                 HttpStatus.BAD_REQUEST,
