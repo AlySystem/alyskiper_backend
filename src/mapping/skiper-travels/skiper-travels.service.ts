@@ -56,6 +56,7 @@ export class SkiperTravelsService {
             .andWhere("SkiperTariffs.idcity = :idcity", { idcity })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
+        console.log(tarifas);
         // console.log('tarifas')
         // console.log(tarifas)
         if (tarifas.length == 0)
@@ -76,8 +77,7 @@ export class SkiperTravelsService {
             (x.driverShedule.turn == "pm-am" &&
                 time >= 0 &&
                 this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
-        )[0]
-
+        )[0]        
         var travelTarifaDTo = new TravelTarifaDTo();
         travelTarifaDTo.pricebase = tarifa.price_base;
         travelTarifaDTo.priceckilometer = tarifa.price_kilometer;

@@ -24,6 +24,11 @@ export class SkiperVehicleResolver {
     }
 
     @Query()
+    getVehicleByNumberPlate(@Args('numberplate') numberplate: string) {
+        return this.service.getVehicleByNumberPlate(numberplate);
+    }
+
+    @Query()
     getVehicleBySponsorIdAndCategoryTravelId(
         @Args('id_sponsor') id_sponsor: number,
         @Args('cat_travel_id') cat_travel_id: number

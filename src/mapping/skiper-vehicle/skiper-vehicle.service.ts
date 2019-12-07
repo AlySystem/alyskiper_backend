@@ -29,6 +29,21 @@ export class SkiperVehicleService {
         });
     }
 
+    async getVehicleByNumberPlate(numberPlate: string): Promise<SkiperVehicle> {
+        try {
+            return await this.repository.findOneOrFail({
+                relations: ["skiperCatTravel", "vehicleCatalog",
+                    "vehicleTrademark", "vehicleModel", "vehicleYear"],
+                where: { license_plate: numberPlate }
+            });
+        } catch (error) {
+            throw new HttpException(
+                error,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+    }
+
     async getVehicleByUserId(id: number) {
         try {
             let vehicle: any = await createQueryBuilder("SkiperVehicleAgent")
@@ -48,7 +63,7 @@ export class SkiperVehicleService {
             console.log(error)
         }
     }
-    
+
     async getVehicleBySponsorIdAndCategoryTravelId(id_sponsor: number, cat_travel_id: number = 0) {
         let result;
         if (cat_travel_id != 0) {
