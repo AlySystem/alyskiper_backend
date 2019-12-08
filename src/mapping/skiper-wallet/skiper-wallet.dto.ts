@@ -16,6 +16,14 @@ export class SkiperWalletInput {
 }
 
 @ObjectType()
+export class SendDataForPayCrypto {
+    crypto: string;
+    company: string;
+    walletReceive: string;
+    amounSend: number;
+}
+
+@ObjectType()
 export class SkiperWalletDto {
     id: number;
     amount: number;

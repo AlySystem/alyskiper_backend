@@ -61,6 +61,7 @@ import { SkiperRatingModule } from './mapping/skiper-rating/skiper-rating.module
 import { ExecutiveCommissionsModule } from './mapping/executive-commissions/executive-commissions.module';
 import { SkiperUserInvoiceModule } from './mapping/skiper-user-invoice/skiper-user-invoice.module';
 import { SkiperInvoiceDetailModule } from './mapping/skiper-invoice-detail/skiper-invoice-detail.module';
+import { WalletscompaniesModule } from './mapping/walletscompanies/walletscompanies.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -157,6 +158,7 @@ import { SkiperInvoiceDetailModule } from './mapping/skiper-invoice-detail/skipe
     SkiperRatingModule,
     SkiperUserInvoiceModule,
     SkiperInvoiceDetailModule,
+    WalletscompaniesModule,
    // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,

@@ -1,0 +1,13 @@
+input  WalletsCompaniesInput {
+    id: Int
+    identifier: String
+    name_company:String
+    txt: String
+}
+
+type  WalletsCompaniesDto {
+    id: Int
+    identifier: String
+    name_company:String
+    txt: String
+}

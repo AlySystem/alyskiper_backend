@@ -2,6 +2,7 @@ import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { SkiperWalletService } from './skiper-wallet.service';
 import { ParseIntPipe } from '@nestjs/common';
 import { SkiperWalletInput } from './skiper-wallet.dto';
+require('isomorphic-fetch');
 
 @Resolver('SkiperWallet')
 export class SkiperWalletResolver {
@@ -10,6 +11,11 @@ export class SkiperWalletResolver {
     @Query()
     async skiperwallets() {
         return this.skiperWalletService.getAll();
+    }
+
+    @Query()
+    async getAmountByCrypto(@Args('crypto') crypto: string, @Args('amount') amount: number) {
+        return this.skiperWalletService.getAmountByCrypto(crypto, amount);
     }
 
     @Query()

@@ -5,16 +5,42 @@ import { SkiperWallet } from './skiper-wallet.entity';
 import { SkiperWalletInput } from './skiper-wallet.dto';
 import { SkiperWalletsHistory } from '../skiper-wallets-history/skiper-wallets-history.entity';
 import { TransactionType } from '../transaction-type/transaction-type.entity';
+import { WalletscompaniesService } from "../walletscompanies/walletscompanies.service";
 
 @Injectable()
 export class SkiperWalletService {
     constructor(
         @InjectRepository(SkiperWallet)
-        private readonly repository: Repository<SkiperWallet>
+        private readonly repository: Repository<SkiperWallet>,
+        private readonly walletservice: WalletscompaniesService
     ) { }
 
     async getAll(): Promise<SkiperWallet[]> {
         return await this.repository.find({ relations: ["userID", "currencyID", "countryID"] });
+    }
+
+    async getAmountByCrypto(crypto: string, amount: number) {
+        try {
+            const url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;
+            var cryptodate = await fetch(url)
+                .then(response => response.json())
+                .then(json => {
+                    return json;
+                });
+
+            let Price_usd = parseFloat(cryptodate[0].price_usd);
+            let walletcompanies = await this.walletservice.getWalletByCrypto(crypto)
+            let amountpay = (amount / Price_usd).toFixed(8)
+            let datasend = {
+                crypto: walletcompanies.identifier,
+                company: walletcompanies.name_company,
+                walletReceive: walletcompanies.txt,
+                amounSend: amountpay
+            };
+            return datasend;
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     async getAllByUserId(id: number): Promise<SkiperWallet[]> {

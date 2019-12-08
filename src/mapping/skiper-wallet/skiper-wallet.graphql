@@ -20,10 +20,18 @@ type SkiperWalletDto {
     countryID: countrieDto
 }
 
+type SendDataForPayCrypto {
+    crypto:String
+    company:String
+    walletReceive:String
+    amounSend:Float
+}
+
 type Query {
     skiperwallets: [SkiperWalletDto!]!
     getAllSkiperWalletsByUserId(iduser: Int!): [SkiperWalletDto!]!
     searchSkiperWallet(id:Int):SkiperWalletDto
+    getAmountByCrypto(crypto:String, amount:Float):SendDataForPayCrypto
 }
 type Mutation {
     registerSkiperWallet(input: SkiperWalletInput!):SkiperWalletDto
