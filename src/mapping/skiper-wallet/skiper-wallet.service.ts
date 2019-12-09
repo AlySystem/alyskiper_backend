@@ -1,25 +1,30 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getConnection } from 'typeorm';
+import { Repository, getConnection, createQueryBuilder } from 'typeorm';
 import { SkiperWallet } from './skiper-wallet.entity';
 import { SkiperWalletInput } from './skiper-wallet.dto';
 import { SkiperWalletsHistory } from '../skiper-wallets-history/skiper-wallets-history.entity';
 import { TransactionType } from '../transaction-type/transaction-type.entity';
 import { WalletscompaniesService } from "../walletscompanies/walletscompanies.service";
+import { AlycoinInvoices } from '../alycoin-invoices/alycoin-invoices.entity';
+import { DetailAlycoinIinvoice } from '../detail-alycoin-invoice/detail-alycoin-invoice.entity';
+import { UserService } from '../users/user.service';
+import { User } from '../users/user.entity';
 
 @Injectable()
 export class SkiperWalletService {
     constructor(
         @InjectRepository(SkiperWallet)
         private readonly repository: Repository<SkiperWallet>,
-        private readonly walletservice: WalletscompaniesService
+        private readonly walletservice: WalletscompaniesService,
+        private readonly userservice: UserService
     ) { }
 
     async getAll(): Promise<SkiperWallet[]> {
         return await this.repository.find({ relations: ["userID", "currencyID", "countryID"] });
     }
 
-    async getAmountByCrypto(crypto: string, amount: number) {
+    async getAmountByCrypto(crypto: string, amount: number, iduser: number, idcountry: number, idpackage: number) {
         try {
             const url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;
             var cryptodate = await fetch(url)
@@ -29,9 +34,14 @@ export class SkiperWalletService {
                 });
 
             let Price_usd = parseFloat(cryptodate[0].price_usd);
+            let numfact = await this.CreateInvoice(iduser, idcountry, idpackage, amount);
+            let user = await this.userservice.getUserById(numfact.iduser);
             let walletcompanies = await this.walletservice.getWalletByCrypto(crypto)
             let amountpay = (amount / Price_usd).toFixed(8)
             let datasend = {
+                numberFact: numfact.numfac,
+                nameUser: `${user.firstname} ${user.lastname}`,
+                state: false,
                 crypto: walletcompanies.identifier,
                 company: walletcompanies.name_company,
                 walletReceive: walletcompanies.txt,
@@ -42,6 +52,46 @@ export class SkiperWalletService {
             console.log(error)
         }
     }
+
+    private async CreateInvoice(iduser: number, idcountry: number, idpackage: number, amount: number): Promise<AlycoinInvoices> {
+        const connection = getConnection();
+        const queryRunner = connection.createQueryRunner();
+        let result;
+        let alycoininvoice = new AlycoinInvoices();
+        let detailalycoininvoice = new DetailAlycoinIinvoice();
+        await queryRunner.startTransaction();
+        try {
+            let response = await createQueryBuilder(AlycoinInvoices, "AlycoinInvoices")
+                .addOrderBy('AlycoinInvoices.id', 'DESC')
+                .limit(1)
+                .getOne();
+            if (response != undefined) {
+                alycoininvoice.numfac = response.numfac + 1;
+            } else {
+                alycoininvoice.numfac = 1;
+            }
+            alycoininvoice.iduser = iduser;
+            alycoininvoice.idcountry = idcountry;
+            alycoininvoice.date_in = new Date();
+            result = await queryRunner.manager.save(alycoininvoice);
+
+            detailalycoininvoice.idinvoice = result.id;
+            detailalycoininvoice.idpackage = idpackage;
+            detailalycoininvoice.total = amount;
+            await queryRunner.manager.save(detailalycoininvoice);
+
+            await queryRunner.commitTransaction();
+
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            queryRunner.release();
+            return result;
+        }
+
+
+    }
+
     async validateHash(hash: string, crypto: string, total: number) {
         let wallet = await this.walletservice.getWalletByCrypto(crypto);
         let arraymi = new Array();
@@ -164,7 +214,7 @@ export class SkiperWalletService {
     async getById(id: number): Promise<SkiperWallet> {
         try {
             let result = await this.repository.findOne(
-                {                    
+                {
                     relations: ["userID", "currencyID", "countryID"],
                     where: { id }
                 }

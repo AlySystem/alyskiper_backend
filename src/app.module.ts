@@ -63,6 +63,8 @@ import { SkiperUserInvoiceModule } from './mapping/skiper-user-invoice/skiper-us
 import { SkiperInvoiceDetailModule } from './mapping/skiper-invoice-detail/skiper-invoice-detail.module';
 import { WalletscompaniesModule } from './mapping/walletscompanies/walletscompanies.module';
 import { PackageAlycoinModule } from './mapping/package-alycoin/package-alycoin.module';
+import { AlycoinInvoicesModule } from './mapping/alycoin-invoices/alycoin-invoices.module';
+import { DetailAlycoinInvoiceModule } from './mapping/detail-alycoin-invoice/detail-alycoin-invoice.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -161,6 +163,8 @@ import { PackageAlycoinModule } from './mapping/package-alycoin/package-alycoin.
     SkiperInvoiceDetailModule,
     WalletscompaniesModule,
     PackageAlycoinModule,
+    AlycoinInvoicesModule,
+    DetailAlycoinInvoiceModule,
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,

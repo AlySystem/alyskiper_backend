@@ -14,8 +14,12 @@ export class SkiperWalletResolver {
     }
 
     @Query()
-    async getAmountByCrypto(@Args('crypto') crypto: string, @Args('amount') amount: number) {
-        return this.skiperWalletService.getAmountByCrypto(crypto, amount);
+    async getAmountByCrypto(@Args('crypto') crypto: string,
+        @Args('amount') amount: number,
+        @Args('iduser') iduser: number,
+        @Args('idcountry') idcountry: number,
+        @Args('idpackage') idpackage: number) {
+        return this.skiperWalletService.getAmountByCrypto(crypto, amount, iduser, idcountry, idpackage);
     }
 
 

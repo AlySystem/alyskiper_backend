@@ -1,0 +1,16 @@
+
+input AlycoinInvoicesInput {
+    id: Int
+    numfac: Int
+    iduser: Int
+    idcountry: Int
+    date_in: DateTime
+}
+
+type AlycoinInvoicesDto {
+    id: Int
+    numfac: Int
+    iduser: Int
+    idcountry: Int
+    date_in: DateTime
+}
