@@ -1,0 +1,17 @@
+input PackageAlycoinInput {
+    id: Int
+    name: String
+    price: Int
+    img_url: String
+}
+
+type PackageAlycoinInputDto {
+    id: Int
+    name: String
+    price: Int
+    img_url: String
+}
+
+type Query {
+    GetPackages:[PackageAlycoinInputDto!]!
+}

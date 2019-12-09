@@ -160,7 +160,7 @@ import { PackageAlycoinModule } from './mapping/package-alycoin/package-alycoin.
     SkiperUserInvoiceModule,
     SkiperInvoiceDetailModule,
     WalletscompaniesModule,
-    //PackageAlycoinModule,
+    PackageAlycoinModule,
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,

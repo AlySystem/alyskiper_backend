@@ -162,14 +162,21 @@ export class SkiperWalletService {
     }
 
     async getById(id: number): Promise<SkiperWallet> {
-        let result = await this.repository.findOne(
-            {
-                relations: ["userID", "currencyID", "countryID"],
-                where: { id }
-            }
-        );
-        result.amount.toFixed(2);
-        return result
+        try {
+            let result = await this.repository.findOne(
+                {                    
+                    relations: ["userID", "currencyID", "countryID"],
+                    where: { id }
+                }
+            );
+            return result;
+        } catch (error) {
+            const errorMessage = error.error_message || 'Error in the request';
+            throw new HttpException(
+                errorMessage,
+                HttpStatus.BAD_REQUEST
+            )
+        }
     }
 
     async registerSkiperwallet(input: SkiperWalletInput) {
