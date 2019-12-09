@@ -10,7 +10,8 @@ type SkiperAgentDto {
 
 type Query {
   agents: [SkiperAgentDto!]!
-  searchAgentsByUserId(idsponsor: Int!): [UserDto!]! 
+  searchAgentsBySponsorId(idsponsor: Int!): [UserDto!]! 
+  searchAgentByIdUser(iduser:Int!):SkiperAgentDto!
 }
 
 type Mutation{
@@ -28,6 +29,7 @@ input AgentDriveInput {
 
 input AgentInput {
     id: Int
+    iduser: Int
     state: Boolean #Activo
     identity: String
     create_at: DateTime

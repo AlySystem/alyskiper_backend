@@ -113,6 +113,21 @@ export class SkiperAgentService {
         }
     }
 
+    async searchAgentByIdUser(iduser: number) {
+        try {
+            return await this.agentRepository.findOneOrFail({
+                relations: ["user", "categoryAgent"],
+                where: { iduser: iduser }
+            });
+        } catch (error) {
+            const errorMessage = error.error_message || 'There is no agent for the requested user';
+            throw new HttpException(
+                errorMessage,
+                HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
 
     async register(agent: AgentInput) {
         try {
@@ -148,12 +163,12 @@ export class SkiperAgentService {
         INNER JOIN cities ci ON ref.idcity = ci.id
         WHERE u.id = 1
     */
-    async searchAgentsByUserId(iduser: number) {
+    async searchAgentsBySponsorId(iduser: number) {
         try {
             let result = await createQueryBuilder("User")
                 .innerJoinAndSelect("User.country", "Country")
                 .innerJoinAndSelect("User.city", "City")
-                .innerJoinAndSelect("User.skiperAgent","SkiperAgent")
+                .innerJoinAndSelect("User.skiperAgent", "SkiperAgent")
                 // .innerJoinAndSelect("SkiperAgent.user", "UserAgent")
                 .innerJoinAndSelect("SkiperAgent.categoryAgent", "CategoryAgent")
                 .where("User.sponsor_id = :iduser", { iduser })
@@ -167,6 +182,7 @@ export class SkiperAgentService {
     public static parseAgent(input: AgentInput, user?, category?): SkiperAgent {
         let agent: SkiperAgent = new SkiperAgent();
         agent.identity = input.identity;
+        agent.iduser = input.iduser;
         agent.state = input.state;
         agent.create_at = input.create_at;
         agent.user = user;

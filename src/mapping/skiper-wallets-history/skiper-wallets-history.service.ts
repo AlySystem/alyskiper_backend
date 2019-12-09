@@ -65,7 +65,7 @@ export class SkiperWalletsHistoryService {
             end.setDate(start.getDate() + 1);
             //Haciendo la busqueda
             result = await createQueryBuilder("SkiperWalletsHistory")
-                .select("IFNULL(SUM(SkiperWalletsHistory.amount), 0)", "ganancia")
+                .select("IFNULL(ROUND(SUM(SkiperWalletsHistory.amount),2), 0)", "ganancia")
                 .addSelect("COUNT(1)", "viajes")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
                 .where(`SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}'`, { fecha })
@@ -74,7 +74,7 @@ export class SkiperWalletsHistoryService {
                 .getRawOne();
         } else {
             result = await createQueryBuilder("SkiperWalletsHistory")
-                .select("IFNULL(SUM(SkiperWalletsHistory.amount), 0)", "ganancia")
+                .select("IFNULL(ROUND(SUM(SkiperWalletsHistory.amount),2), 0)", "ganancia")
                 .addSelect("COUNT(1)", "viajes")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
                 .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })

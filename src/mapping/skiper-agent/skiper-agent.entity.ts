@@ -11,6 +11,8 @@ export class SkiperAgent {
 
     @PrimaryGeneratedColumn() id: number;
 
+    @Column('Int') iduser: number;
+
     @IsNotEmpty() @IsBoolean()
     @Column('boolean', { nullable: false }) state: boolean;
 

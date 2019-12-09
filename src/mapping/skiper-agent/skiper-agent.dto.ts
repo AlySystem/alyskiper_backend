@@ -5,29 +5,31 @@ import { SkiperVehicleAgent } from "../skiper-vehicle-agent/skiper-vehicle-agent
 
 @ObjectType()
 export class SkiperAgentDto {
-    id:number;
-    state:boolean;
-    identity:string;
-    create_at:Date;
-    categoryAgent:categoryDto;
-    user:UserDto;
+    id: number;
+    iduser: number;
+    state: boolean;
+    identity: string;
+    create_at: Date;
+    categoryAgent: categoryDto;
+    user: UserDto;
     skiperVehicleAgent: SkiperVehicleAgent;
 }
 
 @InputType()
 export class AgentInput {
-    id:number;
-    state:boolean;
-    identity:string;
-    create_at:Date;
-    categoryAgent_id:number;
-    user_id:number;
+    id: number;
+    iduser: number;
+    state: boolean;
+    identity: string;
+    create_at: Date;
+    categoryAgent_id: number;
+    user_id: number;
 }
 
 @InputType()
 export class AgentDriveInput {
-    iddrive:number;
-    lat:number;
-    lng:number;
+    iddrive: number;
+    lat: number;
+    lng: number;
     distancia: number;
 }

@@ -17,8 +17,13 @@ export class SkiperAgentResolver {
     }
 
     @Query()
-    searchAgentsByUserId(@Args('idsponsor') iduser: number) {
-        return this.agentService.searchAgentsByUserId(iduser);
+    searchAgentsBySponsorId(@Args('idsponsor') iduser: number) {
+        return this.agentService.searchAgentsBySponsorId(iduser);
+    }
+
+    @Query()
+    searchAgentByIdUser(@Args('iduser') iduser: number) {
+        return this.agentService.searchAgentByIdUser(iduser);
     }
 
     @Mutation()

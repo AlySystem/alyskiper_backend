@@ -42,18 +42,134 @@ export class SkiperWalletService {
             console.log(error)
         }
     }
+    async validateHash(hash: string, crypto: string, total: number) {
+        let wallet = await this.walletservice.getWalletByCrypto(crypto);
+        let arraymi = new Array();
+        switch (crypto) {
+            case 'bitcoin':
+                let url = `https://api.blockcypher.com/v1/btc/main/txs/${hash}`;
+                let cryptodate = await fetch(url)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate.error) {
+                    cryptodate.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
+                    })
+
+                    if (cryptodate.addresses.includes(wallet.txt)) {
+                        if (arraymi.includes(total.toString())) {
+                            return 'exito'
+                        } else {
+                            return "you did not send the amount necessary to accept your transaction";
+                        }
+                    } else {
+                        return "We have not found our wallet in your transaction";
+                    }
+
+                } else {
+                    return "wrong hash check and try again"
+                }
+                break
+            case 'dash':
+                const url2 = `https://api.blockcypher.com/v1/dash/main/txs/${hash}`;
+                let cryptodate2 = await fetch(url2)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate2.error) {
+                    cryptodate2.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
+                    })
+
+                    if (cryptodate2.addresses.includes(wallet.txt)) {
+                        if (arraymi.includes(total.toString())) {
+                            return 'exito'
+                        } else {
+                            return "you did not send the amount necessary to accept your transaction";
+                        }
+                    } else {
+                        return "We have not found our wallet in your transaction";
+                    }
+
+                } else {
+                    return "wrong hash check and try again"
+                }
+                break
+            case 'litecoin':
+                const url3 = `https://api.blockcypher.com/v1/ltc/main/txs/${hash}`;
+                let cryptodate3 = await fetch(url3)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate3.error) {
+                    cryptodate3.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
+                    })
+
+                    if (cryptodate3.addresses.includes(wallet.txt)) {
+                        if (arraymi.includes(total.toString())) {
+                            return 'exito'
+                        } else {
+                            return "you did not send the amount necessary to accept your transaction";
+                        }
+                    } else {
+                        return "We have not found our wallet in your transaction";
+                    }
+
+                } else {
+                    return "wrong hash check and try again"
+                }
+                break
+            case 'ethereum':
+                const url4 = `https://api.blockcypher.com/v1/ltc/main/txs/${hash}`;
+                let cryptodate4 = await fetch(url4)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate4.error) {
+                    cryptodate4.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.000000000000000001).toFixed(8)).toString()))
+                    })
+                    var wcompanystring = wallet.txt
+                    var wcompay = wcompanystring.substr(2);
+                    if (cryptodate4.addresses.includes(wcompay.toLowerCase())) {
+                        if (arraymi.includes(total.toString())) {
+                            return 'exito'
+                        } else {
+                            return "you did not send the amount necessary to accept your transaction";
+                        }
+                    } else {
+                        return "We have not found our wallet in your transaction";
+                    }
+
+                } else {
+                    return "wrong hash check and try again"
+                }
+                break
+            default:
+                return "select an available method"
+        }
+
+    }
 
     async getAllByUserId(id: number): Promise<SkiperWallet[]> {
         return await this.repository.find({ relations: ["userID", "currencyID", "countryID"], where: { iduser: id } });
     }
 
     async getById(id: number): Promise<SkiperWallet> {
-        return await this.repository.findOne(
+        let result = await this.repository.findOne(
             {
                 relations: ["userID", "currencyID", "countryID"],
                 where: { id }
             }
         );
+        result.amount.toFixed(2);
+        return result
     }
 
     async registerSkiperwallet(input: SkiperWalletInput) {

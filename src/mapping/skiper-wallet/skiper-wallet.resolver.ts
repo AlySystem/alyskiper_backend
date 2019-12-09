@@ -18,6 +18,7 @@ export class SkiperWalletResolver {
         return this.skiperWalletService.getAmountByCrypto(crypto, amount);
     }
 
+
     @Query()
     getAllSkiperWalletsByUserId(@Args('iduser') iduser: number) {
         return this.skiperWalletService.getAllByUserId(iduser);
@@ -35,6 +36,10 @@ export class SkiperWalletResolver {
         } catch (error) {
             console.error(error);
         }
+    }
+    @Mutation()
+    validateHash(@Args('hash') hash: string, @Args('crypto') crypto: string, @Args('total') total: number) {
+        return this.skiperWalletService.validateHash(hash, crypto, total);
     }
 
     @Mutation()
