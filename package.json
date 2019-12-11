@@ -80,10 +80,6 @@
 		"tslint": "5.16.0",
 		"typescript": "3.4.3"
 	},
-	"engines": {
-		"node": "6.x",
-		"yarn": "1.x"
-	},
 	"jest": {
 		"moduleFileExtensions": [
 			"js",
