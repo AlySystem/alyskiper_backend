@@ -81,7 +81,7 @@
 		"typescript": "3.4.3"
 	},
 	"engines": {
-		"node": "11.x",
+		"node": "6.x",
 		"yarn": "1.x"
 	},
 	"jest": {
