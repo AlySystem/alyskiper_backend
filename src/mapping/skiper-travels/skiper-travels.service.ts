@@ -67,8 +67,7 @@ export class SkiperTravelsService {
             .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
-        //console.log(tarifas);
-
+        
         if (tarifas.length == 0)
             throw new HttpException(
                 "There are no rates available in this city",
