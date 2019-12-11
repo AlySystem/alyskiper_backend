@@ -9,11 +9,11 @@ export class SkiperTravelsResolver {
         private readonly SkiperTravelsTracingResolver: SkiperTravelsTracingResolver) { }
     // por ahora esto nada mas
     @Query()
-    async CalcularTarifa(@Args('idcountry') idcountry: number,
-        @Args('idcity') idcity: number,
+    async CalculateTariff(@Args('city') city: string,
         @Args('idcategoriaviaje') idcategoriaviaje: number,
-        @Args('date_init') date_init: Date, ) {
-        return await this.service.CalcularTarifa(idcountry, idcity, idcategoriaviaje, date_init);
+        @Args('lat') lat: number,
+        @Args('lng') lng: number) {
+        return await this.service.CalcularTarifa(city, idcategoriaviaje, lat, lng);
     }
 
     @Query()
@@ -27,8 +27,8 @@ export class SkiperTravelsResolver {
     }
 
     @Mutation()
-    async GenerateTravel(@Args('inputviaje') inputviaje: SkiperTravelsInput) {
-        var result = await this.service.GenerateTravel(inputviaje);
+    async GenerateTravel(@Args('inputviaje') inputviaje: SkiperTravelsInput, @Args('city') city: string) {
+        var result = await this.service.GenerateTravel(inputviaje, city);
         if (result != null) {
             let viaje = await this.service.GetTravelByID(result.id)
             await this.SkiperTravelsTracingResolver.NotificarCambiosEnViaje(viaje, viaje.skiperagent.id)

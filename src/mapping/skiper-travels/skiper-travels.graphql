@@ -54,12 +54,12 @@ type TravelTarifaDTo {
 
 type Query {
     getAllSkiperTravels: [SkiperTravelsDto!]
-    CalcularTarifa(idcountry: Int!, idcity: Int, idcategoriaviaje: Int!, date_init: DateTime!): TravelTarifaDTo!
+    CalculateTariff(city: String!, idcategoriaviaje: Int!, lat:Float!, lng:Float!): TravelTarifaDTo!
     getTravels(idagent: Int!):[SkiperTravelsDto!]
     getTravelByAgentId(idagent: Int!): SkiperTravelsDto!
     getTravelByUserId(iduser: Int!): SkiperTravelsDto
 }
 
 type Mutation {
-    GenerateTravel(inputviaje: SkiperTravelsInput!):SkiperTravelsDto!
+    GenerateTravel(inputviaje: SkiperTravelsInput!, city:String!):SkiperTravelsDto!
 }

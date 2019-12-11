@@ -10,7 +10,7 @@ import momentTimeZone from 'moment-timezone';
 import { UserService } from '../users/user.service';
 import { SkiperVehicle } from '../skiper-vehicle/skiper-vehicle.entity';
 import geotz from 'geo-tz';
-import { error } from 'util';
+import { Cities } from '../cities/cities.entity';
 
 @Injectable()
 export class SkiperTravelsService {
@@ -46,22 +46,33 @@ export class SkiperTravelsService {
         return parseInt(t[0], 10) * 1 + parseInt(t[1], 10) / 60;
     }
 
-    async CalcularTarifa(idcountry: number, idcity: number, idcategoriaviaje: number, date_init: Date): Promise<TravelTarifaDTo> {
+    async CalcularTarifa(city: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
         //console.log('entre aqui')
         //vamos a obtener el precio base
-        var time = this.timeToDecimal(moment(new Date(date_init)).format("HH:mm:ss"))
+        //vamos a obtener la zona horaria del solicitante del viaje
+        let citie = await this.getCountrieByName(city);
+        if (citie == undefined) {
+            throw new HttpException(
+                "There are no rates available in this city",
+                HttpStatus.BAD_REQUEST
+            )
+        }
+        var zonahoraria = geotz(lat, lng);
+        var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
+
+        var time = this.timeToDecimal(moment(new Date(fecha)).format("HH:mm:ss"))
         var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
             .innerJoinAndSelect("SkiperTariffs.driverShedule", "SkiperDriverSchedule")
-            .where("SkiperTariffs.idcountry = :idcountry", { idcountry })
-            .andWhere("SkiperTariffs.idcity = :idcity", { idcity })
+            .where("SkiperTariffs.idcountry = :idcountry", { idcountry: citie.country.id })
+            .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
-        console.log(tarifas);
+        //console.log(tarifas);
         // console.log('tarifas')
         // console.log(tarifas)
         if (tarifas.length == 0)
             throw new HttpException(
-                "No hay tarifa configurada para los parametros de entrada",
+                "There are no rates available in this city",
                 HttpStatus.BAD_REQUEST,
             );
 
@@ -77,7 +88,7 @@ export class SkiperTravelsService {
             (x.driverShedule.turn == "pm-am" &&
                 time >= 0 &&
                 this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
-        )[0]        
+        )[0]
         var travelTarifaDTo = new TravelTarifaDTo();
         travelTarifaDTo.pricebase = tarifa.price_base;
         travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
@@ -85,8 +96,20 @@ export class SkiperTravelsService {
         travelTarifaDTo.priceminute = tarifa.price_minute;
         return travelTarifaDTo
     }
+    async getCountrieByName(name: string) {
+        try {
+            return await getConnection().createQueryBuilder(Cities, "Cities")
+                .innerJoinAndSelect("Cities.country", "country")
+                .where("Cities.name = :name", { name: name }).getOne();
+        } catch (error) {
+            throw new HttpException(
+                "Error get country" + error,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+    }
 
-    async GenerateTravel(inputviaje: SkiperTravelsInput): Promise<SkiperTravels> {
+    async GenerateTravel(inputviaje: SkiperTravelsInput, city: string): Promise<SkiperTravels> {
         try {
             //vamos a obtener la zona horaria del solicitante del viaje
             var zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
@@ -111,8 +134,7 @@ export class SkiperTravelsService {
             //console.log(usuario.country.id)
             //console.log(usuario.city.id)
             //console.log(vehiculo.id_cat_travel)
-            var tarifa = await this.CalcularTarifa(usuario.country.id, usuario.city.id,
-                vehiculo.id_cat_travel, inputviaje.date_init)
+            var tarifa = await this.CalcularTarifa(city, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
             //console.log(tarifa);
             //console.log(inputviaje);
             var ValorXKm = tarifa.priceckilometer * inputviaje.distance
@@ -141,6 +163,8 @@ export class SkiperTravelsService {
             );
         }
     }
+
+
 
     async GetTravels(idagent: number): Promise<SkiperTravels[]> {
 
