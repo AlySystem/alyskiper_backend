@@ -17,6 +17,7 @@ export class SkiperTariffs {
     @Column('decimal', { nullable: false }) id_skiper_cat_travels: number;
     @Column('decimal', { nullable: false }) idcountry: number;
     @Column('decimal', { nullable: false }) idcity: number;
+    @Column('varchar', { nullable: false }) symbol: string;
 
     @ManyToOne(type => SkiperDriverSchedule, { nullable: false })
     @JoinColumn({ name: 'id_driver_schedule' }) driverShedule: SkiperDriverSchedule;

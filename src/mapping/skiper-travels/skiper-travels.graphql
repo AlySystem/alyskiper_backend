@@ -50,6 +50,7 @@ type TravelTarifaDTo {
     priceminute: Float
     priceckilometer: Float
     priceminimun: Float
+    symbol:String
 }
 
 type Query {
