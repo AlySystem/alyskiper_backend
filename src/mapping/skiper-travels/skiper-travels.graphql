@@ -55,7 +55,7 @@ type TravelTarifaDTo {
 
 type Query {
     getAllSkiperTravels: [SkiperTravelsDto!]
-    CalculateTariff(city: String!, idcategoriaviaje: Int!, lat:Float!, lng:Float!): TravelTarifaDTo!
+    CalculateTariff(ip: String!, idcategoriaviaje: Int!, lat:Float!, lng:Float!): TravelTarifaDTo!
     getTravels(idagent: Int!):[SkiperTravelsDto!]
     getTravelByAgentId(idagent: Int!): SkiperTravelsDto!
     getTravelByUserId(iduser: Int!): SkiperTravelsDto

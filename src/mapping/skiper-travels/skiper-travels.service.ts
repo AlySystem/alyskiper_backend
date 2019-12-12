@@ -56,48 +56,48 @@ export class SkiperTravelsService {
         //console.log('entre aqui')
         //vamos a obtener el precio base
         //vamos a obtener la zona horaria del solicitante del viaje
-        //let citie = await this.getCountrieByName(city);
-        /* if (citie == undefined) {
-             throw new HttpException(
-                 "There are no rates available in this city",
-                 HttpStatus.BAD_REQUEST
-             )
-         }*/
+        let citie = await this.getCountrieByName(code.city);
+        if (citie == undefined) {
+            throw new HttpException(
+                "There are no rates available in this city",
+                HttpStatus.BAD_REQUEST
+            )
+        }
 
-        /*  var time = this.timeToDecimal(moment(new Date(fecha)).format("HH:mm:ss"))
-          var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
-              .innerJoinAndSelect("SkiperTariffs.driverShedule", "SkiperDriverSchedule")
-              .where("SkiperTariffs.idcountry = :idcountry", { idcountry: citie.country.id })
-              .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
-              .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
-              .getMany()
-  
-          if (tarifas.length == 0)
-              throw new HttpException(
-                  "There are no rates available in this city",
-                  HttpStatus.BAD_REQUEST,
-              );
-  
-          var tarifa = tarifas.filter(x =>
-              (x.driverShedule.turn == "am-pm" &&
-                  this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
-                  this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
-              ||
-              (x.driverShedule.turn == "pm-am" &&
-                  this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
-                  time < 24)
-              ||
-              (x.driverShedule.turn == "pm-am" &&
-                  time >= 0 &&
-                  this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
-          )[0]
-         
-          travelTarifaDTo.pricebase = tarifa.price_base;
-          travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
-          travelTarifaDTo.priceminimun = tarifa.price_minimum;
-          travelTarifaDTo.priceminute = tarifa.price_minute;
-          travelTarifaDTo.symbol = tarifa.symbol;*/
+        var time = this.timeToDecimal(moment(new Date(fecha)).format("HH:mm:ss"))
+        var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
+            .innerJoinAndSelect("SkiperTariffs.driverShedule", "SkiperDriverSchedule")
+            .where("SkiperTariffs.idcountry = :idcountry", { idcountry: citie.country.id })
+            .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
+            .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
+            .getMany()
+
+        if (tarifas.length == 0)
+            throw new HttpException(
+                "There are no rates available in this city",
+                HttpStatus.BAD_REQUEST,
+            );
+
+        var tarifa = tarifas.filter(x =>
+            (x.driverShedule.turn == "am-pm" &&
+                this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
+                this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
+            ||
+            (x.driverShedule.turn == "pm-am" &&
+                this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
+                time < 24)
+            ||
+            (x.driverShedule.turn == "pm-am" &&
+                time >= 0 &&
+                this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
+        )[0]
         var travelTarifaDTo = new TravelTarifaDTo();
+        travelTarifaDTo.pricebase = tarifa.price_base;
+        travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
+        travelTarifaDTo.priceminimun = tarifa.price_minimum;
+        travelTarifaDTo.priceminute = tarifa.price_minute;
+        travelTarifaDTo.symbol = tarifa.symbol;
+
         return travelTarifaDTo
     }
     async getCountrieByName(name: string) {

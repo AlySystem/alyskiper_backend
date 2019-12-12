@@ -9,11 +9,11 @@ export class SkiperTravelsResolver {
         private readonly SkiperTravelsTracingResolver: SkiperTravelsTracingResolver) { }
     // por ahora esto nada mas
     @Query()
-    async CalculateTariff(@Args('city') city: string,
+    async CalculateTariff(@Args('ip') ip: string,
         @Args('idcategoriaviaje') idcategoriaviaje: number,
         @Args('lat') lat: number,
         @Args('lng') lng: number) {
-        return await this.service.CalcularTarifa(city, idcategoriaviaje, lat, lng);
+        return await this.service.CalcularTarifa(ip, idcategoriaviaje, lat, lng);
     }
 
     @Query()
