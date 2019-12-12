@@ -1,6 +1,6 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getConnection, createQueryBuilder } from 'typeorm';
+import { Repository, getConnection, createQueryBuilder, QueryBuilder } from 'typeorm';
 import { SkiperWallet } from './skiper-wallet.entity';
 import { SkiperWalletInput } from './skiper-wallet.dto';
 import { SkiperWalletsHistory } from '../skiper-wallets-history/skiper-wallets-history.entity';
@@ -10,6 +10,10 @@ import { AlycoinInvoices } from '../alycoin-invoices/alycoin-invoices.entity';
 import { DetailAlycoinIinvoice } from '../detail-alycoin-invoice/detail-alycoin-invoice.entity';
 import { UserService } from '../users/user.service';
 import { User } from '../users/user.entity';
+import { PaymentMethods } from '../payment-methods/payment-methods.entity';
+import { Countrie } from '../countries/countrie.entity';
+import geotz from 'geo-tz';
+import geoip_lite from 'geoip-lite';
 
 @Injectable()
 export class SkiperWalletService {
@@ -92,8 +96,9 @@ export class SkiperWalletService {
 
     }
 
-    async validateHash(hash: string, crypto: string, total: number) {
+    async validateHash(hash: string, crypto: string, total_real: number, total_crypto: number, lat: number, long: number, ip: string, email: string) {
         let wallet = await this.walletservice.getWalletByCrypto(crypto);
+        let paymethod = await this.getPaymentMethodBYName();
         let arraymi = new Array();
         switch (crypto) {
             case 'bitcoin':
@@ -109,8 +114,28 @@ export class SkiperWalletService {
                     })
 
                     if (cryptodate.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total.toString())) {
-                            return 'exito'
+                        if (arraymi.includes(total_crypto.toString())) {
+                            try {
+                                let code = await geoip_lite.lookup(ip);
+                                let wallet = await this.getWalletsByEmailUser(email);
+                                if (wallet != undefined) {
+                                    let exchance = await this.getExchange(code.country);
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance.exchange).toFixed(2);
+                                    console.log(exchanging)
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                }
+                                throw new HttpException(
+                                    `error user is not exist `,
+                                    HttpStatus.BAD_REQUEST
+                                )
+
+                            } catch (error) {
+                                throw new HttpException(
+                                    `error system ${error}`,
+                                    HttpStatus.BAD_REQUEST
+                                )
+                            }
                         } else {
                             return "you did not send the amount necessary to accept your transaction";
                         }
@@ -135,8 +160,28 @@ export class SkiperWalletService {
                     })
 
                     if (cryptodate2.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total.toString())) {
-                            return 'exito'
+                        if (arraymi.includes(total_crypto.toString())) {
+                            try {
+                                let code = await geoip_lite.lookup(ip);
+                                let wallet = await this.getWalletsByEmailUser(email);
+                                if (wallet != undefined) {
+                                    let exchance = await this.getExchange(code.country);
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance.exchange).toFixed(2);
+                                    console.log(exchanging)
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                }
+                                throw new HttpException(
+                                    `error user is not exist `,
+                                    HttpStatus.BAD_REQUEST
+                                )
+
+                            } catch (error) {
+                                throw new HttpException(
+                                    `error system ${error}`,
+                                    HttpStatus.BAD_REQUEST
+                                )
+                            }
                         } else {
                             return "you did not send the amount necessary to accept your transaction";
                         }
@@ -161,8 +206,28 @@ export class SkiperWalletService {
                     })
 
                     if (cryptodate3.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total.toString())) {
-                            return 'exito'
+                        if (arraymi.includes(total_crypto.toString())) {
+                            try {
+                                let code = await geoip_lite.lookup(ip);
+                                let wallet = await this.getWalletsByEmailUser(email);
+                                if (wallet != undefined) {
+                                    let exchance = await this.getExchange(code.country);
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance.exchange).toFixed(2);
+                                    console.log(exchanging)
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                }
+                                throw new HttpException(
+                                    `error user is not exist `,
+                                    HttpStatus.BAD_REQUEST
+                                )
+
+                            } catch (error) {
+                                throw new HttpException(
+                                    `error system ${error}`,
+                                    HttpStatus.BAD_REQUEST
+                                )
+                            }
                         } else {
                             return "you did not send the amount necessary to accept your transaction";
                         }
@@ -188,8 +253,28 @@ export class SkiperWalletService {
                     var wcompanystring = wallet.txt
                     var wcompay = wcompanystring.substr(2);
                     if (cryptodate4.addresses.includes(wcompay.toLowerCase())) {
-                        if (arraymi.includes(total.toString())) {
-                            return 'exito'
+                        if (arraymi.includes(total_crypto.toString())) {
+                            try {
+                                let code = await geoip_lite.lookup(ip);
+                                let wallet = await this.getWalletsByEmailUser(email);
+                                if (wallet != undefined) {
+                                    let exchance = await this.getExchange(code.country);
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance.exchange).toFixed(2);
+                                    console.log(exchanging)
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                }
+                                throw new HttpException(
+                                    `error user is not exist `,
+                                    HttpStatus.BAD_REQUEST
+                                )
+
+                            } catch (error) {
+                                throw new HttpException(
+                                    `error system ${error}`,
+                                    HttpStatus.BAD_REQUEST
+                                )
+                            }
                         } else {
                             return "you did not send the amount necessary to accept your transaction";
                         }
@@ -205,6 +290,36 @@ export class SkiperWalletService {
                 return "select an available method"
         }
 
+    }
+
+    private async getTransactionType(name: string): Promise<TransactionType> {
+        return await createQueryBuilder(TransactionType, "TransactionType")
+            .where("TransactionType.name = :name", { name })
+            .getOne();
+    }
+
+    async getExchange(iso: string) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+            return queryRunner.manager.findOneOrFail(Countrie, { where: { iso } })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async getPaymentMethodBYName() {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+            return await queryRunner.manager.findOneOrFail(PaymentMethods, { where: { name: 'Crypto Currencies' } });
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     async getAllByUserId(id: number): Promise<SkiperWallet[]> {
@@ -226,6 +341,17 @@ export class SkiperWalletService {
                 errorMessage,
                 HttpStatus.BAD_REQUEST
             )
+        }
+    }
+
+    async getWalletsByEmailUser(email: string) {
+        try {
+            return await createQueryBuilder(SkiperWallet, "SkiperWallet")
+                .leftJoin("SkiperWallet.userID", "userID")
+                .where("userID.email= :email", { email: email })
+                .getOne();
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -272,7 +398,7 @@ export class SkiperWalletService {
             }
             return result;
         } catch (error) {
-            throw new HttpException('La wallet a buscar no existe', HttpStatus.BAD_REQUEST);
+            throw new HttpException('wallet is missing', HttpStatus.BAD_REQUEST);
         }
     }
 

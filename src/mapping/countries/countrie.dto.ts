@@ -10,6 +10,7 @@ export class countrieDto {
     numcode: number;
     phonecode: number;
     tax: number;
+    exchange: number;
     flag: string;
 
 }

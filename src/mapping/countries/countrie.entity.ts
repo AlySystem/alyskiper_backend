@@ -26,6 +26,7 @@ export class Countrie {
 
     @Column({ type: "int", nullable: false }) tax: number;
 
+    @Column('decimal', { nullable: false }) exchange: number;
 
     @OneToMany(type => Cities, x => x.country)
     cities: Cities[];
