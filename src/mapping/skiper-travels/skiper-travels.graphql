@@ -62,5 +62,5 @@ type Query {
 }
 
 type Mutation {
-    GenerateTravel(inputviaje: SkiperTravelsInput!, city:String!):SkiperTravelsDto!
+    GenerateTravel(inputviaje: SkiperTravelsInput!, ip:String!):SkiperTravelsDto!
 }

@@ -27,8 +27,8 @@ export class SkiperTravelsResolver {
     }
 
     @Mutation()
-    async GenerateTravel(@Args('inputviaje') inputviaje: SkiperTravelsInput, @Args('city') city: string) {
-        var result = await this.service.GenerateTravel(inputviaje, city);
+    async GenerateTravel(@Args('inputviaje') inputviaje: SkiperTravelsInput, @Args('ip') ip: string) {
+        var result = await this.service.GenerateTravel(inputviaje, ip);
         if (result != null) {
             let viaje = await this.service.GetTravelByID(result.id)
             await this.SkiperTravelsTracingResolver.NotificarCambiosEnViaje(viaje, viaje.skiperagent.id)
