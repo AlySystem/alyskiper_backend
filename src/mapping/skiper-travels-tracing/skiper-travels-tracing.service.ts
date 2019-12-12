@@ -19,6 +19,8 @@ import { ExecutiveCommissions } from '../executive-commissions/executive-commiss
 import { SkiperUserInvoice } from '../skiper-user-invoice/skiper-user-invoice.entity';
 import { SkiperInvoiceDetail } from '../skiper-invoice-detail/skiper-invoice-detail.entity';
 import { UserInput } from '../users/user.dto';
+
+
 @Injectable()
 export class SkiperTravelsTracingService {
     constructor(
@@ -49,7 +51,12 @@ export class SkiperTravelsTracingService {
         });
     }
 
-    async registerTravelsTracing(input: SkiperTravelsTracingInput): Promise<SkiperTravelsTracing> {
+    async registerTravelsTracing(input: SkiperTravelsTracingInput, lat_final_seggested: number, lng_final_seggested: number, address_suggested: string, distance: number, total: number, duration: number): Promise<SkiperTravelsTracing> {
+        const connection = getConnection();
+        const queryRunner = connection.createQueryRunner();
+
+        //Iniciando la Transaccion
+        await queryRunner.startTransaction();
         let verifyStatus = await this.verifyStatusByCode(input.idtravelstatus);
         if (verifyStatus) {
             let result = await this.verifyTravelTracing(input.idtravel, input.idtravelstatus);
@@ -68,8 +75,8 @@ export class SkiperTravelsTracingService {
             throw new HttpException(
                 "El viaje no existe",
                 HttpStatus.BAD_REQUEST,
-            );        
-        if (travel.skiperTravelsTracing[0].travelstatus.id != estado.prevstatus && estado.prevstatus != 8)
+            );
+        if (travel.skiperTravelsTracing[0].travelstatus.id != estado.prevstatus && estado.prevstatus != 8 && estado.prevstatus != 9)
             throw new HttpException(
                 estado.errorstatusprev,
                 HttpStatus.BAD_REQUEST,
@@ -80,8 +87,22 @@ export class SkiperTravelsTracingService {
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
         input.fecha = fecha;
         let skiper_travel_tracing = this.parseSkiperTravelTracing(input, estado.id);
+        let updateTravel;
+
         if (estado.bgenerafactura) {
-            result = await this.transactionPayment(skiper_travel_tracing, travel);
+            if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
+                let getskipertavels = await queryRunner.manager.findOneOrFail(SkiperTravels, { where: { id: travel.id } });
+                getskipertavels.lat_final_seggested = lat_final_seggested;
+                getskipertavels.lng_final_seggested = lng_final_seggested;
+                getskipertavels.address_suggested = address_suggested;
+                getskipertavels.distance = distance;
+                getskipertavels.total = total;
+                getskipertavels.duration = duration;
+                console.log(getskipertavels)
+              updateTravel = await queryRunner.manager.save(getskipertavels);
+              await queryRunner.commitTransaction();
+            }
+            result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
             result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
             result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
             return result;

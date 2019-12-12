@@ -20,7 +20,8 @@ type Query {
 }
 
 type Mutation {
-    registerTravelsTracing(input: SkiperTravelsTracingInput!): SkiperTravelsTracingDto!
+    registerTravelsTracing(input: SkiperTravelsTracingInput!, lat_final_seggested:Float, lng_final_seggested:Float,address_suggested:String, distance:Float,total:Float, duration:Float ): SkiperTravelsTracingDto!
+    
 }
 
 type Subscription {

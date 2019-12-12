@@ -21,8 +21,14 @@ export class SkiperTravelsTracingResolver {
     }
 
     @Mutation()
-    async registerTravelsTracing(@Args('input') input: SkiperTravelsTracingInput) {
-        var x = await this.service.registerTravelsTracing(input)
+    async registerTravelsTracing(@Args('input') input: SkiperTravelsTracingInput,
+        @Args('lat_final_seggested') lat_final_seggested: number,
+        @Args('lng_final_seggested') lng_final_seggested: number,
+        @Args('address_suggested') address_suggested: string,
+        @Args('distance') distance: number,
+        @Args('total') total: number,
+        @Args('duration') duration: number) {
+        var x = await this.service.registerTravelsTracing(input, lat_final_seggested, lng_final_seggested, address_suggested, distance, total, duration)
         var viaje = await this.f.GetTravelByID(x.idtravel)
         await this.NotificarCambiosEnViaje(viaje, viaje.skiperagent.id)
         await this.NotificarCambiosEnViaje(viaje, viaje.idusers)
