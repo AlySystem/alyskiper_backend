@@ -11,6 +11,7 @@ import { UserService } from '../users/user.service';
 import { SkiperVehicle } from '../skiper-vehicle/skiper-vehicle.entity';
 import geotz from 'geo-tz';
 import { Cities } from '../cities/cities.entity';
+import geoip_lite from 'geoip-lite';
 
 @Injectable()
 export class SkiperTravelsService {
@@ -46,53 +47,57 @@ export class SkiperTravelsService {
         return parseInt(t[0], 10) * 1 + parseInt(t[1], 10) / 60;
     }
 
-    async CalcularTarifa(city: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
+    async CalcularTarifa(ip: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
+
+        let code = await geoip_lite.lookup(ip)
+        var zonahoraria = geotz(lat, lng);
+        var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
+        console.log(code)
         //console.log('entre aqui')
         //vamos a obtener el precio base
         //vamos a obtener la zona horaria del solicitante del viaje
-        let citie = await this.getCountrieByName(city);
-        if (citie == undefined) {
-            throw new HttpException(
-                "There are no rates available in this city",
-                HttpStatus.BAD_REQUEST
-            )
-        }
-        var zonahoraria = geotz(lat, lng);
-        var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
+        //let citie = await this.getCountrieByName(city);
+        /* if (citie == undefined) {
+             throw new HttpException(
+                 "There are no rates available in this city",
+                 HttpStatus.BAD_REQUEST
+             )
+         }*/
 
-        var time = this.timeToDecimal(moment(new Date(fecha)).format("HH:mm:ss"))
-        var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
-            .innerJoinAndSelect("SkiperTariffs.driverShedule", "SkiperDriverSchedule")
-            .where("SkiperTariffs.idcountry = :idcountry", { idcountry: citie.country.id })
-            .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
-            .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
-            .getMany()
-
-        if (tarifas.length == 0)
-            throw new HttpException(
-                "There are no rates available in this city",
-                HttpStatus.BAD_REQUEST,
-            );
-
-        var tarifa = tarifas.filter(x =>
-            (x.driverShedule.turn == "am-pm" &&
-                this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
-                this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
-            ||
-            (x.driverShedule.turn == "pm-am" &&
-                this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
-                time < 24)
-            ||
-            (x.driverShedule.turn == "pm-am" &&
-                time >= 0 &&
-                this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
-        )[0]
+        /*  var time = this.timeToDecimal(moment(new Date(fecha)).format("HH:mm:ss"))
+          var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
+              .innerJoinAndSelect("SkiperTariffs.driverShedule", "SkiperDriverSchedule")
+              .where("SkiperTariffs.idcountry = :idcountry", { idcountry: citie.country.id })
+              .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
+              .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
+              .getMany()
+  
+          if (tarifas.length == 0)
+              throw new HttpException(
+                  "There are no rates available in this city",
+                  HttpStatus.BAD_REQUEST,
+              );
+  
+          var tarifa = tarifas.filter(x =>
+              (x.driverShedule.turn == "am-pm" &&
+                  this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
+                  this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
+              ||
+              (x.driverShedule.turn == "pm-am" &&
+                  this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&
+                  time < 24)
+              ||
+              (x.driverShedule.turn == "pm-am" &&
+                  time >= 0 &&
+                  this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
+          )[0]
+         
+          travelTarifaDTo.pricebase = tarifa.price_base;
+          travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
+          travelTarifaDTo.priceminimun = tarifa.price_minimum;
+          travelTarifaDTo.priceminute = tarifa.price_minute;
+          travelTarifaDTo.symbol = tarifa.symbol;*/
         var travelTarifaDTo = new TravelTarifaDTo();
-        travelTarifaDTo.pricebase = tarifa.price_base;
-        travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
-        travelTarifaDTo.priceminimun = tarifa.price_minimum;
-        travelTarifaDTo.priceminute = tarifa.price_minute;
-        travelTarifaDTo.symbol = tarifa.symbol;
         return travelTarifaDTo
     }
     async getCountrieByName(name: string) {
