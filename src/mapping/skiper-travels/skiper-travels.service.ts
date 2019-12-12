@@ -67,7 +67,7 @@ export class SkiperTravelsService {
             .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
-        
+
         if (tarifas.length == 0)
             throw new HttpException(
                 "There are no rates available in this city",
@@ -92,6 +92,7 @@ export class SkiperTravelsService {
         travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
         travelTarifaDTo.priceminimun = tarifa.price_minimum;
         travelTarifaDTo.priceminute = tarifa.price_minute;
+        travelTarifaDTo.symbol = tarifa.symbol;
         return travelTarifaDTo
     }
     async getCountrieByName(name: string) {
