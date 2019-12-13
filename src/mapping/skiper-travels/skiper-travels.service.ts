@@ -12,6 +12,7 @@ import { SkiperVehicle } from '../skiper-vehicle/skiper-vehicle.entity';
 import geotz from 'geo-tz';
 import { Cities } from '../cities/cities.entity';
 import geoip_lite from 'geoip-lite';
+import geoip_lite2 from 'geoip-lite';
 
 @Injectable()
 export class SkiperTravelsService {
@@ -48,11 +49,9 @@ export class SkiperTravelsService {
     }
 
     async CalcularTarifa(ip: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
-
-        let code = await geoip_lite.lookup(ip)
+        var code = await geoip_lite.lookup(ip);       
         var zonahoraria = geotz(lat, lng);
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
-        console.log(code)
         //console.log('entre aqui')
         //vamos a obtener el precio base
         //vamos a obtener la zona horaria del solicitante del viaje
@@ -115,7 +114,7 @@ export class SkiperTravelsService {
 
     async GenerateTravel(inputviaje: SkiperTravelsInput, ip: string): Promise<SkiperTravels> {
         try {
-            let code = await geoip_lite.lookup(ip)
+            var code = await geoip_lite.lookup(ip)            
             //vamos a obtener la zona horaria del solicitante del viaje
             var zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
             var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
@@ -139,7 +138,8 @@ export class SkiperTravelsService {
             //console.log(usuario.country.id)
             //console.log(usuario.city.id)
             //console.log(vehiculo.id_cat_travel)
-            var tarifa = await this.CalcularTarifa(code.city, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
+            var tarifa = await this.CalcularTarifa(ip, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
+            console.log(tarifa)
             //console.log(tarifa);
             //console.log(inputviaje);
             var ValorXKm = tarifa.priceckilometer * inputviaje.distance
