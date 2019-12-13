@@ -140,6 +140,7 @@ export class UserService {
             console.log(error)
         }
     }
+    //actualizo
     async updatePasswordByEmail(input: ChangePasswordEmailInput): Promise<number> {
         try {
             if (parseInt(input.password) != parseInt(input.repeatpassword)) {
