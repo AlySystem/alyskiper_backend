@@ -108,7 +108,7 @@ import { DetailAlycoinInvoiceModule } from './mapping/detail-alycoin-invoice/det
       type: 'mysql',
       // host: gpcloud,
       host: process.env.DATABASE_HOST,
-      maxQueryExecutionTime: 1000,
+      //maxQueryExecutionTime: 1000,
       //extra: { socketPath: "/cloudsql/backend-alysystem:us-west2:alysystem-db" },
       port: Number.parseFloat(process.env.DATABASE_PORT),
       username: process.env.DATABASE_USERNAME,
