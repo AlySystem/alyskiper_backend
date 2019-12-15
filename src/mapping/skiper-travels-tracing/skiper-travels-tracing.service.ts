@@ -86,8 +86,8 @@ export class SkiperTravelsTracingService {
 
         if (estado.bgenerafactura) {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
-                const connection = getConnection();
-                const queryRunner = connection.createQueryRunner();
+                let connection = getConnection();
+                let queryRunner = connection.createQueryRunner();
 
                 //Iniciando la Transaccion
                 await queryRunner.startTransaction();
@@ -101,14 +101,13 @@ export class SkiperTravelsTracingService {
                     getskipertavels.duration = duration;
                     console.log(getskipertavels)
                     updateTravel = await queryRunner.manager.save(getskipertavels);
+                    console.log(updateTravel)
                     await queryRunner.commitTransaction();
                 } catch (error) {
                     await queryRunner.rollbackTransaction();
                 } finally {
                     await queryRunner.release();
-                    return result;
                 }
-                //prueb
             }
             result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
             result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
