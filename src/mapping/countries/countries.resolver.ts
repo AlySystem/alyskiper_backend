@@ -13,10 +13,10 @@ export class CountriesResolver {
     }
 
     @Query()
-    getAllCitiesByCountryId(@Args('id') id: number){
+    getAllCitiesByCountryId(@Args('id') id: number) {
         return this.countrieService.getAllCitiesByCountryId(id);
     }
-
+    //CAMBIO
     @Query(() => countrieDto)
     async searchCountrie(@Args('id') id: number) {
         return await this.countrieService.getById(id);
