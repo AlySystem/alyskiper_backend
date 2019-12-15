@@ -107,8 +107,11 @@ import { DetailAlycoinInvoiceModule } from './mapping/detail-alycoin-invoice/det
     TypeOrmModule.forRoot({
       type: 'mysql',
       // host: gpcloud,
-      host: process.env.DATABASE_HOST,     
-      //extra: { socketPath: "/cloudsql/backend-alysystem:us-west2:alysystem-db" },
+      host: process.env.DATABASE_HOST,
+      extra: {
+        //socketPath: "/cloudsql/backend-alysystem:us-west2:alysystem-db" 
+        connectionLimit: 50,
+      },
       port: Number.parseFloat(process.env.DATABASE_PORT),
       username: process.env.DATABASE_USERNAME,
       password: process.env.DATABASE_PASSWORD,
