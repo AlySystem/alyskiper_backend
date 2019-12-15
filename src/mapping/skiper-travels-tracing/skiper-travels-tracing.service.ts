@@ -52,11 +52,6 @@ export class SkiperTravelsTracingService {
     }
 
     async registerTravelsTracing(input: SkiperTravelsTracingInput, lat_final_seggested: number, lng_final_seggested: number, address_suggested: string, distance: number, total: number, duration: number): Promise<SkiperTravelsTracing> {
-        const connection = getConnection();
-        const queryRunner = connection.createQueryRunner();
-
-        //Iniciando la Transaccion
-        await queryRunner.startTransaction();
         let verifyStatus = await this.verifyStatusByCode(input.idtravelstatus);
         if (verifyStatus) {
             let result = await this.verifyTravelTracing(input.idtravel, input.idtravelstatus);
@@ -91,6 +86,11 @@ export class SkiperTravelsTracingService {
 
         if (estado.bgenerafactura) {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
+                const connection = getConnection();
+                const queryRunner = connection.createQueryRunner();
+
+                //Iniciando la Transaccion
+                await queryRunner.startTransaction();
                 try {
                     let getskipertavels = await queryRunner.manager.findOneOrFail(SkiperTravels, { where: { id: travel.id } });
                     getskipertavels.lat_final_seggested = lat_final_seggested;
