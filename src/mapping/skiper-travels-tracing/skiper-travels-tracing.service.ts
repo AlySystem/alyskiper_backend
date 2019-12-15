@@ -108,6 +108,7 @@ export class SkiperTravelsTracingService {
                     await queryRunner.release();
                     return result;
                 }
+                //prueb
             }
             result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
             result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
