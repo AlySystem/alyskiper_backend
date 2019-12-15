@@ -16,7 +16,7 @@ export class CountriesResolver {
     getAllCitiesByCountryId(@Args('id') id: number) {
         return this.countrieService.getAllCitiesByCountryId(id);
     }
-    //CAMBIO
+    //CAMBIO ppppp
     @Query(() => countrieDto)
     async searchCountrie(@Args('id') id: number) {
         return await this.countrieService.getById(id);
