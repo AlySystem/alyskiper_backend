@@ -91,16 +91,23 @@ export class SkiperTravelsTracingService {
 
         if (estado.bgenerafactura) {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
-                let getskipertavels = await queryRunner.manager.findOneOrFail(SkiperTravels, { where: { id: travel.id } });
-                getskipertavels.lat_final_seggested = lat_final_seggested;
-                getskipertavels.lng_final_seggested = lng_final_seggested;
-                getskipertavels.address_suggested = address_suggested;
-                getskipertavels.distance = distance;
-                getskipertavels.total = total;
-                getskipertavels.duration = duration;
-                console.log(getskipertavels)
-              updateTravel = await queryRunner.manager.save(getskipertavels);
-              await queryRunner.commitTransaction();
+                try {
+                    let getskipertavels = await queryRunner.manager.findOneOrFail(SkiperTravels, { where: { id: travel.id } });
+                    getskipertavels.lat_final_seggested = lat_final_seggested;
+                    getskipertavels.lng_final_seggested = lng_final_seggested;
+                    getskipertavels.address_suggested = address_suggested;
+                    getskipertavels.distance = distance;
+                    getskipertavels.total = total;
+                    getskipertavels.duration = duration;
+                    console.log(getskipertavels)
+                    updateTravel = await queryRunner.manager.save(getskipertavels);
+                    await queryRunner.commitTransaction();
+                } catch (error) {
+                    await queryRunner.rollbackTransaction();
+                } finally {
+                    await queryRunner.release();
+                    return result;
+                }
             }
             result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
             result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
