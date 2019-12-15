@@ -8,7 +8,7 @@ export class CountrieService {
 
     constructor(@InjectRepository(Countrie) private countrieRepository: Repository<Countrie>) { }
 
-    //Obtener unicamente los nombres y los codigos de telefono de los paises
+    //Obtener unicamente los nombres y los codigos de telefono de los paises siiii
     async getAllCountries(): Promise<Countrie[]> {
         return await this.countrieRepository.find();
     }
