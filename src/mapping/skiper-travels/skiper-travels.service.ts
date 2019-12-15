@@ -12,7 +12,7 @@ import { SkiperVehicle } from '../skiper-vehicle/skiper-vehicle.entity';
 import geotz from 'geo-tz';
 import { Cities } from '../cities/cities.entity';
 import geoip_lite from 'geoip-lite';
-import geoip_lite2 from 'geoip-lite';
+import node_geocoder from 'node-geocoder';
 
 @Injectable()
 export class SkiperTravelsService {
@@ -49,13 +49,24 @@ export class SkiperTravelsService {
     }
 
     async CalcularTarifa(ip: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
-        var code = await geoip_lite.lookup(ip);       
+        var code = await geoip_lite.lookup(ip);
+        var options = {
+            provider: 'google',
+            httpAdapter: 'https', // Default
+            apiKey: 'AIzaSyDRc0P0ozp5BU98gDG06OXbFaGk3OiOYxw', // for Mapquest, OpenCage, Google Premier
+            formatter: 'json' // 'gpx', 'string', ...
+        };
+
+        var geocoder = node_geocoder(options);
+        var datecountry = await geocoder.reverse({ lat: lat, lon: lng })
+        console.log(datecountry)
         var zonahoraria = geotz(lat, lng);
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
         //console.log('entre aqui')
         //vamos a obtener el precio base
         //vamos a obtener la zona horaria del solicitante del viaje
-        let citie = await this.getCountrieByName(code.city);
+        let citie = await this.getCountrieByName(datecountry[0].city);
+
         if (citie == undefined) {
             throw new HttpException(
                 "There are no rates available in this city",
@@ -114,7 +125,7 @@ export class SkiperTravelsService {
 
     async GenerateTravel(inputviaje: SkiperTravelsInput, ip: string): Promise<SkiperTravels> {
         try {
-            var code = await geoip_lite.lookup(ip)            
+            var code = await geoip_lite.lookup(ip)
             //vamos a obtener la zona horaria del solicitante del viaje
             var zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
             var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
