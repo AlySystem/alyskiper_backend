@@ -62,10 +62,9 @@ export class SkiperTravelsTracingService {
                 );
             }
         }
-        //vamos a validar que el estado exista con el estado previo.
-        let estado = await this.skiperTravelsStatusService.getByStatusCode(input.idtravelstatus)
-        let travel = await this.skiperTravelsService.GetTravelByID(input.idtravel)
-        console.log(travel.skiperTravelsTracing[0].travelstatus.id, " ", estado.prevstatus)
+        //vamos a validar que el estado exista con el estado previo.      
+        let estado = await this.skiperTravelsStatusService.getByStatusCode(input.idtravelstatus);
+        let travel = await this.skiperTravelsService.GetTravelByID(input.idtravel);
         if (travel == undefined)
             throw new HttpException(
                 "El viaje no existe",
@@ -83,7 +82,6 @@ export class SkiperTravelsTracingService {
         input.fecha = fecha;
         let skiper_travel_tracing = this.parseSkiperTravelTracing(input, estado.id);
         let updateTravel;
-
         if (estado.bgenerafactura) {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
                 let connection = getConnection();
@@ -103,16 +101,30 @@ export class SkiperTravelsTracingService {
                     updateTravel = await queryRunner.manager.save(getskipertavels);
                     console.log(updateTravel)
                     await queryRunner.commitTransaction();
+
+                    result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
+                    result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
+                    result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
+
+                    return result;
                 } catch (error) {
                     await queryRunner.rollbackTransaction();
                 } finally {
                     await queryRunner.release();
                 }
             }
-            result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
-            result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
-            result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
-            return result;
+
+            try {
+                result = await this.transactionPayment(skiper_travel_tracing, travel);
+                console.log(result)
+                result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
+                result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
+
+                return result;
+            } catch (error) {
+                console.log(error)
+            }
+
         } else {
             result = await this.repository.save(skiper_travel_tracing);
             result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
