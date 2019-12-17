@@ -38,6 +38,11 @@ export class SkiperAgentResolver {
         return this.agentService.register(input);
     }
 
+    @Mutation()
+    async deleteAgent(@Args('idagent') idagent: number) {
+        return this.agentService.delete(idagent);
+    }
+
     @UseGuards(new AuthGuard())
     @Mutation()
     async updateAgent(@Args('input') input: AgentInput) {

@@ -14,10 +14,11 @@ type Query {
   searchAgentByIdUser(iduser:Int!):SkiperAgentDto!
 }
 
-type Mutation{
+type Mutation {
   registerAgent(input: AgentInput!): SkiperAgentDto!
   updateAgent(input: AgentInput!): SkiperAgentDto!
   ObtenerDriveCercano(lat: Float!, lng: Float!, inputdrive: [AgentDriveInput!]!):Int
+  deleteAgent(idagent: Int!):String
 }
 
 input AgentDriveInput {

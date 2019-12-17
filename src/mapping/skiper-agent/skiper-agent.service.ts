@@ -144,6 +144,20 @@ export class SkiperAgentService {
         }
     }
 
+    async delete(idagent: number) {
+        try {
+            let result = await this.agentRepository.findOne(idagent);
+            await this.agentRepository.remove(result);
+            return "Agent remove successfully";
+        } catch (error) {
+            const errorMessage = error.error_message || 'error transaction or agent cannot be removed';
+            throw new HttpException(
+                errorMessage,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+    }
+
     async update(agent: AgentInput) {
         try {
             let agentUpdate = await this.getById(agent.id);
