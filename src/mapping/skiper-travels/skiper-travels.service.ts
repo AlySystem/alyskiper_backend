@@ -13,6 +13,8 @@ import geotz from 'geo-tz';
 import { Cities } from '../cities/cities.entity';
 import geoip_lite from 'geoip-lite';
 import node_geocoder from 'node-geocoder';
+import { Countrie } from '../countries/countrie.entity';
+require('isomorphic-fetch');
 
 @Injectable()
 export class SkiperTravelsService {
@@ -49,27 +51,45 @@ export class SkiperTravelsService {
     }
 
     async CalcularTarifa(ip: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
-        var code = await geoip_lite.lookup(ip);
+        //var code = await geoip_lite.lookup(ip);
+        // esto lo use para conseguir la ciudad por lat y long pero no es preciso
         var options = {
             provider: 'google',
             httpAdapter: 'https', // Default
             apiKey: 'AIzaSyDRc0P0ozp5BU98gDG06OXbFaGk3OiOYxw', // for Mapquest, OpenCage, Google Premier
             formatter: 'json' // 'gpx', 'string', ...
         };
-
         var geocoder = node_geocoder(options);
         var datecountry = await geocoder.reverse({ lat: lat, lon: lng })
-        console.log(datecountry)
+
+        /*  const url = `https://ipinfo.io/${ip}?token=e4749da149b3e2`;
+   
+          var datecountry = await fetch(url)
+              .then(response => response.json())
+              .then(json => {
+                  if (json.status !== 'OK') {
+                      console.log(json.status)
+                      const errorMessage = json.error_message || 'Unknown error';
+                      throw new HttpException(
+                          errorMessage,
+                          HttpStatus.BAD_REQUEST
+                      );
+                  }
+                  console.log(json)
+              });*/
+
+
+        //console.log(datecountry[0].administrativeLevels.level1long)
+        //console.log(datecountry)
         var zonahoraria = geotz(lat, lng);
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
         //console.log('entre aqui')
         //vamos a obtener el precio base
         //vamos a obtener la zona horaria del solicitante del viaje
-        let citie = await this.getCountrieByName(datecountry[0].city);
-
-        if (citie == undefined) {
+        let country = await this.getCountrieByName(datecountry[0].country);
+        if (country == undefined) {
             throw new HttpException(
-                "There are no rates available in this city",
+                "There are no rates available in this country",
                 HttpStatus.BAD_REQUEST
             )
         }
@@ -77,14 +97,14 @@ export class SkiperTravelsService {
         var time = this.timeToDecimal(moment(new Date(fecha)).format("HH:mm:ss"))
         var tarifas = await getConnection().createQueryBuilder(SkiperTariffs, "SkiperTariffs")
             .innerJoinAndSelect("SkiperTariffs.driverShedule", "SkiperDriverSchedule")
-            .where("SkiperTariffs.idcountry = :idcountry", { idcountry: citie.country.id })
-            .andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
+            .where("SkiperTariffs.idcountry = :idcountry", { idcountry: country.id })
+            //.andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
 
         if (tarifas.length == 0)
             throw new HttpException(
-                "There are no rates available in this city",
+                "There are no rates available in this country",
                 HttpStatus.BAD_REQUEST,
             );
 
@@ -101,6 +121,10 @@ export class SkiperTravelsService {
                 time >= 0 &&
                 this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
         )[0]
+        // console.log(tarifa.price_kilometer)  
+        // console.log(tarifa.price_minimum)  
+        //console.log(tarifa.price_minute)  
+        // console.log(tarifa.symbol)  
         var travelTarifaDTo = new TravelTarifaDTo();
         travelTarifaDTo.pricebase = tarifa.price_base;
         travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
@@ -112,9 +136,8 @@ export class SkiperTravelsService {
     }
     async getCountrieByName(name: string) {
         try {
-            return await getConnection().createQueryBuilder(Cities, "Cities")
-                .innerJoinAndSelect("Cities.country", "country")
-                .where("Cities.name = :name", { name: name }).getOne();
+            return await getConnection().createQueryBuilder(Countrie, "Countrie")
+                .where("Countrie.name = :name", { name: name.toUpperCase() }).getOne();
         } catch (error) {
             throw new HttpException(
                 "Error get country" + error,
@@ -125,7 +148,7 @@ export class SkiperTravelsService {
 
     async GenerateTravel(inputviaje: SkiperTravelsInput, ip: string): Promise<SkiperTravels> {
         try {
-            var code = await geoip_lite.lookup(ip)
+            //var code = await geoip_lite.lookup(ip)
             //vamos a obtener la zona horaria del solicitante del viaje
             var zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
             var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
