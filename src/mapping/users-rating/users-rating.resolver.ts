@@ -1,6 +1,6 @@
 import { Resolver, Mutation, Args, Query } from '@nestjs/graphql';
 import { UsersRatingService } from './users-rating.service';
-import { UsersRatingInput } from './Users-rating.dto';
+import { UsersRatingInput } from './users-rating.dto';
 
 
 @Resolver('UsersRating')
