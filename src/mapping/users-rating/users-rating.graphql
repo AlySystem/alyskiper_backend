@@ -1,5 +1,5 @@
 input UsersRatingInput {
-    iddriver: Int
+    idagent: Int
     iduser: Int
     ratingNumber: Float
     comments: String
