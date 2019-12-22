@@ -5,9 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SkiperWallet } from './skiper-wallet.entity';
 import { WalletscompaniesModule } from '../walletscompanies/walletscompanies.module';
 import { UsersModule } from '../users/users.module';
+import { HashConfirmedModule } from '../hash-confirmed/hash-confirmed.module';
 
 @Module({
   imports: [
+    HashConfirmedModule,
     WalletscompaniesModule,
     UsersModule,
     TypeOrmModule.forFeature([SkiperWallet])

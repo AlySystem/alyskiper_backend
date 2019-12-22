@@ -1,0 +1,26 @@
+input UsersRatingInput {
+    iddriver: Int
+    iduser: Int
+    ratingNumber: Float
+    comments: String
+    status: Boolean
+}
+
+type UsersRatingDto {
+    id: Int
+    ratingNumber: Float
+    comments: String
+    created: DateTime
+    modified: DateTime
+    status: Boolean
+    driver:[SkiperAgentDto]
+    user: [UserDto]
+}
+
+type Query {
+    UsersRating:[UsersRatingDto]
+}
+type Mutation {
+    RegisterUsersRating(input: UsersRatingInput): String!
+}
+

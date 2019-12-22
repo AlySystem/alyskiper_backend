@@ -107,7 +107,6 @@ export class SkiperTravelsService {
                 "There are no rates available in this country",
                 HttpStatus.BAD_REQUEST,
             );
-
         var tarifa = tarifas.filter(x =>
             (x.driverShedule.turn == "am-pm" &&
                 this.timeToDecimal(x.driverShedule.start_time.toString()) <= time &&

@@ -65,10 +65,12 @@ import { WalletscompaniesModule } from './mapping/walletscompanies/walletscompan
 import { PackageAlycoinModule } from './mapping/package-alycoin/package-alycoin.module';
 import { AlycoinInvoicesModule } from './mapping/alycoin-invoices/alycoin-invoices.module';
 import { DetailAlycoinInvoiceModule } from './mapping/detail-alycoin-invoice/detail-alycoin-invoice.module';
+import { HashConfirmedModule } from './mapping/hash-confirmed/hash-confirmed.module';
+import { ExchangeRateModule } from './mapping/exchange-rate/exchange-rate.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
-  imports: [
+  imports: [  
     AppCitiesModule,
     KindTicketModule,
     TicketCategoryModule,
@@ -168,6 +170,8 @@ import { DetailAlycoinInvoiceModule } from './mapping/detail-alycoin-invoice/det
     PackageAlycoinModule,
     AlycoinInvoicesModule,
     DetailAlycoinInvoiceModule,
+    HashConfirmedModule,
+    ExchangeRateModule,
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,
