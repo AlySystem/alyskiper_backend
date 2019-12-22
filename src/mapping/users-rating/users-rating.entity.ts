@@ -6,7 +6,7 @@ import { SkiperAgent } from '../skiper-agent/skiper-agent.entity';
 export class UsersRating {
     @PrimaryGeneratedColumn() id: number;
 
-    @Column('int', { nullable: false }) iddriver: number;
+    @Column('int', { nullable: false }) idagent: number;
 
     @Column('int', { nullable: false }) iduser: number;
 
@@ -21,8 +21,8 @@ export class UsersRating {
     @Column('boolean', { nullable: false }) status: boolean;
 
     @ManyToOne(type => SkiperAgent, { nullable: false })
-    @JoinColumn({ name: 'iddriver' }) driver: SkiperAgent;
-    
+    @JoinColumn({ name: 'idagent' }) driver: SkiperAgent;
+
     @ManyToOne(type => User, { nullable: false })
     @JoinColumn({ name: 'iduser' }) user: User;
 }

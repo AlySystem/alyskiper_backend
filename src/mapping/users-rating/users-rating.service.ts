@@ -35,7 +35,7 @@ export class UsersRatingService {
     private parseUserRating(input: UsersRatingInput): UsersRating {
         let result: UsersRating = new UsersRating();
 
-        result.iddriver = input.iddriver;
+        result.idagent = input.idagent;
         result.iduser = input.iduser;
         result.ratingNumber = input.ratingNumber;
         result.status = input.status;

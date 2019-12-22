@@ -5,7 +5,7 @@ import { SkiperAgentDto } from '../skiper-agent/skiper-agent.dto';
 @InputType()
 export class UsersRatingInput {
     id: number;
-    iddriver: number;
+    idagent: number;
     iduser: number;
     ratingNumber: number;
     comments: string;
