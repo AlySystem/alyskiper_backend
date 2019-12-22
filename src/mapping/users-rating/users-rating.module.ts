@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { UsersRatingService } from './users-rating.service';
 import { UsersRatingResolver } from './users-rating.resolver';
-import {UsersRating } from './users-rating.entity';
+import { UsersRating } from './users-rating.entity';
 import { UsersModule } from '../users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SkiperAgentModule } from '../skiper-agent/skiper-agent.module';
@@ -15,4 +15,4 @@ import { SkiperAgentModule } from '../skiper-agent/skiper-agent.module';
   providers: [UsersRatingService, UsersRatingResolver],
   exports: [UsersRatingService]
 })
-export class SkiperRatingModule { }
+export class UsersRatingModule { }

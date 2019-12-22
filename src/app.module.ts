@@ -67,10 +67,12 @@ import { AlycoinInvoicesModule } from './mapping/alycoin-invoices/alycoin-invoic
 import { DetailAlycoinInvoiceModule } from './mapping/detail-alycoin-invoice/detail-alycoin-invoice.module';
 import { HashConfirmedModule } from './mapping/hash-confirmed/hash-confirmed.module';
 import { ExchangeRateModule } from './mapping/exchange-rate/exchange-rate.module';
+import { UsersRatingModule } from './mapping/users-rating/users-rating.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
-  imports: [  
+  imports: [
+    UsersRatingModule,
     AppCitiesModule,
     KindTicketModule,
     TicketCategoryModule,
