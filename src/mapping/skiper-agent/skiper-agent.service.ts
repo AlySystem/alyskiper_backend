@@ -1,12 +1,22 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SkiperAgent } from './skiper-agent.entity';
-import { Repository, createQueryBuilder } from 'typeorm';
+import { Repository, createQueryBuilder, getConnection } from 'typeorm';
 import { AgentInput, AgentDriveInput } from './skiper-agent.dto';
 import { UserService } from '../users/user.service';
 import { CategoryAgentService } from '../category-agent/category-agent.service';
 import { User } from '../users/user.entity';
 import { SkiperTravelsService } from '../skiper-travels/skiper-travels.service';
+import { SkiperVehicleService } from '../skiper-vehicle/skiper-vehicle.service';
+import { SkiperVehicleInput } from '../skiper-vehicle/skiper-vehicle.dto';
+import { SkiperVehicleAgentService } from '../skiper-vehicle-agent/skiper-vehicle-agent.service';
+import { SkiperVehicleAgentInput } from '../skiper-vehicle-agent/skiper-vehicle-agent.dto';
+import { SkiperVehicle } from '../skiper-vehicle/skiper-vehicle.entity';
+import { SkiperVehicleAgent } from '../skiper-vehicle-agent/skiper-vehicle-agent.entity';
+import { UploadImgAgent } from '../upload-img-agent/upload-img-agent.entity';
+import { UploadVehicleAppearance } from '../upload-vehicle-appearance/upload-vehicle-appearance.entity';
+import { UploadVehicleLegalDoc } from '../upload-vehicle-legal-doc/upload-vehicle-legal-doc.entity';
+
 require('isomorphic-fetch');
 
 @Injectable()
@@ -17,6 +27,8 @@ export class SkiperAgentService {
         private readonly userService: UserService,
         private readonly categoryAgentService: CategoryAgentService,
         private readonly skiperTravelsService: SkiperTravelsService,
+        private readonly skiperVehicle: SkiperVehicleService,
+        private readonly skipervehicleagent: SkiperVehicleAgentService
     ) { }
 
     async getAll() {
@@ -126,6 +138,190 @@ export class SkiperAgentService {
                 HttpStatus.BAD_REQUEST
             );
         }
+    }
+
+    async registerCompleteDataAgent(
+        firtsname: string,
+        lastname: string,
+        email: string,
+        username: string,
+        password: string,
+        address: string,
+        phone: string,
+        idcountry: number,
+        idcity: number,
+        identity: string,
+        license_plate: string,
+        idcattravel: number,
+        id_vehicle_catalog: number,
+        idtrademark: number,
+        idmodel: number,
+        idyear: number,
+        url_img_identity: string,
+        url_img_verify_identity: string,
+        url_img_letterone_recomendation: string,
+        url_img_lettertwo_recomendation: string,
+        url_img_driver_license: string,
+        url_img_police_record: string,
+        url_img_driving_record: string,
+        url_img__vehicle_front: string,
+        url_img__vehicle_behind: string,
+        url_img__vehicle_side_right: string,
+        url_img__vehicle_side_left: string,
+        url_img__vehicle_inside_one: string,
+        url_img__vehicle_inside_two: string,
+        url_img__vehicle_inside_three: string,
+        url_img__vehicle_inside_four: string,
+        url_img_insurance: string,
+        url_img_vehicle_circulation: string,
+        url_img_mechanical_inspection: string,
+        url_img_gas_emission: string,
+        url_img_license_plate: string
+    ) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+
+        try {
+            await queryRunner.startTransaction();
+            let user = new User();
+            user.firstname = firtsname;
+            user.lastname = lastname;
+            user.email = email;
+            user.user = username;
+            user.password = password;
+            user.address = address;
+            user.phone = phone;
+            user.idcountry = idcountry;
+            user.idcity = idcity;
+            let userData = await queryRunner.manager.save(user);
+            if (!userData) {
+                throw new HttpException(
+                    'error service skiper vehicle  agent',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+            await queryRunner.commitTransaction();
+
+            await queryRunner.startTransaction();
+            let agent = new SkiperAgent();
+            agent.iduser = userData.id;
+            agent.idcategory_agent = 1;
+            agent.state = false;
+            agent.identity = identity;
+            agent.create_at = new Date();
+            let registerAgent = await queryRunner.manager.save(agent);
+            if (!registerAgent) {
+                throw new HttpException(
+                    'error service skiper vehicle  agent',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+            await queryRunner.commitTransaction();
+
+            await queryRunner.startTransaction();
+            let uploadimgagent = new UploadImgAgent();
+            uploadimgagent.id_skiper_agent = registerAgent.id;
+            uploadimgagent.url_img_identity = url_img_identity;
+            uploadimgagent.url_img_verify_identity = url_img_verify_identity;
+            uploadimgagent.url_img_letterone_recomendation = url_img_letterone_recomendation;
+            uploadimgagent.url_img_lettertwo_recomendation = url_img_lettertwo_recomendation;
+            uploadimgagent.url_img_driver_license = url_img_driver_license;
+            uploadimgagent.url_img_police_record = url_img_police_record;
+            uploadimgagent.url_img_driving_record = url_img_driving_record;
+
+            let uploadimg = await queryRunner.manager.save(uploadimgagent)
+            if (!uploadimg) {
+                throw new HttpException(
+                    'error service  upload url docs agent',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+            await queryRunner.commitTransaction();
+
+
+            await queryRunner.startTransaction();
+            let vehicle = new SkiperVehicle();
+            vehicle.license_plate = license_plate;
+            vehicle.id_cat_travel = idcattravel;
+            vehicle.id_vehicle_catalog = id_vehicle_catalog;
+            vehicle.idtrademark = idtrademark;
+            vehicle.idmodel = idmodel;
+            vehicle.idyear = idyear;
+
+            let registerVehicle = await queryRunner.manager.save(vehicle);
+            if (!registerVehicle) {
+                throw new HttpException(
+                    'error service skiper vehicle  agent',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+            await queryRunner.commitTransaction();
+
+            await queryRunner.startTransaction();
+            let uploadvehicleappearearance = new UploadVehicleAppearance();
+            uploadvehicleappearearance.url_img_vehicle_front = url_img__vehicle_front;
+            uploadvehicleappearearance.url_img_vehicle_behind = url_img__vehicle_behind;
+            uploadvehicleappearearance.url_img_vehicle_side_right = url_img__vehicle_side_right;
+            uploadvehicleappearearance.url_img_vehicle_side_left = url_img__vehicle_side_left;
+            uploadvehicleappearearance.url_img_vehicle_inside_one = url_img__vehicle_inside_one;
+            uploadvehicleappearearance.url_img_vehicle_inside_two = url_img__vehicle_inside_two;
+            uploadvehicleappearearance.url_img_vehicle_inside_three = url_img__vehicle_inside_three;
+            uploadvehicleappearearance.url_img_vehicle_inside_four = url_img__vehicle_inside_four;
+            uploadvehicleappearearance.idvehicle = registerVehicle.id;
+            let registeruploadappearance = await queryRunner.manager.save(uploadvehicleappearearance);
+            if (!registeruploadappearance) {
+                throw new HttpException(
+                    'error service uploadd data appearace vehicle',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+            await queryRunner.commitTransaction();
+
+            await queryRunner.startTransaction();
+            let uploadvehiclelegaldoc = new UploadVehicleLegalDoc();
+            uploadvehiclelegaldoc.url_img_gas_emission = url_img_gas_emission;
+            uploadvehiclelegaldoc.url_img_insurance = url_img_insurance;
+            uploadvehiclelegaldoc.url_img_license_plate = url_img_license_plate;
+            uploadvehiclelegaldoc.url_img_mechanical_inspection = url_img_mechanical_inspection;
+            uploadvehiclelegaldoc.url_img_vehicle_circulation = url_img_vehicle_circulation;
+            uploadvehiclelegaldoc.idvehicle = registerVehicle.id;
+            let registeruploadvehiclelegaldoc = await queryRunner.manager.save(uploadvehiclelegaldoc);
+            if (!registeruploadvehiclelegaldoc) {
+                throw new HttpException(
+                    'error service uploadd data vehicle',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+            await queryRunner.commitTransaction();
+
+            await queryRunner.startTransaction();
+            let skipervehicleAgent = new SkiperVehicleAgent();
+            skipervehicleAgent.idagent = registerAgent.id;
+            skipervehicleAgent.idvehicle = registerVehicle.id;
+            skipervehicleAgent.is_owner = 1;
+            let skipervehicleagent = await queryRunner.manager.save(skipervehicleAgent);
+            if (!skipervehicleagent) {
+                throw new HttpException(
+                    'error service skiper vehicle  agent',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+            await queryRunner.commitTransaction();
+
+            return "success transaction";
+
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+            throw new HttpException(
+                `error server in ${error}`,
+                HttpStatus.BAD_REQUEST
+            );
+
+        } finally {
+            await queryRunner.release();
+        }
+
     }
 
 

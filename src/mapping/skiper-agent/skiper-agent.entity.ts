@@ -19,6 +19,8 @@ export class SkiperAgent {
     @IsNotEmpty() @IsString()
     @Column('varchar', { nullable: false, length: 80 }) identity: string;
 
+    @Column('int', { nullable: false }) idcategory_agent: number;
+
     @IsNotEmpty() @IsDate()
     @Column('date', { nullable: false }) create_at: Date;
 

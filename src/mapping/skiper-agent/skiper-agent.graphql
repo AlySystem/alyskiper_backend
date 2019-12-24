@@ -19,6 +19,62 @@ type Mutation {
   updateAgent(input: AgentInput!): SkiperAgentDto!
   ObtenerDriveCercano(lat: Float!, lng: Float!, inputdrive: [AgentDriveInput!]!):Int
   deleteAgent(idagent: Int!):String
+  RegisterCompleteDataAgent(
+        firtsname: String,
+        lastname: String,
+        email: String,
+        username: String,
+        password: String,
+        address: String,
+        phone: String,
+        idcountry: Int,
+        idcity: Int,
+        identity:String,
+        license_plate: String,
+        idcattravel:Int,
+        id_vehicle_catalog: Int,
+        idtrademark: Int,
+        idmodel: Int,
+        idyear: Int,
+        url_img_identity: String,
+        url_img_verify_identity: String,
+        url_img_letterone_recomendation: String,
+        url_img_lettertwo_recomendation: String,
+        url_img_driver_license: String,
+        url_img_police_record: String,
+        url_img_driving_record: String,
+        url_img__vehicle_front: String,
+        url_img__vehicle_behind: String,
+        url_img__vehicle_side_right: String,
+        url_img__vehicle_side_left: String,
+        url_img__vehicle_inside_one: String,
+        url_img__vehicle_inside_two: String,
+        url_img__vehicle_inside_three: String,
+        url_img__vehicle_inside_four: String,
+        url_img_insurance: String,
+        url_img_vehicle_circulation: String,
+        url_img_mechanical_inspection: String,
+        url_img_gas_emission: String,
+        url_img_license_plate: String):String
+}
+
+input UserInput {
+  id: ID
+  firstname: String!
+  lastname: String!
+  email: String!
+  user: String
+  password: String!
+  sponsor_id: Int
+  address: String
+  phone: String
+  create_at: DateTime
+  date_birth: DateTime
+  is_online: Boolean
+  avatar: String
+  country_id: Int!
+  city_id: Int
+  idcivil_status: Int
 }
 
 input AgentDriveInput {

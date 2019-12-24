@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { SkiperVehicleAgentService } from './skiper-vehicle-agent.service';
 import { SkiperVehicleAgentResolver } from './skiper-vehicle-agent.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,11 +7,11 @@ import { SkiperVehicleModule } from '../skiper-vehicle/skiper-vehicle.module';
 import { SkiperAgentModule } from '../skiper-agent/skiper-agent.module';
 
 @Module({
-  imports:[
-    SkiperVehicleModule,
-    SkiperAgentModule,
+  imports: [
+    forwardRef(() => SkiperVehicleModule),
+    forwardRef(() => SkiperAgentModule),
     TypeOrmModule.forFeature([SkiperVehicleAgent])],
   providers: [SkiperVehicleAgentService, SkiperVehicleAgentResolver],
-  exports:[SkiperVehicleAgentService]
+  exports: [SkiperVehicleAgentService]
 })
-export class SkiperVehicleAgentModule {}
+export class SkiperVehicleAgentModule { }

@@ -11,6 +11,7 @@ export class UploadVehicleLegalDoc {
     @Column('longtext', { nullable: true }) url_img_mechanical_inspection: string;
     @Column('longtext', { nullable: true }) url_img_gas_emission: string;
     @Column('longtext', { nullable: true }) url_img_license_plate: string;
+    @Column('int', { nullable: false }) idvehicle: number;
 
     //Esperando a la llave foranea de skiper_vehicle
     @ManyToOne(type => SkiperVehicle, { nullable: false })

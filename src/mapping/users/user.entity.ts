@@ -30,6 +30,10 @@ export class User {
         this.password = await bcrypt.hash(this.password, parseInt(process.env.SALT));
     }
 
+    @Column({ nullable: false }) idcountry: number;
+
+    @Column({ nullable: false }) idcity: number;
+
     @Column({ length: 255 })
     @Min(8, { message: 'the password must be have 8 characters at least' }) @MaxLength(255) password: string;
 

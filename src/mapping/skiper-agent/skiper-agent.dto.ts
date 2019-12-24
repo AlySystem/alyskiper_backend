@@ -16,6 +16,26 @@ export class SkiperAgentDto {
 }
 
 @InputType()
+export class UserInput {
+    id: number;
+    firstname: string;
+    lastname: string;
+    email: string;
+    user: string;
+    password: string;
+    sponsor_id: number;
+    address: string;
+    phone: string;
+    create_at: Date;
+    date_birth: Date;
+    is_online: boolean;
+    avatar: string;
+    country_id: number;
+    city_id: number;
+    idcivil_status: number;
+}
+
+@InputType()
 export class AgentInput {
     id: number;
     iduser: number;

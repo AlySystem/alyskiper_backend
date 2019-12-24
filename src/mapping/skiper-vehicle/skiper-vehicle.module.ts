@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { SkiperVehicleService } from './skiper-vehicle.service';
 import { SkiperVehicleResolver } from './skiper-vehicle.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -10,7 +10,7 @@ import { SkiperCatTravelsModule } from '../skiper-cat-travels/skiper-cat-travels
 import { VehicleYearsModule } from '../vehicle-years/vehicle-years.module';
 
 @Module({
-  imports:[
+  imports: [
     VehicleCatalogModule,
     VehicleTrademarksModule,
     VehicleModelsModule,
@@ -20,4 +20,4 @@ import { VehicleYearsModule } from '../vehicle-years/vehicle-years.module';
   providers: [SkiperVehicleService, SkiperVehicleResolver],
   exports: [SkiperVehicleService]
 })
-export class SkiperVehicleModule {}
+export class SkiperVehicleModule { }
