@@ -210,7 +210,6 @@ export class SkiperAgentService {
         }
 
         try {
-
             await queryRunner.startTransaction();
             let user = new User();
             user.firstname = firtsname;
