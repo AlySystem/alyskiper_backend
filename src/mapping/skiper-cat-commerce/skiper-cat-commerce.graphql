@@ -1,14 +1,18 @@
 type SkiperCatCommerceDto {
     id: Int
     name: String
+    state:Boolean
     url_img_category: String
+    url_img_category_temp: String
     subcatcommerce: [SkiperSubCatCommerceDto]
 }
 
 input CatCommerceInput {
     id: Int
     name: String!
+    state:Boolean!
     url_img_category: String!
+    url_img_category_temp: String!
 }
 
 type Query {

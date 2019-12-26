@@ -16,6 +16,7 @@ import { SkiperVehicleAgent } from '../skiper-vehicle-agent/skiper-vehicle-agent
 import { UploadImgAgent } from '../upload-img-agent/upload-img-agent.entity';
 import { UploadVehicleAppearance } from '../upload-vehicle-appearance/upload-vehicle-appearance.entity';
 import { UploadVehicleLegalDoc } from '../upload-vehicle-legal-doc/upload-vehicle-legal-doc.entity';
+import { isNamedType } from 'graphql';
 
 require('isomorphic-fetch');
 
@@ -182,8 +183,22 @@ export class SkiperAgentService {
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
 
+        let isPhoneExist = await this.validatePhoneIsExist(phone);
+        let isEmailExist = await this.validateEmailIsExist(email);
+        console.log(isPhoneExist,isPhoneExist.length)
+        console.log(isEmailExist,isEmailExist.length)
+        if (isPhoneExist.length > 0) {
+            return 'this phone is allready registered';
+        }
+        if (isEmailExist.length > 0 ) {
+            return 'this email is allready registered'
+        } else {
+            return 'ok'
+        }
+
         try {
-            await queryRunner.startTransaction();
+
+            /*await queryRunner.startTransaction();
             let user = new User();
             user.firstname = firtsname;
             user.lastname = lastname;
@@ -310,11 +325,11 @@ export class SkiperAgentService {
             await queryRunner.commitTransaction();
 
             return "success transaction";
-
+*/
         } catch (error) {
             await queryRunner.rollbackTransaction();
             throw new HttpException(
-                `error server in ${error}`,
+                error,
                 HttpStatus.BAD_REQUEST
             );
 
@@ -364,6 +379,25 @@ export class SkiperAgentService {
 
         } catch (error) {
             console.log(error)
+        }
+    }
+    async validatePhoneIsExist(phone: string) {
+        try {
+            return await createQueryBuilder("User")
+                .where("User.phone = :phone", { phone })
+                .getMany();
+        } catch (error) {
+            console.log
+        }
+    }
+
+    async validateEmailIsExist(email: string) {
+        try {
+            return await createQueryBuilder("User")
+                .where("User.phone = :email", { email })
+                .getMany();
+        } catch (error) {
+            console.log
         }
     }
     /*
