@@ -179,26 +179,39 @@ export class SkiperAgentService {
         url_img_gas_emission: string,
         url_img_license_plate: string
     ) {
-        let errors = [];
+        let errors = { alertPhone: "", alertEmail: "", alertUser: "", alertLicense_Plate: "" };
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
 
         let isPhoneExist = await this.validatePhoneIsExist(phone);
         let isEmailExist = await this.validateEmailIsExist(email);
-        //console.log(isPhoneExist, isPhoneExist.length)
+        let isUsernameExist = await this.validateUsernameIsExist(username);
+        let isLicensePlate = await this.validateLicensePlatenameIsExist(license_plate);
+        //console.log(isLicensePlate)
         //console.log(isEmailExist, isEmailExist.length)
         if (isPhoneExist.length > 0) {
-            errors.push("this phone is allready registered");
+            errors.alertPhone = "Este número de teléfono ya está registrado";
         }
         if (isEmailExist.length > 0) {
-            errors.push('this email is allready registered');
+            errors.alertEmail = "Este email ya está registrado";
+        }
+        if (isUsernameExist.length > 0) {
+            errors.alertUser = "Este nombre de usuario ya está registrado"
+        }
+        if (isLicensePlate.length > 0) {
+            errors.alertLicense_Plate = "Esta placa ya está registrada"
+        }
+        if (errors.alertEmail.length > 0 || errors.alertPhone.length > 0 || errors.alertUser.length > 0 || isLicensePlate.length > 0) {
+            throw new HttpException(
+                errors,
+                HttpStatus.BAD_REQUEST
+            )
         }
 
-        return errors
         try {
 
-            /*await queryRunner.startTransaction();
+            await queryRunner.startTransaction();
             let user = new User();
             user.firstname = firtsname;
             user.lastname = lastname;
@@ -325,7 +338,6 @@ export class SkiperAgentService {
             await queryRunner.commitTransaction();
 
             return "success transaction";
-*/
         } catch (error) {
             await queryRunner.rollbackTransaction();
             throw new HttpException(
@@ -400,6 +412,27 @@ export class SkiperAgentService {
             console.log
         }
     }
+
+    async validateUsernameIsExist(user: string) {
+        try {
+            return await createQueryBuilder("User")
+                .where("User.user = :user", { user })
+                .getMany();
+        } catch (error) {
+            console.log
+        }
+    }
+
+    async validateLicensePlatenameIsExist(license_plate: string) {
+        try {
+            return await createQueryBuilder("SkiperVehicle")
+                .where("SkiperVehicle.license_plate = :license_plate", { license_plate })
+                .getMany();
+        } catch (error) {
+            console.log
+        }
+    }
+
     /*
         SELECT ref., c., ci.* FROM users u
         INNER JOIN users ref ON u.id = ref.sponsor_id
