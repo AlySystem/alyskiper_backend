@@ -71,7 +71,7 @@ export class SkiperAgentResolver {
         @Args('url_img_mechanical_inspection') url_img_mechanical_inspection: string,
         @Args('url_img_gas_emission') url_img_gas_emission: string,
         @Args('url_img_license_plate') url_img_license_plate: string) {
-        return this.agentService.registerCompleteDataAgent(
+        let c= this.agentService.registerCompleteDataAgent(
             firtsname,
             lastname,
             email,
@@ -108,6 +108,8 @@ export class SkiperAgentResolver {
             url_img_mechanical_inspection,
             url_img_gas_emission,
             url_img_license_plate);
+            console.log(c)
+            return c
 
     }
     @Mutation()

@@ -179,23 +179,23 @@ export class SkiperAgentService {
         url_img_gas_emission: string,
         url_img_license_plate: string
     ) {
+        let errors = [];
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
 
         let isPhoneExist = await this.validatePhoneIsExist(phone);
         let isEmailExist = await this.validateEmailIsExist(email);
-        console.log(isPhoneExist,isPhoneExist.length)
-        console.log(isEmailExist,isEmailExist.length)
+        //console.log(isPhoneExist, isPhoneExist.length)
+        //console.log(isEmailExist, isEmailExist.length)
         if (isPhoneExist.length > 0) {
-            return 'this phone is allready registered';
+            errors.push("this phone is allready registered");
         }
-        if (isEmailExist.length > 0 ) {
-            return 'this email is allready registered'
-        } else {
-            return 'ok'
+        if (isEmailExist.length > 0) {
+            errors.push('this email is allready registered');
         }
 
+        return errors
         try {
 
             /*await queryRunner.startTransaction();
@@ -394,7 +394,7 @@ export class SkiperAgentService {
     async validateEmailIsExist(email: string) {
         try {
             return await createQueryBuilder("User")
-                .where("User.phone = :email", { email })
+                .where("User.email = :email", { email })
                 .getMany();
         } catch (error) {
             console.log

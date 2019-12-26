@@ -7,6 +7,9 @@ type SkiperAgentDto {
     user: UserDto
     skiperVehicleAgent: [SkiperVehicleAgentDto]
 }
+type ResponseDto {
+  message:String
+}
 
 type Query {
   agents: [SkiperAgentDto!]!
@@ -55,7 +58,7 @@ type Mutation {
         url_img_vehicle_circulation: String,
         url_img_mechanical_inspection: String,
         url_img_gas_emission: String,
-        url_img_license_plate: String):String
+        url_img_license_plate: String):[ResponseDto]!
 }
 
 input UserInput {
