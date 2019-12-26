@@ -143,7 +143,7 @@ export class UserService {
     //actualizo
     async updatePasswordByEmail(input: ChangePasswordEmailInput): Promise<number> {
         try {
-            if (parseInt(input.password) != parseInt(input.repeatpassword)) {
+            if (input.password != input.repeatpassword) {
                 return 0;
             } else {
                 let result = await this.userRepository.findOne({ where: { email: input.email } });
