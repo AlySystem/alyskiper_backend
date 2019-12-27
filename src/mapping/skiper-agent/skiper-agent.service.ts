@@ -266,75 +266,81 @@ export class SkiperAgentService {
             }
             await queryRunner.commitTransaction();
 
+            let registerVehicle;
+            if (license_plate != "") {
+                await queryRunner.startTransaction();
+                let vehicle = new SkiperVehicle();
+                vehicle.license_plate = license_plate;
+                vehicle.id_cat_travel = idcattravel;
+                vehicle.id_vehicle_catalog = id_vehicle_catalog;
+                vehicle.idtrademark = idtrademark;
+                vehicle.idmodel = idmodel;
+                vehicle.idyear = idyear;
+                registerVehicle = await queryRunner.manager.save(vehicle);
+                if (!registerVehicle) {
+                    throw new HttpException(
+                        'error service skiper vehicle  agent',
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
+                await queryRunner.commitTransaction();
+            }
 
-            await queryRunner.startTransaction();
-            let vehicle = new SkiperVehicle();
-            vehicle.license_plate = license_plate;
-            vehicle.id_cat_travel = idcattravel;
-            vehicle.id_vehicle_catalog = id_vehicle_catalog;
-            vehicle.idtrademark = idtrademark;
-            vehicle.idmodel = idmodel;
-            vehicle.idyear = idyear;
-
-            let registerVehicle = await queryRunner.manager.save(vehicle);
-            if (!registerVehicle) {
-                throw new HttpException(
-                    'error service skiper vehicle  agent',
-                    HttpStatus.BAD_REQUEST
-                )
+            if (registerVehicle) {
+                await queryRunner.startTransaction();
+                let uploadvehicleappearearance = new UploadVehicleAppearance();
+                uploadvehicleappearearance.url_img_vehicle_front = url_img__vehicle_front;
+                uploadvehicleappearearance.url_img_vehicle_behind = url_img__vehicle_behind;
+                uploadvehicleappearearance.url_img_vehicle_side_right = url_img__vehicle_side_right;
+                uploadvehicleappearearance.url_img_vehicle_side_left = url_img__vehicle_side_left;
+                uploadvehicleappearearance.url_img_vehicle_inside_one = url_img__vehicle_inside_one;
+                uploadvehicleappearearance.url_img_vehicle_inside_two = url_img__vehicle_inside_two;
+                uploadvehicleappearearance.url_img_vehicle_inside_three = url_img__vehicle_inside_three;
+                uploadvehicleappearearance.url_img_vehicle_inside_four = url_img__vehicle_inside_four;
+                uploadvehicleappearearance.idvehicle = registerVehicle.id;
+                let registeruploadappearance = await queryRunner.manager.save(uploadvehicleappearearance);
+                if (!registeruploadappearance) {
+                    throw new HttpException(
+                        'error service uploadd data appearace vehicle',
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
             }
             await queryRunner.commitTransaction();
 
-            await queryRunner.startTransaction();
-            let uploadvehicleappearearance = new UploadVehicleAppearance();
-            uploadvehicleappearearance.url_img_vehicle_front = url_img__vehicle_front;
-            uploadvehicleappearearance.url_img_vehicle_behind = url_img__vehicle_behind;
-            uploadvehicleappearearance.url_img_vehicle_side_right = url_img__vehicle_side_right;
-            uploadvehicleappearearance.url_img_vehicle_side_left = url_img__vehicle_side_left;
-            uploadvehicleappearearance.url_img_vehicle_inside_one = url_img__vehicle_inside_one;
-            uploadvehicleappearearance.url_img_vehicle_inside_two = url_img__vehicle_inside_two;
-            uploadvehicleappearearance.url_img_vehicle_inside_three = url_img__vehicle_inside_three;
-            uploadvehicleappearearance.url_img_vehicle_inside_four = url_img__vehicle_inside_four;
-            uploadvehicleappearearance.idvehicle = registerVehicle.id;
-            let registeruploadappearance = await queryRunner.manager.save(uploadvehicleappearearance);
-            if (!registeruploadappearance) {
-                throw new HttpException(
-                    'error service uploadd data appearace vehicle',
-                    HttpStatus.BAD_REQUEST
-                )
+            if (registerVehicle) {
+                await queryRunner.startTransaction();
+                let uploadvehiclelegaldoc = new UploadVehicleLegalDoc();
+                uploadvehiclelegaldoc.url_img_gas_emission = url_img_gas_emission;
+                uploadvehiclelegaldoc.url_img_insurance = url_img_insurance;
+                uploadvehiclelegaldoc.url_img_license_plate = url_img_license_plate;
+                uploadvehiclelegaldoc.url_img_mechanical_inspection = url_img_mechanical_inspection;
+                uploadvehiclelegaldoc.url_img_vehicle_circulation = url_img_vehicle_circulation;
+                uploadvehiclelegaldoc.idvehicle = registerVehicle.id;
+                let registeruploadvehiclelegaldoc = await queryRunner.manager.save(uploadvehiclelegaldoc);
+                if (!registeruploadvehiclelegaldoc) {
+                    throw new HttpException(
+                        'error service uploadd data vehicle',
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
+                await queryRunner.commitTransaction();
             }
-            await queryRunner.commitTransaction();
-
-            await queryRunner.startTransaction();
-            let uploadvehiclelegaldoc = new UploadVehicleLegalDoc();
-            uploadvehiclelegaldoc.url_img_gas_emission = url_img_gas_emission;
-            uploadvehiclelegaldoc.url_img_insurance = url_img_insurance;
-            uploadvehiclelegaldoc.url_img_license_plate = url_img_license_plate;
-            uploadvehiclelegaldoc.url_img_mechanical_inspection = url_img_mechanical_inspection;
-            uploadvehiclelegaldoc.url_img_vehicle_circulation = url_img_vehicle_circulation;
-            uploadvehiclelegaldoc.idvehicle = registerVehicle.id;
-            let registeruploadvehiclelegaldoc = await queryRunner.manager.save(uploadvehiclelegaldoc);
-            if (!registeruploadvehiclelegaldoc) {
-                throw new HttpException(
-                    'error service uploadd data vehicle',
-                    HttpStatus.BAD_REQUEST
-                )
+            if (registerVehicle) {
+                await queryRunner.startTransaction();
+                let skipervehicleAgent = new SkiperVehicleAgent();
+                skipervehicleAgent.idagent = registerAgent.id;
+                skipervehicleAgent.idvehicle = registerVehicle.id;
+                skipervehicleAgent.is_owner = 1;
+                let skipervehicleagent = await queryRunner.manager.save(skipervehicleAgent);
+                if (!skipervehicleagent) {
+                    throw new HttpException(
+                        'error service skiper vehicle  agent',
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
+                await queryRunner.commitTransaction();
             }
-            await queryRunner.commitTransaction();
-
-            await queryRunner.startTransaction();
-            let skipervehicleAgent = new SkiperVehicleAgent();
-            skipervehicleAgent.idagent = registerAgent.id;
-            skipervehicleAgent.idvehicle = registerVehicle.id;
-            skipervehicleAgent.is_owner = 1;
-            let skipervehicleagent = await queryRunner.manager.save(skipervehicleAgent);
-            if (!skipervehicleagent) {
-                throw new HttpException(
-                    'error service skiper vehicle  agent',
-                    HttpStatus.BAD_REQUEST
-                )
-            }
-            await queryRunner.commitTransaction();
 
             return "success transaction";
         } catch (error) {
