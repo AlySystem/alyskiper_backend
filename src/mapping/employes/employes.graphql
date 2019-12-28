@@ -1,0 +1,86 @@
+input UserInput {
+  id: ID
+  firstname: String!
+  lastname: String!
+  email: String!
+  user: String
+  password: String!
+  sponsor_id: Int
+  address: String
+  phone: String
+  create_at: DateTime
+  date_birth: DateTime
+  is_online: Boolean
+  avatar: String
+  country_id: Int!
+  city_id: Int
+  idcivil_status: Int
+}
+
+type UserDto {
+  id: Int!
+  firstname: String
+  lastname: String
+  email: String
+  user: String
+  password: String
+  sponsor_id: Int
+  phone: String
+  address: String
+  create_at: DateTime
+  date_birth: DateTime
+  is_online: Boolean
+  avatar: String
+  country: countrieDto
+  city: citiesDto
+  civilStatus: UserCivilStatusDto
+  skiperAgent: [SkiperAgentDto]
+  skiperWallet: [SkiperWalletDto]
+}
+
+type ChangePassDto {
+    message: Boolean
+}
+
+input UserUpdatePassword {
+    id: Int!
+    oldPassword: String
+    newPassword: String!
+}
+
+input UserUpdateInput {
+    id: Int!
+    firstname: String
+    lastname: String
+    username: String
+    email: String
+    phone: String
+    country_id: Int
+    city_id: Int
+    avatar: String
+}
+input ChangePasswordEmailInput {
+    email: String
+    password: String
+    repeatpassword: String
+}
+
+
+type Mutation {
+  createUser(input: UserInput!): UserDto
+  updateUser(input: UserUpdateInput!): UserDto
+  updatePassword(input: UserUpdatePassword!): UserDto
+  setAvatarImage(id: Int!,image: String!): String!
+  getAvatarImage(id: Int!): String!
+  defaultPassword(id: Int!): String!
+  changePasswordByEmail(input: ChangePasswordEmailInput):Int
+}
+
+type Query {
+  users: [UserDto!]!
+  searchUser(id: ID!): UserDto
+  GetUserWallets(id: Int!): UserDto!
+  searchUsersBySponsorId(id:Int):[UserDto!]!
+  searchUserByEmail(email: String!): UserDto
+  getUserWhenAddressNullAndSkiperAgentIdNull: [UserDto!]!
+}
