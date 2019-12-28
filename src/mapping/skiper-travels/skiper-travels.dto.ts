@@ -28,6 +28,7 @@ export class SkiperTravelsInput {
     address_final: string;
     address_suggested: string;
     categoryId: number;
+    state: boolean;
 }
 
 @ObjectType()
@@ -47,6 +48,7 @@ export class SkiperTravelsDto {
     address_final: string;
     address_suggested: string;
     duration: number;
+    state: boolean;
     users: UserDto;
     skiperagent: SkiperAgentDto;
     skiperTravelsTracing: SkiperTravelsTracingDto;

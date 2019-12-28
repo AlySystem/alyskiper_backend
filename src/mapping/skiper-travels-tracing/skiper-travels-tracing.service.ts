@@ -205,6 +205,9 @@ export class SkiperTravelsTracingService {
             walletHistory2.date_in = new Date();
             walletHistory2.idcurrency = travel.idcurrency;
 
+            let skipertravels = new SkiperTravels();
+            skipertravels.state = true;
+
             let executivecommision = new ExecutiveCommissions();
             executivecommision.agentID = userAgent.id;
             executivecommision.idreference = travel.id;
@@ -239,6 +242,7 @@ export class SkiperTravelsTracingService {
             await queryRunner.manager.save(executivecommision);
             await queryRunner.manager.save(wallet);
             await queryRunner.manager.save(walletHistory);
+            await queryRunner.manager.save(skipertravels);
             result = await queryRunner.manager.save(travel_tracing);
             await queryRunner.commitTransaction();
         } catch (error) {

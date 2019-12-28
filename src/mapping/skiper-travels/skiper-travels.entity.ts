@@ -30,6 +30,7 @@ export class SkiperTravels {
     @Column({ nullable: true, length: 100 }) address_suggested: string;
     @Column('double', { nullable: true }) duration: number;
     @Column('int', { nullable: true }) idcattravel: number;
+    @Column('boolean') state: boolean;
 
     @ManyToOne(type => User, { nullable: true })
     @JoinColumn({ name: 'idusers' }) users: User;
