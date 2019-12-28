@@ -1,3 +1,4 @@
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SkiperRating } from './skiper-rating.entity';
@@ -18,10 +19,12 @@ export class SkiperRatingService {
 
     async registerSkiperRating(input: SkiperRatingInput) {
         try {
+            console.log(input)
             input.created = new Date();
             input.modified = new Date();
             let skiperRating = this.parseSkiperRating(input);
             let result = await this.repository.save(skiperRating);
+            console.log(result)
             if (result) {
                 return 'your rating has been received';
             } else {

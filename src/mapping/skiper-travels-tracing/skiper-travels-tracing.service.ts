@@ -65,18 +65,23 @@ export class SkiperTravelsTracingService {
         //vamos a validar que el estado exista con el estado previo.      
         let estado = await this.skiperTravelsStatusService.getByStatusCode(input.idtravelstatus);
         let travel = await this.skiperTravelsService.GetTravelByID(input.idtravel);
-        if (travel == undefined)
+
+        if (travel == undefined) {
             throw new HttpException(
                 "El viaje no existe",
                 HttpStatus.BAD_REQUEST,
             );
-        if (travel.skiperTravelsTracing[0].travelstatus.id != estado.prevstatus && estado.prevstatus != 8 && estado.prevstatus != 9)
+        }
+
+        if (travel.skiperTravelsTracing[0].travelstatus.id != estado.prevstatus && estado.prevstatus != 8 && estado.prevstatus != 9) {
             throw new HttpException(
                 estado.errorstatusprev,
                 HttpStatus.BAD_REQUEST,
             );
-
-        let result;
+        }
+        console.log(travel)
+        return ;
+        /*let result;
         var zonahoraria = geotz(input.lat, input.lng)
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
         input.fecha = fecha;
@@ -86,7 +91,6 @@ export class SkiperTravelsTracingService {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
                 let connection = getConnection();
                 let queryRunner = connection.createQueryRunner();
-
                 //Iniciando la Transaccion
                 await queryRunner.startTransaction();
                 try {
@@ -109,14 +113,14 @@ export class SkiperTravelsTracingService {
                     return result;
                 } catch (error) {
                     await queryRunner.rollbackTransaction();
+                    console.log(error)
                 } finally {
                     await queryRunner.release();
                 }
             }
-
-            try {
+            try {                
                 result = await this.transactionPayment(skiper_travel_tracing, travel);
-                console.log(result)
+
                 result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
                 result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
 
@@ -125,12 +129,12 @@ export class SkiperTravelsTracingService {
                 console.log(error)
             }
 
-        } else {
+        } else {           
             result = await this.repository.save(skiper_travel_tracing);
             result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
             result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
             return result;
-        }
+        }*/
     }
 
     private parseSkiperTravelTracing(input: SkiperTravelsTracingInput, idtravelstatus: number): SkiperTravelsTracing {

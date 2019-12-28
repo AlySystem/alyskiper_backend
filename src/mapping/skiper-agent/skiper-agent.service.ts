@@ -119,7 +119,7 @@ export class SkiperAgentService {
     async getByUser(user: User) {
         try {
             return await this.agentRepository.findOne({
-                where: { user: user }
+                where: { user: user, state:true }
             });
         } catch (error) {
             console.log(error)

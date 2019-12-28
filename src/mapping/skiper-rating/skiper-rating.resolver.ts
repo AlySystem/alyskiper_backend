@@ -14,6 +14,7 @@ export class SkiperRatingResolver {
 
     @Mutation()
     async RegisterSkiperRating(@Args('input') input: SkiperRatingInput) {
+        console.log(input)
         return await this.service.registerSkiperRating(input);
     }
 }

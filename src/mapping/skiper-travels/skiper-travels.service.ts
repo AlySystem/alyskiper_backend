@@ -154,7 +154,7 @@ export class SkiperTravelsService {
              .innerJoin("SkiperTravelsTracing.travelstatus", "SkiperTravelsStatus")
              .where("SkiperTravels.iddriver = :iddriver", { iddriver: inputviaje.iddriver })
              .getMany();*/
-             console.log(searchDriveIfHasTravels)
+        //console.log(searchDriveIfHasTravels)
         if (searchDriveIfHasTravels.length != 0) {
             throw new HttpException(
                 "Error drive is in other travel ",
@@ -188,7 +188,7 @@ export class SkiperTravelsService {
                 //console.log(usuario.city.id)
                 //console.log(vehiculo.id_cat_travel)
                 var tarifa = await this.CalcularTarifa(ip, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
-                console.log(tarifa)
+                //console.log(tarifa)
                 //console.log(tarifa);
                 //console.log(inputviaje);
                 var ValorXKm = tarifa.priceckilometer * inputviaje.distance
