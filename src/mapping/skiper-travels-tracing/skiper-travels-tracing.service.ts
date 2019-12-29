@@ -79,14 +79,14 @@ export class SkiperTravelsTracingService {
                 HttpStatus.BAD_REQUEST,
             );
         }
-        console.log(travel)
-        return ;
-        /*let result;
+
+        let result;
         var zonahoraria = geotz(input.lat, input.lng)
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
         input.fecha = fecha;
         let skiper_travel_tracing = this.parseSkiperTravelTracing(input, estado.id);
         let updateTravel;
+
         if (estado.bgenerafactura) {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
                 let connection = getConnection();
@@ -118,9 +118,10 @@ export class SkiperTravelsTracingService {
                     await queryRunner.release();
                 }
             }
-            try {                
-                result = await this.transactionPayment(skiper_travel_tracing, travel);
+            try {
 
+                result = await this.transactionPayment(skiper_travel_tracing, travel);
+                // console.log(result)
                 result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
                 result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
 
@@ -129,12 +130,12 @@ export class SkiperTravelsTracingService {
                 console.log(error)
             }
 
-        } else {           
+        } else {
             result = await this.repository.save(skiper_travel_tracing);
             result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
             result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
             return result;
-        }*/
+        }
     }
 
     private parseSkiperTravelTracing(input: SkiperTravelsTracingInput, idtravelstatus: number): SkiperTravelsTracing {
@@ -209,9 +210,10 @@ export class SkiperTravelsTracingService {
             walletHistory2.date_in = new Date();
             walletHistory2.idcurrency = travel.idcurrency;
 
-            let skipertravels = new SkiperTravels();
-            skipertravels.state = true;
-
+            let changestatetravel = await queryRunner.manager.findOne(SkiperTravels, { where: { id: travel.id } });
+            changestatetravel.state = true;
+            
+            
             let executivecommision = new ExecutiveCommissions();
             executivecommision.agentID = userAgent.id;
             executivecommision.idreference = travel.id;
@@ -246,10 +248,13 @@ export class SkiperTravelsTracingService {
             await queryRunner.manager.save(executivecommision);
             await queryRunner.manager.save(wallet);
             await queryRunner.manager.save(walletHistory);
-            await queryRunner.manager.save(skipertravels);
+
+            await queryRunner.manager.save(changestatetravel);
+
             result = await queryRunner.manager.save(travel_tracing);
             await queryRunner.commitTransaction();
         } catch (error) {
+            console.log(error)
             await queryRunner.rollbackTransaction();
         } finally {
             await queryRunner.release();
