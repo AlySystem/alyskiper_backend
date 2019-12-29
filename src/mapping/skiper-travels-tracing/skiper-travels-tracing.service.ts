@@ -101,7 +101,7 @@ export class SkiperTravelsTracingService {
                     getskipertavels.distance = distance;
                     getskipertavels.total = total;
                     getskipertavels.duration = duration;
-                    console.log(getskipertavels)
+
                     updateTravel = await queryRunner.manager.save(getskipertavels);
                     console.log(updateTravel)
                     await queryRunner.commitTransaction();
@@ -110,13 +110,12 @@ export class SkiperTravelsTracingService {
                     result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
                     result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
 
-
+                    return result;
                 } catch (error) {
-                    await queryRunner.rollbackTransaction();
                     console.log(error)
+                    await queryRunner.rollbackTransaction();
                 } finally {
                     await queryRunner.release();
-                    return result;
                 }
             }
             try {
