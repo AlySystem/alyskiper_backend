@@ -1,0 +1,28 @@
+input UploadImgAgentInput {
+    id: Int
+    id_skiper_agent: Int
+    url_img_identity: String
+    url_img_verify_identity: String
+    url_img_letterone_recomendation: String
+    url_img_lettertwo_recomendation: String
+    url_img_driver_license: String
+    url_img_police_record: String
+    url_img_driving_record: String
+}
+
+type UploadImgAgentDto {
+    id: Int
+    id_skiper_agent: Int
+    url_img_identity: String
+    url_img_verify_identity: String
+    url_img_letterone_recomendation: String
+    url_img_lettertwo_recomendation: String
+    url_img_driver_license: String
+    url_img_police_record: String
+    url_img_driving_record: String
+    skiperAgent: SkiperAgentDto
+}
+
+type Query {
+    getUploadImgAgentByAgent(idagent:Int): UploadImgAgentDto
+}

@@ -68,6 +68,8 @@ import { DetailAlycoinInvoiceModule } from './mapping/detail-alycoin-invoice/det
 import { HashConfirmedModule } from './mapping/hash-confirmed/hash-confirmed.module';
 import { ExchangeRateModule } from './mapping/exchange-rate/exchange-rate.module';
 import { UsersRatingModule } from './mapping/users-rating/users-rating.module';
+import { AppGateway } from './app.gateway';
+import {UploadImgAgentModule} from './mapping/upload-img-agent/upload-img-agent.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -174,11 +176,12 @@ import { UsersRatingModule } from './mapping/users-rating/users-rating.module';
     DetailAlycoinInvoiceModule,
     HashConfirmedModule,
     ExchangeRateModule,
+    UploadImgAgentModule
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,
   ],
-  providers: [AppService, AppResolver],
+  providers: [AppService, AppResolver, AppGateway],
   controllers: [AppController]
 })
 export class AppModule {
