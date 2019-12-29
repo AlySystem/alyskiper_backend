@@ -14,6 +14,7 @@ import { Cities } from '../cities/cities.entity';
 import geoip_lite from 'geoip-lite';
 import node_geocoder from 'node-geocoder';
 import { Countrie } from '../countries/countrie.entity';
+import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
 require('isomorphic-fetch');
 
 @Injectable()
@@ -21,7 +22,8 @@ export class SkiperTravelsService {
     constructor(
         @InjectRepository(SkiperTravels)
         private readonly repository: Repository<SkiperTravels>,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly walletService: SkiperWallet
     ) { }
 
     async getAll(): Promise<SkiperTravels[]> {
@@ -149,6 +151,7 @@ export class SkiperTravelsService {
         let searchDriveIfHasTravels = await this.repository.find({
             where: { iddriver: inputviaje.iddriver, state: false }
         });
+        
         /* let searchDriveIfHasTravels = await getConnection().createQueryBuilder(SkiperTravelsTracing, "SkiperTravelsTracing")
              .innerJoin("SkiperTravelsTracing.travel", "SkiperTravels")
              .innerJoin("SkiperTravelsTracing.travelstatus", "SkiperTravelsStatus")

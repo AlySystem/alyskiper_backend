@@ -104,12 +104,12 @@ export class SkiperTravelsTracingService {
 
                     updateTravel = await queryRunner.manager.save(getskipertavels);
                     console.log(updateTravel)
-                    await queryRunner.commitTransaction();
+                    
 
                     result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
                     result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
                     result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
-
+                    await queryRunner.commitTransaction();
                     return result;
                 } catch (error) {
                     console.log(error)
