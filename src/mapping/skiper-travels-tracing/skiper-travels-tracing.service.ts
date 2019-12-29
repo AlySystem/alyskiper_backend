@@ -91,9 +91,9 @@ export class SkiperTravelsTracingService {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
                 let connection = getConnection();
                 let queryRunner = connection.createQueryRunner();
-                //Iniciando la Transaccion
-                await queryRunner.startTransaction();
                 try {
+                    //Iniciando la Transaccion
+                    await queryRunner.startTransaction();
                     let getskipertavels = await queryRunner.manager.findOneOrFail(SkiperTravels, { where: { id: travel.id } });
                     getskipertavels.lat_final_seggested = lat_final_seggested;
                     getskipertavels.lng_final_seggested = lng_final_seggested;
