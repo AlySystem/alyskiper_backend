@@ -23,7 +23,7 @@ export class SkiperTravelsService {
         @InjectRepository(SkiperTravels)
         private readonly repository: Repository<SkiperTravels>,
         private readonly userService: UserService,
-        private readonly walletService: SkiperWallet
+        //private readonly walletService: SkiperWallet
     ) { }
 
     async getAll(): Promise<SkiperTravels[]> {
@@ -151,7 +151,7 @@ export class SkiperTravelsService {
         let searchDriveIfHasTravels = await this.repository.find({
             where: { iddriver: inputviaje.iddriver, state: false }
         });
-        
+
         /* let searchDriveIfHasTravels = await getConnection().createQueryBuilder(SkiperTravelsTracing, "SkiperTravelsTracing")
              .innerJoin("SkiperTravelsTracing.travel", "SkiperTravels")
              .innerJoin("SkiperTravelsTracing.travelstatus", "SkiperTravelsStatus")
