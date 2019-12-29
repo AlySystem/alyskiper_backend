@@ -18,6 +18,7 @@ import { SkiperAgent } from '../skiper-agent/skiper-agent.entity';
 import { ExecutiveCommissions } from '../executive-commissions/executive-commissions.entity';
 import { SkiperUserInvoice } from '../skiper-user-invoice/skiper-user-invoice.entity';
 import { SkiperInvoiceDetail } from '../skiper-invoice-detail/skiper-invoice-detail.entity';
+import { SkiperTravelsInput } from '../skiper-travels/skiper-travels.dto';
 import { UserInput } from '../users/user.dto';
 
 
@@ -89,10 +90,10 @@ export class SkiperTravelsTracingService {
 
         if (estado.bgenerafactura) {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
-                let connection = getConnection();
-                let queryRunner = connection.createQueryRunner();
+                // let connection = getConnection();
+                //let queryRunner = connection.createQueryRunner();
                 try {
-                    //Iniciando la Transaccion
+                    /*Iniciando la Transaccion
                     await queryRunner.startTransaction();
                     let getskipertavels = await queryRunner.manager.findOneOrFail(SkiperTravels, { where: { id: travel.id } });
                     getskipertavels.lat_final_seggested = lat_final_seggested;
@@ -104,18 +105,27 @@ export class SkiperTravelsTracingService {
 
                     updateTravel = await queryRunner.manager.save(getskipertavels);
                     console.log(updateTravel)
-                    
+                    await queryRunner.commitTransaction();*/
+                    let skiperTravelsInput = new SkiperTravelsInput();
+                    skiperTravelsInput.lat_final_seggested = lat_final_seggested;
+                    skiperTravelsInput.lng_final_seggested = lng_final_seggested;
+                    skiperTravelsInput.address_suggested = address_suggested;
+                    skiperTravelsInput.distance = distance;
+                    skiperTravelsInput.Total = total;
+                    skiperTravelsInput.time = duration;
+
+                    let updateTravel = await this.skiperTravelsService.updateSkiperTravels(skiperTravelsInput);
 
                     result = await this.transactionPayment(skiper_travel_tracing, updateTravel);
                     result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
                     result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
-                    await queryRunner.commitTransaction();
+
                     return result;
                 } catch (error) {
                     console.log(error)
-                    await queryRunner.rollbackTransaction();
+                    //await queryRunner.rollbackTransaction();
                 } finally {
-                    await queryRunner.release();
+                    // await queryRunner.release();
                 }
             }
             try {
