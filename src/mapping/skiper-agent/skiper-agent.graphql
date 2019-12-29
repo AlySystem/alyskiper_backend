@@ -24,6 +24,7 @@ type Mutation {
   updateAgent(input: AgentInput!): SkiperAgentDto!
   ObtenerDriveCercano(lat: Float!, lng: Float!, inputdrive: [AgentDriveInput!]!):Int
   deleteAgent(idagent: Int!):String
+  updateState(idagent:Int): SkiperAgentDto!
   RegisterCompleteDataAgent(
         firtsname: String,
         lastname: String,

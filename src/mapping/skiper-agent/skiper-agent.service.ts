@@ -119,10 +119,23 @@ export class SkiperAgentService {
     async getByUser(user: User) {
         try {
             return await this.agentRepository.findOne({
-                where: { user: user, state:true }
+                where: { user: user, state: true }
             });
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    async updateStateAgent(idgent: number) {
+        try {
+            let search = await this.getById(idgent);
+            if (search !== undefined) {
+                search.state = true;
+                return this.agentRepository.save(search);
+            }
+
+        } catch (error) {
+            console.log(error);
         }
     }
 
