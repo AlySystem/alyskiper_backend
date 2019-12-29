@@ -101,7 +101,6 @@ export class SkiperTravelsTracingService {
                     getskipertavels.distance = distance;
                     getskipertavels.total = total;
                     getskipertavels.duration = duration;
-                    getskipertavels.state = true;
                     console.log(getskipertavels)
                     updateTravel = await queryRunner.manager.save(getskipertavels);
                     console.log(updateTravel)
