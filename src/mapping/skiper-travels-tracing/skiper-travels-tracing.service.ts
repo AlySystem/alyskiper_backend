@@ -80,32 +80,14 @@ export class SkiperTravelsTracingService {
                 HttpStatus.BAD_REQUEST,
             );
         }
-
         let result;
         var zonahoraria = geotz(input.lat, input.lng)
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
         input.fecha = fecha;
         let skiper_travel_tracing = this.parseSkiperTravelTracing(input, estado.id);
-        let updateTravel;
-
         if (estado.bgenerafactura) {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
-                // let connection = getConnection();
-                //let queryRunner = connection.createQueryRunner();
                 try {
-                    /*Iniciando la Transaccion
-                    await queryRunner.startTransaction();
-                    let getskipertavels = await queryRunner.manager.findOneOrFail(SkiperTravels, { where: { id: travel.id } });
-                    getskipertavels.lat_final_seggested = lat_final_seggested;
-                    getskipertavels.lng_final_seggested = lng_final_seggested;
-                    getskipertavels.address_suggested = address_suggested;
-                    getskipertavels.distance = distance;
-                    getskipertavels.total = total;
-                    getskipertavels.duration = duration;
-
-                    updateTravel = await queryRunner.manager.save(getskipertavels);
-                    console.log(updateTravel)
-                    await queryRunner.commitTransaction();*/
                     let skiperTravelsInput = new SkiperTravelsInput();
                     skiperTravelsInput.lat_final_seggested = lat_final_seggested;
                     skiperTravelsInput.lng_final_seggested = lng_final_seggested;
@@ -123,13 +105,9 @@ export class SkiperTravelsTracingService {
                     return result;
                 } catch (error) {
                     console.log(error)
-                    //await queryRunner.rollbackTransaction();
-                } finally {
-                    // await queryRunner.release();
                 }
             }
             try {
-
                 result = await this.transactionPayment(skiper_travel_tracing, travel);
                 // console.log(result)
                 result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
@@ -144,6 +122,13 @@ export class SkiperTravelsTracingService {
             result = await this.repository.save(skiper_travel_tracing);
             result.travelstatus = await this.skiperTravelsStatusService.getById(result.idtravelstatus);
             result.travel = await this.skiperTravelsService.getById(skiper_travel_tracing.idtravel);
+
+            if (estado.codigo == "RECHAZADO" || estado.codigo == "CANCELADO") {
+                let skipertravelinput = new SkiperTravelsInput();
+                skipertravelinput.id = result.travel.id;
+                skipertravelinput.state = true;
+                await this.skiperTravelsService.updateSkiperTravels(skipertravelinput);
+            }
             return result;
         }
     }

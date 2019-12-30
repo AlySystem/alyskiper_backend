@@ -368,6 +368,7 @@ export class SkiperTravelsService {
         skipertravel.address_final = input.address_final;
         skipertravel.address_suggested = input.address_suggested;
         skipertravel.duration = input.time;
+        skipertravel.state = input.state;
         skipertravel.idcattravel = input.categoryId;
 
         console.log(skipertravel)
