@@ -32,6 +32,14 @@ export class SkiperWalletService {
         return await this.repository.find({ relations: ["userID", "currencyID", "countryID"] });
     }
 
+    async getWalletByIdUser(iduser: number) {
+        try {
+            return this.repository.find({ where: { iduser: iduser } })
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     async getAmountByCrypto(crypto: string, amount: number, iduser: number, idcountry: number, idpackage: number) {
         try {
             const url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;

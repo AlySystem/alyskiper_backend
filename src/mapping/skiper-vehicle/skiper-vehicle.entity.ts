@@ -5,6 +5,7 @@ import { VehicleTrademark } from "../vehicle-trademarks/vehicle-trademark.entity
 import { VehicleModels } from "../vehicle-models/vehicle-models.entity";
 import { VehicleYears } from "../vehicle-years/vehicle-years.entity";
 import { SkiperVehicleAgent } from "../skiper-vehicle-agent/skiper-vehicle-agent.entity";
+import { UploadVehicleAppearance } from '../upload-vehicle-appearance/upload-vehicle-appearance.entity';
 
 @Entity('skiper_vehicle')
 export class SkiperVehicle {
@@ -41,4 +42,6 @@ export class SkiperVehicle {
     @OneToMany(type => SkiperVehicleAgent, x => x.skiperVehicle)
     skiperVehicleAgent: SkiperVehicleAgent[];
 
+    @OneToMany(type => UploadVehicleAppearance, x => x.skiperVehicle)
+    uploadVehicleAppearance: UploadVehicleAppearance[];
 }

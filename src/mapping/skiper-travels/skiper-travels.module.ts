@@ -6,12 +6,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SkiperAgentModule } from '../skiper-agent/skiper-agent.module';
 import { UsersModule } from '../users/users.module';
 import { SkiperTravelsTracingModule } from '../skiper-travels-tracing/skiper-travels-tracing.module';
+import {SkiperWalletModule} from '../skiper-wallet/skiper-wallet.module';
 
 @Module({
-  imports: [
+  imports: [  
     forwardRef(() => SkiperAgentModule),
-    UsersModule,
-    forwardRef(() => SkiperTravelsTracingModule),
+    SkiperWalletModule,
+    UsersModule,    
+    forwardRef(() => SkiperTravelsTracingModule),    
     TypeOrmModule.forFeature([SkiperTravels]),
   ],
   providers: [SkiperTravelsService, SkiperTravelsResolver],

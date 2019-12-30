@@ -5,11 +5,12 @@ import { VehicleTrademarkDto } from "../vehicle-trademarks/vehicle-trademark.dto
 import { VehicleCatalogDto } from "../vehicle-catalog/vehicle-catalog.dto";
 import { SkiperCatTravelDto } from "../skiper-cat-travels/skiper-cat-travel.dto";
 import { SkiperVehicleAgentDto } from "../skiper-vehicle-agent/skiper-vehicle-agent.dto";
+import { UploadVehicleAppearanceDto } from "../upload-vehicle-appearance/upload-vehicle-appearance.dto";
 
 @InputType()
 export class SkiperVehicleInput {
-    id:number;
-    license_plate:string;
+    id: number;
+    license_plate: string;
     lat: string;
     lon: string;
     IdCatTravel: number;
@@ -21,8 +22,8 @@ export class SkiperVehicleInput {
 
 @ObjectType()
 export class SkiperVehicleDto {
-    id:number;
-    license_plate:string;
+    id: number;
+    license_plate: string;
     lat: string;
     lon: string;
     skiperCatTravel: SkiperCatTravelDto;
@@ -31,4 +32,5 @@ export class SkiperVehicleDto {
     vehicleModel: VehicleModelsDto;
     vehicleYear: VehicleYearsDto;
     skiperVehicleAgent: SkiperVehicleAgentDto;
+    uploadVehicleAppearance: UploadVehicleAppearanceDto;
 }

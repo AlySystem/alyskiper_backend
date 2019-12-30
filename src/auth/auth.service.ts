@@ -49,6 +49,7 @@ export class AuthService {
                 else {
                     co = await this.commerceByQueryBuilder(result);
                     ve = await this.vehicleByQueryBuilder(result);
+                    console.log(ve)
                 }
                 if (await this.validateUserInActiveCity(result.id) !== undefined) {
                     active_city = true;
@@ -56,7 +57,7 @@ export class AuthService {
                 return new SignResponse(new SignInOk(
                     await this.tokenGenerated(result), result.firstname,
                     result.lastname, result.user,
-                    result.email, result.phone, result.avatar, result.country, co, ve, active_city, 
+                    result.email, result.phone, result.avatar, result.country, co, ve, active_city,
                     result.city
                 ), null);
             } catch (error) {
@@ -73,7 +74,7 @@ export class AuthService {
         if (userbysponsor == undefined) {
             return new SignResponse(null, new ErrorResponse('Sponsor ID is not valid!', 400, false));
         }
-        
+
         let result = await this.userService.create(input);
         if (result === null) {
             return new SignResponse(null, new ErrorResponse('This email or phone is already exist in the database!', 400, false));
