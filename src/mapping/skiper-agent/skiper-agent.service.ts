@@ -280,7 +280,7 @@ export class SkiperAgentService {
             await queryRunner.commitTransaction();
 
             let registerVehicle;
-            if (license_plate != "") {
+            if (license_plate != null) {
                 await queryRunner.startTransaction();
                 let vehicle = new SkiperVehicle();
                 vehicle.license_plate = license_plate;
@@ -333,7 +333,7 @@ export class SkiperAgentService {
                 let registeruploadvehiclelegaldoc = await queryRunner.manager.save(uploadvehiclelegaldoc);
                 if (!registeruploadvehiclelegaldoc) {
                     throw new HttpException(
-                        'error service uploadd data vehicle',
+                        'error service upload data vehicle',
                         HttpStatus.BAD_REQUEST
                     )
                 }
