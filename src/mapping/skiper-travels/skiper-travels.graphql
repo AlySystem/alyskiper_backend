@@ -20,6 +20,16 @@ input SkiperTravelsInput {
     categoryId: Int
 }
 
+input ValidateSkiperDriveInput {
+    iddriver: Int!
+    lat_initial:Float!
+    lng_initial:Float!
+    date_init:DateTime
+    distance:Float!
+    time: Float!
+    Total:Float
+}
+
 
 type SkiperTravelsDto {
     id: Int
@@ -63,4 +73,5 @@ type Query {
 
 type Mutation {
     GenerateTravel(inputviaje: SkiperTravelsInput!, ip:String!):SkiperTravelsDto!
+    ValidateDriveAvailable(input: ValidateSkiperDriveInput):Boolean
 }

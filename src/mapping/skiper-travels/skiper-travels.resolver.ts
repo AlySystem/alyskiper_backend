@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { SkiperTravelsService } from './skiper-travels.service';
-import { SkiperTravelsInput } from './skiper-travels.dto';
+import { SkiperTravelsInput, ValidateSkiperDriveInput } from './skiper-travels.dto';
 import { SkiperTravelsTracingResolver } from '../skiper-travels-tracing/skiper-travels-tracing.resolver';
 
 @Resolver('SkiperTravels')
@@ -24,6 +24,11 @@ export class SkiperTravelsResolver {
     @Query()
     async getTravels(@Args('idagent') idagent: number) {
         return await this.service.GetTravels(idagent);
+    }
+
+    @Mutation()
+    async ValidateDriveAvailable(@Args('input') input: ValidateSkiperDriveInput) {
+        return await this.service.ValidateDriveAvailable(input);
     }
 
     @Mutation()

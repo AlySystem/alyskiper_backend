@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SkiperTravels } from './skiper-travels.entity';
 import { Repository, getManager, getConnection, createQueryBuilder, QueryBuilder, Double } from 'typeorm';
-import { SkiperTravelsInput, TravelTarifaDTo } from '../skiper-travels/skiper-travels.dto';
+import { SkiperTravelsInput, TravelTarifaDTo, ValidateSkiperDriveInput } from '../skiper-travels/skiper-travels.dto';
 import { SkiperTravelsTracing } from '../skiper-travels-tracing/skiper-travels-tracing.entity';
 import { SkiperTariffs } from '../skiper-tariffs/skiper-tariffs.entity';
 import moment = require('moment');
@@ -150,8 +150,7 @@ export class SkiperTravelsService {
         }
     }
 
-    async GenerateTravel(inputviaje: SkiperTravelsInput, ip: string): Promise<SkiperTravels> {
-
+    async ValidateDriveAvailable(inputviaje: ValidateSkiperDriveInput) {
         let searchDriveIfHasTravels = await this.repository.find({
             where: { iddriver: inputviaje.iddriver, state: false }
         });
@@ -163,11 +162,8 @@ export class SkiperTravelsService {
             );
 
         } else {
-
-            //var code = await geoip_lite.lookup(ip)
-            //vamos a obtener la zona horaria del solicitante del viaje
-            var zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
-            var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
+            let zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
+            let fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
             inputviaje.date_init = fecha;
             inputviaje.distance = (inputviaje.distance / 1000);
             inputviaje.time = (inputviaje.time / 60)
@@ -175,7 +171,7 @@ export class SkiperTravelsService {
             let viaje = new SkiperTravels();
             //vamos a calcular la tarifa del viaje
             //vamos a obtener la categoria de drive y el pais y ciudad del drive
-            var vehiculo = await getConnection()
+            let vehiculo = await getConnection()
                 .createQueryBuilder(SkiperVehicle, "SkiperVehicle")
                 .innerJoinAndSelect("SkiperVehicle.skiperVehicleAgent", "SkiperVehicleAgent")
                 .innerJoinAndSelect("SkiperVehicleAgent.skiperAgent", "SkiperAgent")
@@ -183,51 +179,100 @@ export class SkiperTravelsService {
                 .where("SkiperAgent.id = :userId", { userId: inputviaje.iddriver })
                 .getOne();
 
-            var usuario = await this.userService.findById(vehiculo.skiperVehicleAgent[0].skiperAgent.user.id)
-            // se rompe aqui
-            //console.log(usuario.country.id)
-            //console.log(usuario.city.id)
-            //console.log(vehiculo.id_cat_travel)
-            var tarifa = await this.CalcularTarifa(ip, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
+            let tarifa = await this.CalcularTarifa(inputviaje.ip, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
             //console.log(tarifa)
             //console.log(tarifa);
             //console.log(inputviaje);
-            var ValorXKm = tarifa.priceckilometer * inputviaje.distance
-            var ValorXMin = tarifa.priceminute * inputviaje.time
-            var valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
+            let ValorXKm = tarifa.priceckilometer * inputviaje.distance
+            let ValorXMin = tarifa.priceminute * inputviaje.time
+            let valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
-
 
             let user = await this.getUserDatafromDriver(inputviaje.iddriver);
             let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
+
             if (wallet == undefined) {
                 throw new HttpException(
                     "Error the drive does not have wallet available ",
                     HttpStatus.BAD_REQUEST
                 );
             }
-                      
+            
             if (parseFloat(wallet.amount.toString()) < parseFloat(inputviaje.Total.toString())) {
                 throw new HttpException(
                     "Error the drive does not have enough funds ",
                     HttpStatus.BAD_REQUEST
                 );
             }
-
-            await getManager().transaction(async transactionalEntityManager => {
-                viaje = this.parseSkiperTravel(inputviaje)
-                //console.log(viaje)
-                var viajeregistrado = await transactionalEntityManager.save(viaje)
-                let travelstracing = new SkiperTravelsTracing();
-                travelstracing.datetracing = fecha;
-                travelstracing.idtravel = viajeregistrado.id;
-                travelstracing.idtravelstatus = 1;
-                travelstracing.lat = inputviaje.lat_initial;
-                travelstracing.lng = inputviaje.lng_initial;
-                await transactionalEntityManager.save(travelstracing);
-            });
-            return viaje;
+            return true;
         }
+    }
+
+    async GenerateTravel(inputviaje: SkiperTravelsInput, ip: string): Promise<SkiperTravels> {
+        //var code = await geoip_lite.lookup(ip)
+        //vamos a obtener la zona horaria del solicitante del viaje
+        var zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
+        var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
+        inputviaje.date_init = fecha;
+        inputviaje.distance = (inputviaje.distance / 1000);
+        inputviaje.time = (inputviaje.time / 60)
+        //console.log("distancia " + inputviaje.distance, "tiempo " + inputviaje.time)
+        let viaje = new SkiperTravels();
+        //vamos a calcular la tarifa del viaje
+        //vamos a obtener la categoria de drive y el pais y ciudad del drive
+        var vehiculo = await getConnection()
+            .createQueryBuilder(SkiperVehicle, "SkiperVehicle")
+            .innerJoinAndSelect("SkiperVehicle.skiperVehicleAgent", "SkiperVehicleAgent")
+            .innerJoinAndSelect("SkiperVehicleAgent.skiperAgent", "SkiperAgent")
+            .innerJoinAndSelect("SkiperAgent.user", "User")
+            .where("SkiperAgent.id = :userId", { userId: inputviaje.iddriver })
+            .getOne();
+
+        var usuario = await this.userService.findById(vehiculo.skiperVehicleAgent[0].skiperAgent.user.id)
+        // se rompe aqui
+        //console.log(usuario.country.id)
+        //console.log(usuario.city.id)
+        //console.log(vehiculo.id_cat_travel)
+        var tarifa = await this.CalcularTarifa(ip, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
+        //console.log(tarifa)
+        //console.log(tarifa);
+        //console.log(inputviaje);
+        var ValorXKm = tarifa.priceckilometer * inputviaje.distance
+        var ValorXMin = tarifa.priceminute * inputviaje.time
+        var valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
+        inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
+
+
+        /* let user = await this.getUserDatafromDriver(inputviaje.iddriver);
+         let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
+         if (wallet == undefined) {
+             throw new HttpException(
+                 "Error the drive does not have wallet available ",
+                 HttpStatus.BAD_REQUEST
+             );
+         }
+ 
+         if (parseFloat(wallet.amount.toString()) < parseFloat(inputviaje.Total.toString())) {
+             throw new HttpException(
+                 "Error the drive does not have enough funds ",
+                 HttpStatus.BAD_REQUEST
+             );
+         }*/
+
+        await getManager().transaction(async transactionalEntityManager => {
+            viaje = this.parseSkiperTravel(inputviaje)
+            //console.log(viaje)
+            var viajeregistrado = await transactionalEntityManager.save(viaje)
+            let travelstracing = new SkiperTravelsTracing();
+            travelstracing.datetracing = fecha;
+            travelstracing.idtravel = viajeregistrado.id;
+            travelstracing.idtravelstatus = 1;
+            travelstracing.lat = inputviaje.lat_initial;
+            travelstracing.lng = inputviaje.lng_initial;
+            await transactionalEntityManager.save(travelstracing);
+        });
+        return viaje;
+
     }
 
     private async getWalletFromUser(iduser: number, idcurrency: number): Promise<SkiperWallet> {
@@ -267,7 +312,7 @@ export class SkiperTravelsService {
         }
         catch (err) {
             throw new HttpException(
-                "LOCA MANA"+err,
+                "LOCA MANA" + err,
                 HttpStatus.BAD_REQUEST,
             );
         }

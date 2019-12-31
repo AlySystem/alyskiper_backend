@@ -30,6 +30,18 @@ export class SkiperTravelsInput {
     categoryId: number;
     state: boolean;
 }
+@InputType()
+export class ValidateSkiperDriveInput {
+    iddriver: number;
+    lat_initial: number;
+    lng_initial: number;
+    date_init: Date;
+    distance: number;
+    time: number;
+    Total: number;
+    ip: string;
+    idcurrency: number;
+}
 
 @ObjectType()
 export class SkiperTravelsDto {
