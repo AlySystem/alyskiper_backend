@@ -267,7 +267,7 @@ export class SkiperTravelsService {
         }
         catch (err) {
             throw new HttpException(
-                err,
+                "LOCA MANA"+err,
                 HttpStatus.BAD_REQUEST,
             );
         }

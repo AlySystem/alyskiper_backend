@@ -89,12 +89,25 @@ export class SkiperTravelsTracingService {
             if (estado.codigo == "FINALIZADOANTESDETIEMPO" && estado.bgenerafactura) {
                 try {
                     let skiperTravelsInput = new SkiperTravelsInput();
+                    skiperTravelsInput.id = travel.id;
+                    skiperTravelsInput.idusers = travel.idusers;
+                    skiperTravelsInput.iddriver = travel.iddriver;
+                    skiperTravelsInput.idcurrency = travel.idcurrency;
+                    skiperTravelsInput.idpayment_methods = travel.idpayment_methods;
+                    skiperTravelsInput.lat_initial = travel.lat_initial;
+                    skiperTravelsInput.lng_initial = travel.lng_initial;
+                    skiperTravelsInput.lat_final = travel.lat_final;
+                    skiperTravelsInput.lng_final = travel.lng_final;
+                    skiperTravelsInput.date_init = travel.date_init;
+                    skiperTravelsInput.address_initial = travel.address_initial;
+                    skiperTravelsInput.address_final = travel.address_final;
                     skiperTravelsInput.lat_final_seggested = lat_final_seggested;
                     skiperTravelsInput.lng_final_seggested = lng_final_seggested;
                     skiperTravelsInput.address_suggested = address_suggested;
                     skiperTravelsInput.distance = distance;
                     skiperTravelsInput.Total = total;
                     skiperTravelsInput.time = duration;
+                    skiperTravelsInput.categoryId = travel.idcattravel;
 
                     let updateTravel = await this.skiperTravelsService.updateSkiperTravels(skiperTravelsInput);
 
@@ -104,7 +117,10 @@ export class SkiperTravelsTracingService {
 
                     return result;
                 } catch (error) {
-                    console.log(error)
+                    throw new HttpException(
+                        error,
+                        HttpStatus.BAD_REQUEST
+                    )
                 }
             }
             try {
@@ -143,6 +159,34 @@ export class SkiperTravelsTracingService {
         return skipertravelstracing;
     }
 
+    private parseSkiperTravel(input: SkiperTravelsInput): SkiperTravels {
+        let skipertravel: SkiperTravels = new SkiperTravels();
+        skipertravel.idusers = input.idusers;
+        skipertravel.iddriver = input.iddriver;
+        skipertravel.idcurrency = input.idcurrency;
+        skipertravel.idpayment_methods = input.idpayment_methods;
+        skipertravel.lat_initial = input.lat_initial;
+        skipertravel.lng_initial = input.lng_initial;
+        skipertravel.lat_final_seggested = input.lat_final_seggested;
+        skipertravel.lng_final_seggested = input.lng_final_seggested;
+        skipertravel.lat_final = input.lat_final;
+        skipertravel.lng_final = input.lng_final;
+        skipertravel.date_init = input.date_init;
+        skipertravel.distance = input.distance;
+        skipertravel.total = input.Total;
+        skipertravel.address_initial = input.address_initial;
+        skipertravel.address_final = input.address_final;
+        skipertravel.address_suggested = input.address_suggested;
+        skipertravel.duration = input.time;
+        skipertravel.state = input.state;
+        skipertravel.idcattravel = input.categoryId;
+
+        console.log(skipertravel)
+        return skipertravel;
+    }
+
+
+
     private async verifyTravelTracing(idtravel: number, idstatus: string) {
         let result = await createQueryBuilder("SkiperTravelsTracing")
             .innerJoin("SkiperTravelsTracing.travelstatus", "TravelStatus")
@@ -175,6 +219,7 @@ export class SkiperTravelsTracingService {
 
         try {
             let user = await this.getUserDatafromDriver(travel.iddriver);
+            console.log(user)
             let userAgent = await this.getSponsorByidUser(user.sponsor_id);
             let taxcountry = await this.getCountryByDrive(user.id);
             let amoutcommision = await this.skiperCatTrevelsService.getById(travel.idcattravel);
