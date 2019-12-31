@@ -11,7 +11,7 @@ input SkiperTravelsInput {
     date_init: DateTime
     distance: Float!
     time: Float!
-    Total: Float
+    Total: Float @deprecated(reason: "no se usa para nada dice idsarth")
     address_initial: String!
     address_final: String!
     address_suggested: String
