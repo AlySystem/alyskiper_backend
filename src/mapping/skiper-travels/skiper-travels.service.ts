@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SkiperTravels } from './skiper-travels.entity';
-import { Repository, getManager, getConnection, createQueryBuilder, QueryBuilder } from 'typeorm';
+import { Repository, getManager, getConnection, createQueryBuilder, QueryBuilder, Double } from 'typeorm';
 import { SkiperTravelsInput, TravelTarifaDTo } from '../skiper-travels/skiper-travels.dto';
 import { SkiperTravelsTracing } from '../skiper-travels-tracing/skiper-travels-tracing.entity';
 import { SkiperTariffs } from '../skiper-tariffs/skiper-tariffs.entity';
@@ -206,7 +206,8 @@ export class SkiperTravelsService {
                     HttpStatus.BAD_REQUEST
                 );
             }
-            if (wallet.amount < inputviaje.Total) {
+                      
+            if (parseFloat(wallet.amount.toString()) < parseFloat(inputviaje.Total.toString())) {
                 throw new HttpException(
                     "Error the drive does not have enough funds ",
                     HttpStatus.BAD_REQUEST
