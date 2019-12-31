@@ -318,8 +318,9 @@ export class SkiperAgentService {
                         HttpStatus.BAD_REQUEST
                     )
                 }
+                await queryRunner.commitTransaction();
             }
-            await queryRunner.commitTransaction();
+
 
             if (registerVehicle) {
                 await queryRunner.startTransaction();
