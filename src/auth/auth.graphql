@@ -32,6 +32,7 @@ type SignInOk {
   city: citiesDto
   commerce: CommerceDto
   vehicle: SkiperVehicleDto
+  wallet: SkiperWalletDto
   active_city: Boolean
 }
 

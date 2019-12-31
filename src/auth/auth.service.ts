@@ -38,28 +38,32 @@ export class AuthService {
             if (!bcrypt.compareSync(sign.password, result.password)) {
                 return new SignResponse(null, new ErrorResponse('The email or password is incorrect', 400, false));
             }
-            let co, ve;
+            let co, ve, wallet;
             let active_city = false;
             try {
                 let agent = await this.agentService.getByUser(result);
                 if (agent == undefined) {
                     co = null;
                     ve = null;
+                    wallet = null;
                 }
                 else {
                     co = await this.commerceByQueryBuilder(result);
                     ve = await this.vehicleByQueryBuilder(result);
-                    console.log(ve)
+                    wallet = await this.walletByQueryBuilder(result);
+
                 }
                 if (await this.validateUserInActiveCity(result.id) !== undefined) {
                     active_city = true;
                 }
-                return new SignResponse(new SignInOk(
+                let t = new SignResponse(new SignInOk(
                     await this.tokenGenerated(result), result.firstname,
                     result.lastname, result.user,
-                    result.email, result.phone, result.avatar, result.country, co, ve, active_city,
+                    result.email, result.phone, result.avatar, result.country, co, ve, wallet, active_city,
                     result.city
                 ), null);
+                console.log(t);
+                return t;
             } catch (error) {
                 console.log(error)
             }
@@ -192,6 +196,17 @@ export class AuthService {
             .where("SkiperAgent.iduser = :userId", { userId: result.id })
             .getOne();
         return co;
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Obtener wallet atravez del id de usuario
+    // ------------------------------------------------------------------------------------------
+    private async walletByQueryBuilder(result) {
+        let sw = await createQueryBuilder("SkiperWallet")
+            .innerJoinAndSelect("SkiperWallet.userID", "userID")
+            .where("userID.id = :id ", { id: result.id })
+            .getOne();
+        return sw;
     }
 
     // ------------------------------------------------------------------------------------------

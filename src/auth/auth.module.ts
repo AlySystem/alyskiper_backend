@@ -11,9 +11,11 @@ import { CountriesModule } from '../mapping/countries/countries.module';
 import { CitiesModule } from '../mapping/cities/cities.module';
 import { SkiperAgentModule } from '../mapping/skiper-agent/skiper-agent.module';
 import { UserCivilStatusModule } from '../mapping/user-civil-status/user-civil-status.module';
+import { SkiperWalletModule } from '../mapping/skiper-wallet/skiper-wallet.module';
 
 @Module({
     imports: [
+        SkiperWalletModule,
         UsersModule,
         CitiesModule,
         CountriesModule,
@@ -24,6 +26,6 @@ import { UserCivilStatusModule } from '../mapping/user-civil-status/user-civil-s
             privateKey: process.env.PRIVATE_KEY || 'supersecretamazingkey'
         }),
     ],
-    providers: [UserService, AuthService,JwtStrategy, AuthResolver]
+    providers: [UserService, AuthService, JwtStrategy, AuthResolver]
 })
-export class AuthModule {}
+export class AuthModule { }
