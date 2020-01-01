@@ -190,14 +190,14 @@ export class SkiperTravelsService {
 
             let user = await this.getUserDatafromDriver(inputviaje.iddriver);
             let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
-
+            console.log(wallet, user)
             if (wallet == undefined) {
                 throw new HttpException(
                     "Error the drive does not have wallet available ",
                     HttpStatus.BAD_REQUEST
                 );
             }
-            
+
             if (parseFloat(wallet.amount.toString()) < parseFloat(inputviaje.Total.toString())) {
                 throw new HttpException(
                     "Error the drive does not have enough funds ",
