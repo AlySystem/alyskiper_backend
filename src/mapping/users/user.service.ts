@@ -41,6 +41,25 @@ export class UserService {
         }
     }
 
+    async getLastUsersByCategoryId(limit: number, categoryId: number) {
+        let query = createQueryBuilder("User")
+            .leftJoinAndSelect("User.country", "Countrie")
+            .leftJoinAndSelect("User.city", "Cities")
+            .leftJoinAndSelect("User.skiperAgent", "SkiperAgent")
+            .leftJoinAndSelect("User.skiperWallet", "SkiperWallet")
+            
+            if(limit)
+                query.take(limit)
+            
+            if(categoryId)
+                query.where("SkiperAgent.categoryAgent = :categoryId",{categoryId: categoryId})
+            
+            
+
+            return await query.orderBy("User.id","DESC").getMany()
+            
+    }
+
     async findById(id: number) {
         let result: any = await createQueryBuilder("User")
             .leftJoinAndSelect("User.country", "Countrie")

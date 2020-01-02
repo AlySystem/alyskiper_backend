@@ -70,6 +70,17 @@ export class UserResolver {
     }
 
     @UseGuards(new AuthGuard())
+    @Query()
+    async getLastUsersByCategoryId(@Args('limit') limit: number, @Args('categoryId') categoryId: number) {
+        try {
+            return await this.userService.getLastUsersByCategoryId(limit,categoryId)
+        } catch (error) {
+            console.log(error)
+            return `Error resolver -> ${error}`
+        }
+    }
+
+    @UseGuards(new AuthGuard())
     @Mutation()
     updatePassword(@Args('input') input: UserUpdatePassword) {
         return this.userService.updatePassword(input);
