@@ -29,6 +29,18 @@ export class UserService {
         }
     }
 
+    async getLastUsers(): Promise<User[]> {
+        try {
+            return await this.userRepository.find({
+                relations: ["country", "city"],
+                order: { id: 'DESC' },
+                take: 20
+            });
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async findById(id: number) {
         let result: any = await createQueryBuilder("User")
             .leftJoinAndSelect("User.country", "Countrie")

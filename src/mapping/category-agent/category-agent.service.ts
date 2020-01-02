@@ -29,6 +29,21 @@ export class CategoryAgentService {
         }
     }
 
+    async getByCategoryAgentIdAndCountryId(id: number, idcountry: number) {
+        try {
+            let result = await createQueryBuilder("CategoryAgent")
+                .innerJoinAndSelect("CategoryAgent.agents", "SkiperAgent")
+                .innerJoinAndSelect("SkiperAgent.user", "User")
+                .innerJoinAndSelect("User.country", "Countrie")
+                .where("CategoryAgent.id = :id", { id })
+                .andWhere("User.idcountry = :idcountry", { idcountry })
+                .getMany();
+            return result;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async getByCategoryAgentIdAndSponsorId(id: number, id_sponsor: number) {
         try {
             let result = await createQueryBuilder("CategoryAgent")

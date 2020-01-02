@@ -21,6 +21,12 @@ export class CategoryAgentResolver {
 
     @UseGuards(new AuthGuard())
     @Query()
+    getByCategoryAgentIdAndCountryId(@Args('id')id:number,@Args('idcountry')idcountry:number){
+        return this.categoryServices.getByCategoryAgentIdAndCountryId(id,idcountry);
+    }
+
+    @UseGuards(new AuthGuard())
+    @Query()
     getByCategoryAgentIdAndSponsorId(@Args('id') id:number,@Args('id_sponsor') id_sponsor:number){
         console.log('entre aqui');
         return this.categoryServices.getByCategoryAgentIdAndSponsorId(id,id_sponsor);

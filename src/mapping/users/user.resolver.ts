@@ -16,6 +16,12 @@ export class UserResolver {
         return await this.userService.getAll();
     }
 
+    @UseGuards(new AuthGuard())
+    @Query()
+    async getLastUsers() {
+        return await this.userService.getLastUsers();
+    }
+
     // @UseGuards(new AuthGuard())
     @Query()
     searchUser(@Args('id', ParseIntPipe) id: number) {

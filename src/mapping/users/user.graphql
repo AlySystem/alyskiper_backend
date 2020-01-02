@@ -78,6 +78,7 @@ type Mutation {
 
 type Query {
   users: [UserDto!]!
+  getLastUsers: [UserDto!]!
   searchUser(id: ID!): UserDto
   GetUserWallets(id: Int!): UserDto!
   searchUsersBySponsorId(id:Int):[UserDto!]!
