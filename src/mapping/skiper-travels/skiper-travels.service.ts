@@ -187,10 +187,8 @@ export class SkiperTravelsService {
             let ValorXMin = tarifa.priceminute * inputviaje.time
             let valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
-
             let user = await this.getUserDatafromDriver(inputviaje.iddriver);
             let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
-            console.log(wallet, user)
             if (wallet == undefined) {
                 throw new HttpException(
                     "Error the drive does not have wallet available ",

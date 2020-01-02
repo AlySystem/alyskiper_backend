@@ -1,6 +1,6 @@
-import { Resolver, Query, Args } from '@nestjs/graphql';
+import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { CountrieService } from './countrie.service';
-import { countrieDto } from './countrie.dto';
+import { countrieDto, countrieInput } from './countrie.dto';
 
 @Resolver('Countries')
 export class CountriesResolver {
@@ -25,6 +25,16 @@ export class CountriesResolver {
     @Query(() => [countrieDto])
     async showCountries(@Args('page') page: number) {
         return await this.countrieService.showAll(page);
+    }
+
+    @Mutation()
+    async registerCountry(@Args('input') input: countrieInput) {
+        return await this.countrieService.create(input);
+    }
+
+    @Mutation()
+    async updateCountry(@Args('input') input: countrieInput) {
+        return await this.countrieService.update(input);
     }
 
     // @Query(() => [countrieDto])

@@ -20,6 +20,8 @@ export class Countrie {
 
     @Column('longtext', { nullable: true }) flag: string;
 
+    @Column('longtext', { nullable: false }) url_flag: string;
+
     @Column({ type: "smallint", nullable: true }) numcode: number;
 
     @Column({ type: "int", nullable: false }) phonecode: number;

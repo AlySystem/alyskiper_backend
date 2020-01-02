@@ -1,3 +1,17 @@
+input countrieInput {
+  id: Int
+  iso: String
+  name: String
+  nicename: String
+  iso3: String
+  numcode: Float
+  phonecode: Float
+  tax:Int
+  exchange:Float
+  flag: String
+  url_flag:String
+  
+}
 type countrieDto {
   id: Int
   iso: String
@@ -6,7 +20,10 @@ type countrieDto {
   iso3: String
   numcode: Float
   phonecode: Float
+  tax:Int
+  exchange:Float
   flag: String
+  url_flag:String
   cities: [citiesDto]
 }
 
@@ -15,4 +32,9 @@ type Query {
   searchCountrie(id: Int!): countrieDto!
   showCountries(page: Float!): [countrieDto!]!
   getAllCitiesByCountryId(id: Int!): [countrieDto!]!
+}
+
+type Mutation {
+  registerCountry(input:countrieInput!): countrieDto
+  updateCountry(input:countrieInput!): countrieDto
 }
