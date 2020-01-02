@@ -14,6 +14,7 @@ export class SkiperWalletsHistoryInput {
     description: string;
     date_in: Date;
     idcurrency: number;
+    paidout:boolean;
 }
 
 @ObjectType()
@@ -26,6 +27,7 @@ export class SkiperWalletsHistoryDto {
     description: string;
     date_in: Date;
     currency: CurrencyDto;
+    paidout:boolean;
 }
 
 @ObjectType()

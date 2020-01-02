@@ -58,6 +58,16 @@ export class SkiperWalletResolver {
     }
 
     @Mutation()
+    requestWithdrawalOrTransactionReversed(
+        @Args('idwallet') idwallet: number,
+        @Args('idtransaction') idtransaction: number,
+        @Args('idpayment_method') idpayment_method: number,
+        @Args('amount') amount: number,
+        @Args('description') description) {
+        return this.skiperWalletService.requestWithdrawals(idwallet, idtransaction, idpayment_method, amount, description);
+    }
+
+    @Mutation()
     async updateSkiperWallet(@Args('input') input: SkiperWalletInput) {
         try {
             return await this.skiperWalletService.updateSkiperWallet(input);
