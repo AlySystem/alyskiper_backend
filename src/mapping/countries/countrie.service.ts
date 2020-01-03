@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Countrie } from './countrie.entity';
-import { Repository } from 'typeorm';
+import { Repository,createQueryBuilder } from 'typeorm';
 import { countrieInput } from './countrie.dto';
 
 @Injectable()

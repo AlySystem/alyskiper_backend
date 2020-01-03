@@ -42,6 +42,14 @@ export class SkiperCommerceResolver {
         return this.skiperCommerceService.getCommercesBySponsorId(id_user, id_category_commerce);
     }
 
+    @Query()
+    async getcommerceByCoordinates(
+        @Args('latitud') latitud: number,
+        @Args('longitud') longitud: number,
+        @Args('id_category_product') id_category_product: number = 0) {
+        return this.skiperCommerceService.commerceByCoordinates(latitud, longitud, id_category_product);
+    }
+
     @Mutation('registerCommerce')
     async registerCommerce(@Args('input') input: CommerceInput) {
         return this.skiperCommerceService.registerCommerce(input);

@@ -10,6 +10,9 @@ import { CitiesService } from '../cities/cities.service';
 import { UserInput } from '../users/user.dto';
 import { AgentInput } from '../skiper-agent/skiper-agent.dto';
 import { UserService } from '../users/user.service';
+import node_geocoder from 'node-geocoder';
+import { Countrie } from '../countries/countrie.entity';
+
 require('isomorphic-fetch');
 
 @Injectable()
@@ -75,6 +78,65 @@ export class SkiperCommerceService {
         }
         return await ReturnDist()
     };
+
+    async getCountrieByName(name: string) {
+        try {
+            return await getConnection().createQueryBuilder(Countrie, "Countrie")
+                .where("Countrie.name = :name", { name: name.toUpperCase() }).getOne();
+        } catch (error) {
+            throw new HttpException(
+                "Error get country" + error,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+    }
+
+    async commerceByCoordinates(lat: number, long: number, id_category_product: number) {
+        try {
+            let options = {
+                provider: 'google',
+                httpAdapter: 'https', // Default
+                apiKey: 'AIzaSyDRc0P0ozp5BU98gDG06OXbFaGk3OiOYxw', // for Mapquest, OpenCage, Google Premier
+                formatter: 'json' // 'gpx', 'string', ...
+            };
+            let geocoder = node_geocoder(options);
+            let datecountry = await geocoder.reverse({ lat: lat, lon: long });
+
+            let countrie = await this.getCountrieByName(datecountry[0].country);
+            if (id_category_product == 0) {
+                // console.log('no entre aqui');
+                return await this.repository.createQueryBuilder("SkiperCommerce")
+                    .innerJoinAndSelect("SkiperCommerce.skiperAgent", "SkiperAgent")
+                    .innerJoinAndSelect("SkiperCommerce.catCommerce", "SkiperCatCommerce")
+                    .innerJoinAndSelect("SkiperCommerce.country", "Countrie")
+                    .leftJoinAndSelect("SkiperCommerce.skiperCatProductsCommerce", "SkiperCatProductsCommerce")
+                    .leftJoinAndSelect("SkiperCatProductsCommerce.skiperProductCommerce", "SkiperProductCommerce")
+                    .leftJoinAndSelect("SkiperProductCommerce.optionAddon", "OptionAddon")
+                    .where("SkiperCommerce.state = true and SkiperCommerce.lat <> :parametro and SkiperCommerce.lon <> :parametro", { parametro: "" })
+                    .andWhere("Countrie.id = :id ", { id: countrie.id })
+                    .getMany();
+            } else {
+                // console.log('entre aqui');
+                return await this.repository.createQueryBuilder("SkiperCommerce")
+                    .innerJoinAndSelect("SkiperCommerce.skiperAgent", "SkiperAgent")
+                    .innerJoinAndSelect("SkiperCommerce.catCommerce", "SkiperCatCommerce")
+                    .innerJoinAndSelect("SkiperCommerce.country", "Countrie")
+                    .leftJoinAndSelect("SkiperCommerce.skiperCatProductsCommerce", "SkiperCatProductsCommerce")
+                    .leftJoinAndSelect("SkiperCatProductsCommerce.skiperProductCommerce", "SkiperProductCommerce")
+                    .leftJoinAndSelect("SkiperProductCommerce.optionAddon", "OptionAddon")
+                    .where("SkiperCommerce.state = true and SkiperCommerce.lat <> :parametro and SkiperCommerce.lon <> :parametro", { parametro: "" })
+                    .andWhere("SkiperCatProductsCommerce.id = :idcatproduct", { idcatproduct: id_category_product })
+                    .andWhere("Countrie.id = :id ", { id: countrie.id })
+                    .getMany();
+            }
+
+        } catch (error) {
+            throw new HttpException(
+                error.message,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+    }
 
     async commerceIntoRadio(latitud: number, longitud: number, radio: number, id_category_product: number) {
         try {
