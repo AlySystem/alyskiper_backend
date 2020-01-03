@@ -130,7 +130,11 @@ export class SkiperAgentService {
         try {
             let search = await this.getById(idgent);
             if (search !== undefined) {
-                search.state = true;
+                if (search.state == true) {
+                    search.state = false;
+                } else {
+                    search.state = true;
+                }
                 return this.agentRepository.save(search);
             }
 
