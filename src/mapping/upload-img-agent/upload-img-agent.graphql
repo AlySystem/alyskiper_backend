@@ -23,6 +23,46 @@ type UploadImgAgentDto {
     skiperAgent: SkiperAgentDto
 }
 
+type AllImagesDto {
+    identity: String
+    iduser: Int
+    url_img_commerceinside_four: String
+    url_img_commerceinside_one: String
+    url_img_commerceinside_three: String
+    url_img_commerceinside_two: String
+    url_img_commerceoutside_one: String
+    url_img_commerceoutside_two: String
+    url_img_driver_license: String
+    url_img_driving_record: String
+    url_img_identity: String
+    url_img_letterone_recomendation: String
+    url_img_lettertwo_recomendation: String
+    url_img_police_record: String
+    url_img_verify_identity: String
+    url_img_identification_ruc: String
+    url_img_power_letter_four: String
+    url_img_power_letter_one: String
+    url_img_power_letter_three: String
+    url_img_power_letter_two: String
+    url_img_trade_registration: String
+    idagent: Int
+    idvehicle: Int
+    url_img_vehicle_behind: String
+    url_img_vehicle_front: String
+    url_img_vehicle_inside_four: String
+    url_img_vehicle_inside_one: String
+    url_img_vehicle_inside_three: String
+    url_img_vehicle_inside_two: String
+    url_img_vehicle_side_left: String
+    url_img_vehicle_side_right: String
+    url_img_gas_emission: String
+    url_img_insurance: String
+    url_img_license_plate: String
+    url_img_mechanical_inspection: String
+    url_img_vehicle_circulation: String
+}
+
 type Query {
     getUploadImgAgentByAgent(idagent:Int): UploadImgAgentDto
+    getAllImages(idagent:Int):[AllImagesDto]
 }
