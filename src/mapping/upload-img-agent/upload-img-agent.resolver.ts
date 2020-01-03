@@ -11,4 +11,9 @@ export class UploadImgAgentResolver {
     async getUploadImgAgentByAgent(@Args('idagent') idagent: number) {
         return await this.uploadimgAgentservice.getById(idagent);
     }
+
+    @Query()
+    async getAllImages(@Args('idagent') idagent: number){
+        return await this.uploadimgAgentservice.getAllImages(idagent)
+    }
 }

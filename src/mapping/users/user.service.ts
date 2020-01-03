@@ -47,17 +47,17 @@ export class UserService {
             .leftJoinAndSelect("User.city", "Cities")
             .leftJoinAndSelect("User.skiperAgent", "SkiperAgent")
             .leftJoinAndSelect("User.skiperWallet", "SkiperWallet")
-            
-            if(limit)
-                query.take(limit)
-            
-            if(categoryId)
-                query.where("SkiperAgent.categoryAgent = :categoryId",{categoryId: categoryId})
-            
-            
 
-            return await query.orderBy("User.id","DESC").getMany()
-            
+        if (limit)
+            query.take(limit)
+
+        if (categoryId)
+            query.where("SkiperAgent.categoryAgent = :categoryId", { categoryId: categoryId })
+
+
+
+        return await query.orderBy("User.id", "DESC").getMany()
+
     }
 
     async findById(id: number) {
