@@ -674,7 +674,7 @@ export class SkiperWalletService {
         let result;
         let walletHistory = new SkiperWalletsHistory();
 
-        let transacionType = await queryRunner.manager.findOneOrFail(TransactionType, { where: { id: idtransaction } });
+        let transacionType = await queryRunner.manager.findOne(TransactionType, { where: { id: idtransaction } });
         let verifywallet = await queryRunner.manager.findOneOrFail(SkiperWallet, { where: { id: wallet.id } });
         walletHistory.amount = amount;
         walletHistory.idcurrency = wallet.idcurrency;
@@ -684,6 +684,12 @@ export class SkiperWalletService {
         walletHistory.idtransactiontype = idtransaction;
         walletHistory.date_in = new Date();
 
+        if (parseFloat(verifywallet.amount.toString()) < parseFloat(walletHistory.amount.toString())) {
+            throw new HttpException(
+                'you dont have enough balance for this transaction',
+                HttpStatus.BAD_REQUEST
+            );
+        }
 
         if (parseFloat(verifywallet.amount.toString()) <= 0) {
             throw new HttpException(
@@ -692,10 +698,24 @@ export class SkiperWalletService {
             );
         }
 
-        try {
-            transacionType.id == 3 ? walletHistory.paidout = false : walletHistory.paidout = true;
+        if (transacionType == undefined) {
+            throw new HttpException('transaction type not exist', HttpStatus.BAD_REQUEST)
+        }
 
-            wallet.amount = (parseFloat(walletHistory.amount.toString()) - parseFloat(wallet.amount.toString()));
+        if (parseInt(transacionType.id.toString()) == 3 || parseInt(transacionType.id.toString()) == 6) {
+            if (parseInt(transacionType.id.toString()) == 3) {
+                walletHistory.paidout = false;
+            }
+            if (parseInt(transacionType.id.toString()) == 6) {
+                walletHistory.paidout = true;
+            }
+        } else {
+            throw new HttpException('transaction type is not available', HttpStatus.BAD_REQUEST)
+        }
+
+
+        try {
+            wallet.amount = (parseFloat(wallet.amount.toString()) - parseFloat(walletHistory.amount.toString()));
             result = await queryRunner.manager.save(wallet);
             await queryRunner.manager.save(walletHistory);
             await queryRunner.commitTransaction();
