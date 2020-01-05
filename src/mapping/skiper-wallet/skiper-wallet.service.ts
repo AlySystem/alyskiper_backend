@@ -19,6 +19,7 @@ import { HashConfirmed } from '../hash-confirmed/hash-confirmed.entity';
 import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 import momentTimeZone from 'moment-timezone';
 import { ExchangeRate } from '../exchange-rate/exchange-rate.entity';
+import node_geocoder from 'node-geocoder';
 
 @Injectable()
 export class SkiperWalletService {
@@ -112,6 +113,16 @@ export class SkiperWalletService {
     }
 
     async validateHash(hash: string, crypto: string, invoice: number, total_real: number, total_crypto: number, lat: number, long: number, ip: string, email: string) {
+
+        var options = {
+            provider: 'google',
+            httpAdapter: 'https', // Default
+            apiKey: 'AIzaSyDRc0P0ozp5BU98gDG06OXbFaGk3OiOYxw', // for Mapquest, OpenCage, Google Premier
+            formatter: 'json' // 'gpx', 'string', ...
+        };
+        var geocoder = node_geocoder(options);
+        var datecountry = await geocoder.reverse({ lat: lat, lon: long })
+
         let zonahoraria = geotz(lat, long)
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
         let wallet = await this.walletservice.getWalletByCrypto(crypto);
@@ -145,19 +156,16 @@ export class SkiperWalletService {
                                 let code = await geoip_lite.lookup(ip);
                                 let wallet = await this.getWalletsByEmailUser(email);
                                 if (wallet != undefined) {
-                                    let typeChangeByCountry = await this.getExchange(code.country, date);
-                                    console.log(typeChangeByCountry)
-                                    /* let exchance = (typeChangeByCountry.exchange != null) ? typeChangeByCountry.exchange : 0;
-                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                     let exchanging = (total_real * exchance).toFixed(2);
-                                     console.log(exchanging)
-                                     return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
+                                    let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
+                                    let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance).toFixed(2);
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
                                     HttpStatus.BAD_REQUEST
                                 )
-
                             } catch (error) {
                                 throw new HttpException(
                                     `error system ${error}`,
@@ -202,11 +210,11 @@ export class SkiperWalletService {
                                 let code = await geoip_lite.lookup(ip);
                                 let wallet = await this.getWalletsByEmailUser(email);
                                 if (wallet != undefined) {
-                                    /* let exchance = await this.getExchange(code.country);
-                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                     let exchanging = (total_real * exchance.exchange).toFixed(2);
-                                     console.log(exchanging)
-                                     return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
+                                    let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
+                                    let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance).toFixed(2);
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -257,17 +265,16 @@ export class SkiperWalletService {
                                 let code = await geoip_lite.lookup(ip);
                                 let wallet = await this.getWalletsByEmailUser(email);
                                 if (wallet != undefined) {
-                                    /*  let exchance = await this.getExchange(code.country);
-                                      let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                      let exchanging = (total_real * exchance.exchange).toFixed(2);
-                                      console.log(exchanging)
-                                      return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
+                                    let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
+                                    let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance).toFixed(2);
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
                                     HttpStatus.BAD_REQUEST
                                 )
-
                             } catch (error) {
                                 throw new HttpException(
                                     `error system ${error}`,
@@ -313,17 +320,16 @@ export class SkiperWalletService {
                                 let code = await geoip_lite.lookup(ip);
                                 let wallet = await this.getWalletsByEmailUser(email);
                                 if (wallet != undefined) {
-                                    /* let exchance = await this.getExchange(code.country);
-                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                     let exchanging = (total_real * exchance.exchange).toFixed(2);
-                                     await this.regiterHash(invoice, hash);
-                                     return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
+                                    let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
+                                    let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance).toFixed(2);
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
                                     HttpStatus.BAD_REQUEST
                                 )
-
                             } catch (error) {
                                 throw new HttpException(
                                     `error system ${error}`,
@@ -359,225 +365,22 @@ export class SkiperWalletService {
 
     }
 
-    async validateHashUser(hash: string, crypto: string, invoice: number, total_real: number, total_crypto: number, lat: number, long: number, ip: string, email: string) {
-        let wallet = await this.walletservice.getWalletByCrypto(crypto);
-        let paymethod = await this.getPaymentMethodBYName();
-        let validaHas = await this.hashconfirmed.getByHash(hash);
-        console.log(validaHas)
-        if (validaHas) {
-            throw new HttpException(
-                'hash has already been confirmed',
-                HttpStatus.BAD_REQUEST
-            );
-        }
-        let arraymi = new Array();
-        switch (crypto) {
-            case 'bitcoin':
-                let url = `https://api.blockcypher.com/v1/btc/main/txs/${hash}`;
-                let cryptodate = await fetch(url)
-                    .then(response => response.json())
-                    .then(json => {
-                        return json;
-                    });
-                if (!cryptodate.error) {
-                    cryptodate.outputs.forEach(output => {
-                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
-                    })
-
-                    if (cryptodate.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total_crypto.toString())) {
-                            try {
-                                let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
-                                if (wallet != undefined) {
-                                    /* let exchance = await this.getExchange(code.country);
-                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                     let exchanging = (total_real * exchance.exchange).toFixed(2);
-                                     return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
-                                }
-                                throw new HttpException(
-                                    `error user is not exist `,
-                                    HttpStatus.BAD_REQUEST
-                                )
-
-                            } catch (error) {
-                                throw new HttpException(
-                                    `error system ${error}`,
-                                    HttpStatus.BAD_REQUEST
-                                )
-                            }
-                        } else {
-                            return "you did not send the amount necessary to accept your transaction";
-                        }
-                    } else {
-                        return "We have not found our wallet in your transaction";
-                    }
-
-                } else {
-                    return "wrong hash check and try again"
-                }
-                break
-            case 'dash':
-                const url2 = `https://api.blockcypher.com/v1/dash/main/txs/${hash}`;
-                let cryptodate2 = await fetch(url2)
-                    .then(response => response.json())
-                    .then(json => {
-                        return json;
-                    });
-                if (!cryptodate2.error) {
-                    cryptodate2.outputs.forEach(output => {
-                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
-                    })
-
-                    if (cryptodate2.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total_crypto.toString())) {
-                            try {
-                                let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
-                                if (wallet != undefined) {
-                                    /* let exchance = await this.getExchange(code.country);
-                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                     let exchanging = (total_real * exchance.exchange).toFixed(2);
-                                     console.log(exchanging)
-                                     return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
-                                }
-                                throw new HttpException(
-                                    `error user is not exist `,
-                                    HttpStatus.BAD_REQUEST
-                                )
-
-                            } catch (error) {
-                                throw new HttpException(
-                                    `error system ${error}`,
-                                    HttpStatus.BAD_REQUEST
-                                )
-                            }
-                        } else {
-                            return "you did not send the amount necessary to accept your transaction";
-                        }
-                    } else {
-                        return "We have not found our wallet in your transaction";
-                    }
-
-                } else {
-                    return "wrong hash check and try again"
-                }
-                break
-            case 'litecoin':
-                const url3 = `https://api.blockcypher.com/v1/ltc/main/txs/${hash}`;
-                let cryptodate3 = await fetch(url3)
-                    .then(response => response.json())
-                    .then(json => {
-                        return json;
-                    });
-                if (!cryptodate3.error) {
-                    cryptodate3.outputs.forEach(output => {
-                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
-                    })
-
-                    if (cryptodate3.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total_crypto.toString())) {
-                            try {
-                                let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
-                                if (wallet != undefined) {
-                                    /* let exchance = await this.getExchange(code.country);
-                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                     let exchanging = (total_real * exchance.exchange).toFixed(2);
-                                     return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
-                                }
-                                throw new HttpException(
-                                    `error user is not exist `,
-                                    HttpStatus.BAD_REQUEST
-                                )
-
-                            } catch (error) {
-                                throw new HttpException(
-                                    `error system ${error}`,
-                                    HttpStatus.BAD_REQUEST
-                                )
-                            }
-                        } else {
-                            return "you did not send the amount necessary to accept your transaction";
-                        }
-                    } else {
-                        return "We have not found our wallet in your transaction";
-                    }
-
-                } else {
-                    return "wrong hash check and try again"
-                }
-                break
-            case 'ethereum':
-                const url4 = `https://api.blockcypher.com/v1/ltc/main/txs/${hash}`;
-                let cryptodate4 = await fetch(url4)
-                    .then(response => response.json())
-                    .then(json => {
-                        return json;
-                    });
-                if (!cryptodate4.error) {
-                    cryptodate4.outputs.forEach(output => {
-                        arraymi.push((((parseFloat(output.value) * 0.000000000000000001).toFixed(8)).toString()))
-                    })
-                    var wcompanystring = wallet.txt
-                    var wcompay = wcompanystring.substr(2);
-                    if (cryptodate4.addresses.includes(wcompay.toLowerCase())) {
-                        if (arraymi.includes(total_crypto.toString())) {
-                            try {
-                                let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
-                                if (wallet != undefined) {
-                                    /*let exchance = await this.getExchange(code.country);
-                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                    let exchanging = (total_real * exchance.exchange).toFixed(2);
-                                    await this.regiterHash(invoice, hash);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");*/
-                                }
-                                throw new HttpException(
-                                    `error user is not exist `,
-                                    HttpStatus.BAD_REQUEST
-                                )
-
-                            } catch (error) {
-                                throw new HttpException(
-                                    `error system ${error}`,
-                                    HttpStatus.BAD_REQUEST
-                                )
-                            }
-                        } else {
-                            return "you did not send the amount necessary to accept your transaction";
-                        }
-                    } else {
-                        return "We have not found our wallet in your transaction";
-                    }
-
-                } else {
-                    return "wrong hash check and try again"
-                }
-                break
-            default:
-                return "select an available method"
-        }
-
-    }
-
     private async getTransactionType(name: string): Promise<TransactionType> {
         return await createQueryBuilder(TransactionType, "TransactionType")
             .where("TransactionType.name = :name", { name })
             .getOne();
     }
 
-    async getExchange(iso: string, date_in: string) {
+    async getExchange(nameCountry: string, date_in: string) {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
-            console.log(date_in)
             let x = await queryRunner.manager.createQueryBuilder(ExchangeRate, "ExchangeRate")
-                .leftJoinAndSelect("ExchangeRate.country", "country")
-                .where("country.iso = :iso", { iso: iso })
-                .andWhere("exchangerate.date_in = :date_in", { date_in: date_in })
+                .innerJoin("ExchangeRate.country", "country")
+                .where("country.name = :name ", { name: nameCountry })
+                .andWhere("ExchangeRate.date_in = :date_in", { date_in: date_in })
                 .getOne();
             // console.log(x)
             return x;
@@ -624,7 +427,7 @@ export class SkiperWalletService {
         try {
             return await createQueryBuilder(SkiperWallet, "SkiperWallet")
                 .leftJoin("SkiperWallet.userID", "userID")
-                .where("userID.email= :email", { email: email })
+                .where("userID.email = :email and userID.idcountry = SkiperWallet.idcountry", { email: email })
                 .getOne();
         } catch (error) {
             console.log(error);
