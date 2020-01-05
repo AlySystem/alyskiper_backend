@@ -10,11 +10,12 @@ export class SkiperWalletsHistoryInput {
     idskiperwallet: number;
     idtransactiontype: number;
     amount: number;
+    amount_crypto: number;
     idpayment_methods: number;
     description: string;
     date_in: Date;
     idcurrency: number;
-    paidout:boolean;
+    paidout: boolean;
 }
 
 @ObjectType()
@@ -23,11 +24,12 @@ export class SkiperWalletsHistoryDto {
     skiperwallet: SkiperWalletDto;
     transactiontype: TransactionTypeDto;
     amount: number;
+    amount_crypto: number;
     paymentmethod: PaymentMethodDto;
     description: string;
     date_in: Date;
     currency: CurrencyDto;
-    paidout:boolean;
+    paidout: boolean;
 }
 
 @ObjectType()

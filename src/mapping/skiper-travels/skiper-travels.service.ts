@@ -17,6 +17,7 @@ import { Countrie } from '../countries/countrie.entity';
 import { SkiperWalletService } from '../skiper-wallet/skiper-wallet.service';
 import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
 import { User } from '../users/user.entity';
+import { SkiperCatTravelsService } from '../skiper-cat-travels/skiper-cat-travels.service';
 require('isomorphic-fetch');
 
 @Injectable()
@@ -25,7 +26,8 @@ export class SkiperTravelsService {
         @InjectRepository(SkiperTravels)
         private readonly repository: Repository<SkiperTravels>,
         private readonly userService: UserService,
-        private readonly skiperwalletservice: SkiperWalletService
+        private readonly skiperwalletservice: SkiperWalletService,
+        private readonly skipercattravelservice: SkiperCatTravelsService
 
     ) { }
 
@@ -195,8 +197,14 @@ export class SkiperTravelsService {
                     HttpStatus.BAD_REQUEST
                 );
             }
+            let getTax = await this.getCountryByDrive(inputviaje.iddriver);
+            let tax = (getTax.tax == null) ? 0 : getTax.tax;
+            let skiperPorcentagePay = await this.skipercattravelservice.getById(inputviaje.idcategoryTravel);
+            let subtotal = (inputviaje.Total * parseInt(skiperPorcentagePay.paycommission.toString())) / 100;
+            let calcTax = (subtotal * tax) / 100;
+            let totaldebit = subtotal + calcTax;
 
-            if (parseFloat(wallet.amount.toString()) < parseFloat(inputviaje.Total.toString())) {
+            if (parseFloat(wallet.amount.toString()) < parseFloat(totaldebit.toFixed(2))) {
                 throw new HttpException(
                     "Error the drive does not have enough funds ",
                     HttpStatus.BAD_REQUEST
@@ -416,6 +424,13 @@ export class SkiperTravelsService {
                 HttpStatus.BAD_REQUEST
             )
         }
+    }
+    private async getCountryByDrive(idagent: number): Promise<Countrie> {
+        return await createQueryBuilder(Countrie, "Countrie")
+            .leftJoin("Countrie.user", "User")
+            .leftJoin("User.skiperAgent", "skiperAgent")
+            .where("skiperAgent.id = :id", { id: idagent })
+            .getOne();
     }
 
     private parseSkiperTravel(input: SkiperTravelsInput): SkiperTravels {

@@ -10,4 +10,8 @@ export class ExchangeRateService {
         private readonly repository: Repository<ExchangeRate>
     ) { }
 
+    async getById(id: number) {
+        return this.repository.findOne(id);
+    }
+
 }

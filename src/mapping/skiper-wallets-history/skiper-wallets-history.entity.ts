@@ -19,6 +19,8 @@ export class SkiperWalletsHistory {
 
     @Column('double', { nullable: false }) amount: number;
 
+    @Column('double') amount_crypto: number;
+
     @Column('longtext', { nullable: true }) description: string;
 
     @Column({ nullable: false }) date_in: Date

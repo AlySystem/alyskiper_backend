@@ -8,6 +8,7 @@ export class SkiperWalletInput {
     id: number;
     iduser: number;
     amount: number;
+    amount_crypto: number;
     idcurrency: number;
     idcountry: number;
     minimun: number;
@@ -27,6 +28,7 @@ export class SendDataForPayCrypto {
 export class SkiperWalletDto {
     id: number;
     amount: number;
+    amount_crypto: number;
     minimun: number;
     bretirar: boolean;
     date_in: Date;

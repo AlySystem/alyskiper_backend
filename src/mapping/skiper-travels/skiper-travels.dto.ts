@@ -33,6 +33,7 @@ export class SkiperTravelsInput {
 @InputType()
 export class ValidateSkiperDriveInput {
     iddriver: number;
+    idcategoryTravel: number;
     lat_initial: number;
     lng_initial: number;
     date_init: Date;

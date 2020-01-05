@@ -12,6 +12,8 @@ export class SkiperWallet {
 
     @Column('double', { nullable: false }) amount: number;
 
+    @Column('double') amount_crypto: number;
+
     @Column({ nullable: false }) idcurrency: number;
 
     @Column({ nullable: false }) idcountry: number;

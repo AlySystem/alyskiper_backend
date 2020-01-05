@@ -43,7 +43,7 @@ export class SkiperWalletResolver {
     }
     @Mutation()
     validateHash(@Args('hash') hash: string, @Args('crypto') crypto: string, @Args('total_real') total_real: number, @Args('total_crypto') total_crypto: number, @Args('lat') lat: number, @Args('long') long: number, @Args('ip') ip: string, @Args('email') email: string,
-        @Args('invoice') invoice: number) {
+        @Args('invoice') invoice: number = 0) {
         return this.skiperWalletService.validateHash(hash, crypto, invoice, total_real, total_crypto, lat, long, ip, email);
     }
 

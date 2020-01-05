@@ -1,9 +1,10 @@
 import { InputType, ObjectType } from 'type-graphql';
+import { countrieDto } from '../countries/countrie.dto';
 
 @InputType()
 export class ExchangeRateInput {
     id: number;
-    idcountry: number;
+    countryid: number;
     idcurrency: number;
     value: number;
     date_in: Date;
@@ -12,8 +13,8 @@ export class ExchangeRateInput {
 @ObjectType()
 export class ExchangeRateDto {
     id: number;
-    idcountry: number;
     idcurrency: number;
     value: number;
     date_in: Date;
+    country: countrieDto;
 }

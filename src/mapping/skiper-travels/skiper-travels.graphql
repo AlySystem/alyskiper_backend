@@ -21,7 +21,8 @@ input SkiperTravelsInput {
 }
 
 input ValidateSkiperDriveInput {
-    iddriver: Int!    
+    iddriver: Int!  
+    idcategoryTravel:Int!  
     lat_initial:Float!
     lng_initial:Float!
     date_init:DateTime

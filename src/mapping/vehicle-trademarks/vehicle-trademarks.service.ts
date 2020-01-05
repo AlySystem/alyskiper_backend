@@ -7,20 +7,20 @@ import { VehicleTrademark } from './vehicle-trademark.entity';
 
 @Injectable()
 export class VehicleTrademarksService {
-    
-    constructor(
-        @InjectRepository(VehicleTrademark) private readonly repository:Repository<VehicleTrademark>
-    ){}
 
-    async getAll(){
+    constructor(
+        @InjectRepository(VehicleTrademark) private readonly repository: Repository<VehicleTrademark>
+    ) { }
+
+    async getAll() {
         return await this.repository.find();
     }
 
-    async getById(id:number){
-        return await this.repository.findOneOrFail({id});
+    async getById(id: number) {
+        return await this.repository.findOneOrFail({ id });
     }
 
-    async update(input: VehicleTrademarInput): Promise<VehicleTrademark>{
+    async update(input: VehicleTrademarInput): Promise<VehicleTrademark> {
         //console.log(input);
         try {
             let vehicletrademarkUpdate = await this.getById(input.id);
@@ -33,9 +33,8 @@ export class VehicleTrademarksService {
     }
 
 
-    async registerVehicleTrademark(input: VehicleTrademarInput):Promise<VehicleTrademark>{
-        try 
-        {
+    async registerVehicleTrademark(input: VehicleTrademarInput): Promise<VehicleTrademark> {
+        try {
             let vehicletrademark = this.parseVehicleTrademark(input);
             //console.log(app);
             return this.repository.save(vehicletrademark);
@@ -45,8 +44,8 @@ export class VehicleTrademarksService {
         return null;
     }
 
-    private parseVehicleTrademark(input: VehicleTrademarInput):VehicleTrademark {
-        let vehicletrademark:VehicleTrademark = new VehicleTrademark();
+    private parseVehicleTrademark(input: VehicleTrademarInput): VehicleTrademark {
+        let vehicletrademark: VehicleTrademark = new VehicleTrademark();
         vehicletrademark.name = input.name;
         return vehicletrademark;
     }
