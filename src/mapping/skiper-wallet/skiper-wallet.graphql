@@ -39,7 +39,7 @@ type Query {
 type Mutation {
     registerSkiperWallet(input: SkiperWalletInput!):SkiperWalletDto
     updateSkiperWallet(input: SkiperWalletInput): SkiperWalletDto
-    registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!, description:String!): SkiperWalletDto
+    registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!, is_user:Boolean,description:String!): SkiperWalletDto
     requestWithdrawalOrTransactionReversed(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, amount:Float!, description:String!): SkiperWalletDto
-    validateHash(hash:String!, crypto:String!, total_real:Float, total_crypto:Float, lat:Float, long:Float, ip:String, email:String):SkiperWalletDto
+    validateHash(hash:String!, crypto:String!, total_real:Float, total_crypto:Float, lat:Float, long:Float, ip:String, email:String, is_user:Boolean):SkiperWalletDto
 }

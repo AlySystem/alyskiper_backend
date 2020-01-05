@@ -112,7 +112,7 @@ export class SkiperWalletService {
 
     }
 
-    async validateHash(hash: string, crypto: string, invoice: number, total_real: number, total_crypto: number, lat: number, long: number, ip: string, email: string) {
+    async validateHash(hash: string, crypto: string, invoice: number, total_real: number, total_crypto: number, lat: number, long: number, ip: string, email: string, is_user: boolean) {
 
         var options = {
             provider: 'google',
@@ -126,7 +126,7 @@ export class SkiperWalletService {
         let zonahoraria = geotz(lat, long)
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
         let wallet = await this.walletservice.getWalletByCrypto(crypto);
-        let paymethod = await this.getPaymentMethodBYName();
+        let paymethodCrypto = await this.getPaymentMethodBYName();
         let validaHas = await this.hashconfirmed.getByHash(hash);
 
         if (validaHas != undefined) {
@@ -154,13 +154,16 @@ export class SkiperWalletService {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
                                 let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
+                                if (is_user == false) {
+                                    crypto = undefined;
+                                }
+                                let wallet = await this.getWalletsByEmailUser(email, crypto);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
                                     let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -208,13 +211,13 @@ export class SkiperWalletService {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
                                 let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
+                                let wallet = await this.getWalletsByEmailUser(email, crypto);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
                                     let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -263,13 +266,13 @@ export class SkiperWalletService {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
                                 let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
+                                let wallet = await this.getWalletsByEmailUser(email, crypto);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
                                     let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -318,13 +321,13 @@ export class SkiperWalletService {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
                                 let code = await geoip_lite.lookup(ip);
-                                let wallet = await this.getWalletsByEmailUser(email);
+                                let wallet = await this.getWalletsByEmailUser(email, crypto);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
                                     let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethod.id, parseFloat(exchanging), "Recarga credito");
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -395,7 +398,7 @@ export class SkiperWalletService {
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
-            return await queryRunner.manager.findOneOrFail(PaymentMethods, { where: { name: 'Crypto Currencies' } });
+            return await queryRunner.manager.findOneOrFail(PaymentMethods, { where: { name: 'CryptoCurrencies' } });
         } catch (error) {
             console.log(error);
         }
@@ -423,12 +426,21 @@ export class SkiperWalletService {
         }
     }
 
-    async getWalletsByEmailUser(email: string) {
+    async getWalletsByEmailUser(email: string, crypto: string) {
         try {
-            return await createQueryBuilder(SkiperWallet, "SkiperWallet")
-                .leftJoin("SkiperWallet.userID", "userID")
-                .where("userID.email = :email and userID.idcountry = SkiperWallet.idcountry", { email: email })
-                .getOne();
+            if (crypto != undefined) {
+                return await createQueryBuilder(SkiperWallet, "SkiperWallet")
+                    .innerJoin("SkiperWallet.userID", "userID")
+                    .innerJoin("SkiperWallet.currencyID", "currencyID")
+                    .where("currencyID.name = :name", { name: crypto })
+                    .andWhere("userID.email = :email and userID.idcountry = SkiperWallet.idcountry", { email: email })
+                    .getOne();
+            } else {
+                return await createQueryBuilder(SkiperWallet, "SkiperWallet")
+                    .innerJoin("SkiperWallet.userID", "userID")
+                    .andWhere("userID.email = :email and userID.idcountry = SkiperWallet.idcountry", { email: email })
+                    .getOne();
+            }
         } catch (error) {
             console.log(error);
         }
@@ -468,13 +480,22 @@ export class SkiperWalletService {
     }
 
 
-    async registerDeposit(id: number, idtransaction: number, idpayment_method: number, deposit: number, description: string) {
+    async registerDeposit(id: number, idtransaction: number, idpayment_method: number, deposit: number, depositCrypto: number, is_user: boolean, description: string) {
         try {
+            let result;
             let wallet = await this.repository.findOneOrFail({ id });
-            let result = await this.walletDepositTransaction(wallet, deposit, idtransaction, idpayment_method, description);
-            if (result) {
-                return await this.getById(result.id);
+            if (is_user) {
+                result = await this.walletDepositTransactionCryptoCurrency(wallet, depositCrypto, idtransaction, idpayment_method, description);
+                if (result) {
+                    return await this.getById(result.id);
+                }
+            } else {
+                result = await this.walletDepositTransactionLocalCurrency(wallet, deposit, idtransaction, idpayment_method, description);
+                if (result) {
+                    return await this.getById(result.id);
+                }
             }
+
             return result;
         } catch (error) {
             throw new HttpException('wallet is missing', HttpStatus.BAD_REQUEST);
@@ -588,7 +609,40 @@ export class SkiperWalletService {
 
     }
 
-    private async walletDepositTransaction(wallet: SkiperWallet, deposit: number, idtransaction: number, idpayment_method: number, description: string): Promise<SkiperWallet> {
+    private async walletDepositTransactionCryptoCurrency(wallet: SkiperWallet, deposit: number, idtransaction: number, idpayment_method: number, description: string): Promise<SkiperWallet> {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+
+        let result;
+        let walletHistory = new SkiperWalletsHistory();
+        try {
+            let transacionType = await queryRunner.manager.findOneOrFail(TransactionType, { where: { id: idtransaction } });
+            walletHistory.amount = 0;
+            walletHistory.amount_crypto = deposit;
+            walletHistory.idcurrency = wallet.idcurrency;
+            walletHistory.idskiperwallet = wallet.id;
+            walletHistory.idpayment_methods = idpayment_method;
+            walletHistory.description = description;
+            walletHistory.idtransactiontype = idtransaction;
+            walletHistory.date_in = new Date();
+            //Save entity
+            wallet.amount_crypto = (parseFloat(walletHistory.amount_crypto.toString()) + parseFloat(wallet.amount_crypto.toString()));
+            result = await queryRunner.manager.save(wallet);
+            await queryRunner.manager.save(walletHistory);
+            await queryRunner.commitTransaction();
+        } catch (err) {
+            console.log(err);
+            await queryRunner.rollbackTransaction();
+            return null;
+        } finally {
+            await queryRunner.release();
+            return result;
+        }
+    }
+
+    private async walletDepositTransactionLocalCurrency(wallet: SkiperWallet, deposit: number, idtransaction: number, idpayment_method: number, description: string): Promise<SkiperWallet> {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
