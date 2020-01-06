@@ -43,6 +43,11 @@ export class UserResolver {
         return this.userService.GetUserWallets(id)
     }
 
+    @Query()
+    GetUserWalletsCrypto(@Args('id', ParseIntPipe) id: number) {
+        return this.userService.GetUserWalletsCrypto(id)
+    }
+
     @Mutation()
     async createUser(@Args('input') input: UserInput) {
         let result = await this.userService.create(input);

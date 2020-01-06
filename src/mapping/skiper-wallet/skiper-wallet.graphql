@@ -12,6 +12,7 @@ input SkiperWalletInput {
 type SkiperWalletDto {
     id: Int
     amount: Float!
+    amount_crypto: Float!
     date_in: DateTime!
     minimun: Float!
     bretirar: Boolean!

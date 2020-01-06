@@ -81,6 +81,7 @@ type Query {
   getLastUsers: [UserDto!]!
   searchUser(id: ID!): UserDto
   GetUserWallets(id: Int!): UserDto!
+  GetUserWalletsCrypto(id: Int!): UserDto!
   searchUsersBySponsorId(id:Int):[UserDto!]!
   searchUserByEmail(email: String!): UserDto
   getUserWhenAddressNullAndSkiperAgentIdNull: [UserDto!]!
