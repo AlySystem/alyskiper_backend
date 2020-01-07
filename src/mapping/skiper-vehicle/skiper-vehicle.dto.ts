@@ -32,5 +32,5 @@ export class SkiperVehicleDto {
     vehicleModel: VehicleModelsDto;
     vehicleYear: VehicleYearsDto;
     skiperVehicleAgent: SkiperVehicleAgentDto;
-    uploadVehicleAppearance: UploadVehicleAppearanceDto;
+    uploadVehicleAppearance: UploadVehicleAppearanceDto[];
 }

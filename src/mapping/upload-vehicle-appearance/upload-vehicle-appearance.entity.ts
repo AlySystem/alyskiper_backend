@@ -16,6 +16,6 @@ export class UploadVehicleAppearance {
     @Column('int', { nullable: false }) idvehicle: number;
 
     //Falta el Objeto de tipo skiper_vehicle
-    @ManyToOne(type => SkiperVehicle, { nullable: false })
+    @ManyToOne(type => SkiperVehicle, skipervehicle => skipervehicle.uploadVehicleAppearance)
     @JoinColumn({ name: 'idvehicle' }) skiperVehicle: SkiperVehicle;
 }

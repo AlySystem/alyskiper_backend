@@ -209,7 +209,6 @@ export class SkiperTravelsTracingService {
 
     //Transaccion fumada para debitar los pagos
     private async transactionPayment(travel_tracing: SkiperTravelsTracing, travel: SkiperTravels) {
-
         const connection = getConnection();
         const queryRunner = connection.createQueryRunner();
 
@@ -219,17 +218,23 @@ export class SkiperTravelsTracingService {
 
         try {
             let user = await this.getUserDatafromDriver(travel.iddriver);
-            console.log(user)
             let userAgent = await this.getSponsorByidUser(user.sponsor_id);
             let taxcountry = await this.getCountryByDrive(user.id);
+            let getTax = (taxcountry.tax == null) ? 0 : taxcountry.tax;
             let amoutcommision = await this.skiperCatTrevelsService.getById(travel.idcattravel);
             let wallet = await this.getWalletFromDriver(user.id, travel.idcurrency);
+            if (wallet == undefined) {
+                throw new HttpException(
+                    'error this drive not have a wallet available',
+                    HttpStatus.BAD_REQUEST
+                )
+            }
             let transactiontype = await this.getTransactionType("DEBITO X VIAJE");
             let transactiontype2 = await this.getTransactionType("CREDITO");
             let valorviaje = (parseFloat(travel.total.toString()) * parseFloat(transactiontype.sign.toString()));
             let subtotaldebit = valorviaje * (parseInt(amoutcommision.paycommission.toString()) / 100);
             let commisionexecutive = subtotaldebit * (parseInt(amoutcommision.percentageagent.toString()) / 100)
-            let calciva = subtotaldebit * (parseInt(taxcountry.tax.toString()) / 100);
+            let calciva = subtotaldebit * (parseInt(getTax.toString()) / 100);
             let totaldebit = subtotaldebit + calciva;
             wallet.amount = parseFloat(wallet.amount.toString()) + totaldebit;
             let walletHistory = new SkiperWalletsHistory();
@@ -341,10 +346,14 @@ export class SkiperTravelsTracingService {
     }
 
     private async getWalletFromDriver(iduser: number, idcurrency: number): Promise<SkiperWallet> {
-        return await createQueryBuilder(SkiperWallet, "SkiperWallet")
-            .where("SkiperWallet.iduser = :iduser", { iduser })
-            .andWhere("SkiperWallet.idcurrency = :idcurrency", { idcurrency })
-            .getOne();
+        try {
+            return await createQueryBuilder(SkiperWallet, "SkiperWallet")
+                .where("SkiperWallet.iduser = :iduser", { iduser })
+                .andWhere("SkiperWallet.idcurrency = :idcurrency", { idcurrency })
+                .getOne();
+        } catch (error) {
+            console.log(error);
+        }
     }
     /*  
     select c.* from countries c			

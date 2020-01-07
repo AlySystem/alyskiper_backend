@@ -391,6 +391,7 @@ export class SkiperTravelsService {
                 .innerJoinAndSelect("SkiperVehicle.vehicleModel", "VehicleModels")
                 .innerJoinAndSelect("SkiperVehicle.vehicleTrademark", "VehicleTrademark")
                 .innerJoinAndSelect("SkiperVehicle.vehicleYear", "VehicleYears")
+                .innerJoinAndSelect("SkiperVehicle.uploadVehicleAppearance", "uploadVehicleAppearance")
                 .innerJoinAndSelect("SkiperTravels.skiperTravelsTracing", "SkiperTravelsTracing")
                 .innerJoinAndSelect(subQuery => {
                     return subQuery
@@ -404,6 +405,7 @@ export class SkiperTravelsService {
                 .andWhere("SkiperTravelsTracing.idtravelstatus IN (:idstatus)", { idstatus: [1, 3, 4, 5, 6, 7] })
                 .getOne()
                 .then(item => (item == undefined) ? null : item);
+                console.log(result)
             return result;
         } catch (error) {
             console.log(error);
