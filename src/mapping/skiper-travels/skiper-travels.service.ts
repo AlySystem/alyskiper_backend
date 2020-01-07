@@ -18,6 +18,7 @@ import { SkiperWalletService } from '../skiper-wallet/skiper-wallet.service';
 import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
 import { User } from '../users/user.entity';
 import { SkiperCatTravelsService } from '../skiper-cat-travels/skiper-cat-travels.service';
+import { Currency } from '../currency/currency.entity';
 require('isomorphic-fetch');
 
 @Injectable()
@@ -108,7 +109,6 @@ export class SkiperTravelsService {
             //.andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
-
         if (tarifas.length == 0)
             throw new HttpException(
                 "There are no rates available in this country",
@@ -129,13 +129,15 @@ export class SkiperTravelsService {
         )[0]
         // console.log(tarifa.price_kilometer)  
         // console.log(tarifa.price_minimum)  
-        //console.log(tarifa.price_minute)  
-        // console.log(tarifa.symbol)  
+        //console.log(tarifa.price_minute)
+        let getcurrency = await getConnection().createQueryBuilder(Currency, "Currency")
+            .where("Currency.idcountry = :idcountry", { idcountry: tarifa.idcountry }).getOne();
         var travelTarifaDTo = new TravelTarifaDTo();
         travelTarifaDTo.pricebase = tarifa.price_base;
         travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
         travelTarifaDTo.priceminimun = tarifa.price_minimum;
         travelTarifaDTo.priceminute = tarifa.price_minute;
+        travelTarifaDTo.currencyID = getcurrency.id;
         travelTarifaDTo.symbol = tarifa.symbol;
 
         return travelTarifaDTo
@@ -191,6 +193,7 @@ export class SkiperTravelsService {
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
             let user = await this.getUserDatafromDriver(inputviaje.iddriver);
             let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
+            console.log(wallet)
             if (wallet == undefined) {
                 throw new HttpException(
                     "Error the drive does not have wallet available ",
