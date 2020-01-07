@@ -160,10 +160,12 @@ export class SkiperTravelsService {
         });
 
         if (searchDriveIfHasTravels.length != 0) {
-            throw new HttpException(
-                "Error drive is in other travel ",
-                HttpStatus.BAD_REQUEST
-            );
+            /* throw new HttpException(
+                 "Error drive is in other travel",
+                 HttpStatus.BAD_REQUEST
+             );*/
+            console.log("Error drive is in other travel")
+            return false;
 
         } else {
             let zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
@@ -183,6 +185,15 @@ export class SkiperTravelsService {
                 .where("SkiperAgent.id = :userId", { userId: inputviaje.iddriver })
                 .getOne();
 
+            if (vehiculo == undefined) {
+                /*throw new HttpException(
+                    'Error the drive does not have vehicle available',
+                    HttpStatus.BAD_REQUEST
+                );*/
+                console.log("Error the drive does not have vehicle available");
+                return false;
+            }
+
             let tarifa = await this.CalcularTarifa(inputviaje.ip, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
             //console.log(tarifa)
             //console.log(tarifa);
@@ -193,12 +204,14 @@ export class SkiperTravelsService {
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
             let user = await this.getUserDatafromDriver(inputviaje.iddriver);
             let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
-            console.log(wallet)
+
             if (wallet == undefined) {
-                throw new HttpException(
-                    "Error the drive does not have wallet available ",
+                /*throw new HttpException(
+                    "Error the drive does not have wallet available",
                     HttpStatus.BAD_REQUEST
-                );
+                );*/
+                console.log("Error the drive does not have wallet available");
+                return false;
             }
             let getTax = await this.getCountryByDrive(inputviaje.iddriver);
             let tax = (getTax.tax == null) ? 0 : getTax.tax;
@@ -208,10 +221,12 @@ export class SkiperTravelsService {
             let totaldebit = subtotal + calcTax;
 
             if (parseFloat(wallet.amount.toString()) < parseFloat(totaldebit.toFixed(2))) {
-                throw new HttpException(
-                    "Error the drive does not have enough funds ",
+                /*throw new HttpException(
+                    "Error the drive does not have enough funds",
                     HttpStatus.BAD_REQUEST
-                );
+                );*/
+                console.log("Error the drive does not have enough funds");
+                return false;
             }
             return true;
         }
