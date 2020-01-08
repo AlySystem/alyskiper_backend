@@ -35,4 +35,5 @@ type Query {
 type Mutation {
     registerSkiperVehicle(input: SkiperVehicleInput!): SkiperVehicleDto!
     updateSkiperVehicle(input: SkiperVehicleInput!): SkiperVehicleDto!
+    updateSkiperVehicleCatTravel(input: SkiperVehicleInput!): SkiperVehicleDto!
  }

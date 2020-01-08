@@ -47,5 +47,11 @@ export class SkiperVehicleResolver {
         let result = await this.service.updateSkiperVehicle(input);
         return result
     }
+    
+    @Mutation()
+    async updateSkiperVehicleCatTravel(@Args('idVehicle')idVehicle: number, @Args('idVehicle') idCatTravel: number) {
+        let result = await this.service.updateSkiperVehicleCatTravel(idVehicle, idCatTravel);
+        return result
+    }
 
 }
