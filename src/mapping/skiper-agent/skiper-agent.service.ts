@@ -207,15 +207,12 @@ export class SkiperAgentService {
         let isLicensePlate = await this.validateLicensePlatenameIsExist(license_plate);
         //console.log(isLicensePlate)
         //console.log(isEmailExist, isEmailExist.length)
-        if (isPhoneExist.length > 0) {
+        /*if (isPhoneExist.length > 0) {
             errors.alertPhone = "Este número de teléfono ya está registrado";
-        }
-        if (isEmailExist.length > 0) {
-            errors.alertEmail = "Este email ya está registrado";
         }
         if (isUsernameExist.length > 0) {
             errors.alertUser = "Este nombre de usuario ya está registrado"
-        }
+        }*/
         if (isLicensePlate.length > 0) {
             errors.alertLicense_Plate = "Esta placa ya está registrada"
         }
@@ -227,29 +224,36 @@ export class SkiperAgentService {
         }
 
         try {
-            await queryRunner.startTransaction();
-            let user = new User();
-            user.firstname = firtsname;
-            user.lastname = lastname;
-            user.email = email;
-            user.user = username;
-            user.password = password;
-            user.address = address;
-            user.phone = phone;
-            user.idcountry = idcountry;
-            user.idcity = idcity;
-            let userData = await queryRunner.manager.save(user);
-            if (!userData) {
-                throw new HttpException(
-                    'error service skiper vehicle  agent',
-                    HttpStatus.BAD_REQUEST
-                )
+            let userData;
+            if (isEmailExist.length == 0) {
+                await queryRunner.startTransaction();
+                let user = new User();
+                user.firstname = firtsname;
+                user.lastname = lastname;
+                user.email = email;
+                user.user = username;
+                user.password = password;
+                user.address = address;
+                user.phone = phone;
+                user.idcountry = idcountry;
+                user.idcity = idcity;
+                userData = await queryRunner.manager.save(user);
+                if (!userData) {
+                    throw new HttpException(
+                        'error service skiper vehicle  agent',
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
+                await queryRunner.commitTransaction();
+
+            } else {
+                userData = isEmailExist;
             }
-            await queryRunner.commitTransaction();
+
 
             await queryRunner.startTransaction();
             let agent = new SkiperAgent();
-            agent.iduser = userData.id;
+            agent.iduser = userData[0].id;
             agent.idcategory_agent = 1;
             agent.state = false;
             agent.identity = identity;
