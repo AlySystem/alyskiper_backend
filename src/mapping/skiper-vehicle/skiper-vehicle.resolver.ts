@@ -49,7 +49,7 @@ export class SkiperVehicleResolver {
     }
     
     @Mutation()
-    async updateSkiperVehicleCatTravel(@Args('idVehicle')idVehicle: number, @Args('idVehicle') idCatTravel: number) {
+    async updateSkiperVehicleCatTravel(@Args('idVehicle') idVehicle: number, @Args('idCatTravel') idCatTravel: number) {
         let result = await this.service.updateSkiperVehicleCatTravel(idVehicle, idCatTravel);
         return result
     }
