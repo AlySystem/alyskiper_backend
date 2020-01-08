@@ -13,7 +13,7 @@ export class SkiperVehicleService {
         try {
             return await this.repository.find({
                 relations: ["skiperCatTravel", "vehicleCatalog",
-                    "vehicleTrademark", "vehicleModel", "vehicleYear"]
+                    "vehicleTrademark", "vehicleModel", "vehicleYear", "uploadVehicleAppearance"]
             });
         } catch (error) {
             throw new HttpException(
@@ -25,7 +25,9 @@ export class SkiperVehicleService {
 
     async getById(id: number): Promise<SkiperVehicle> {
         return await this.repository.findOneOrFail({
-            where: { id }
+            where: { id },
+            relations: ["skiperCatTravel", "vehicleCatalog",
+                "vehicleTrademark", "vehicleModel", "vehicleYear", "uploadVehicleAppearance"]
         });
     }
 
@@ -57,7 +59,6 @@ export class SkiperVehicleService {
                 .innerJoin("SkiperAgent.user", "User")
                 .where("SkiperAgent.user = :iduser", { iduser: id })
                 .getOne();
-            console.log(vehicle.skiperVehicle)
             return vehicle.skiperVehicle;
         } catch (error) {
             console.log(error)
@@ -111,7 +112,7 @@ export class SkiperVehicleService {
 
     async updateSkiperVehicle(input: SkiperVehicleInput): Promise<SkiperVehicle> {
         try {
-            console.log(input)
+
             let skipervehicle = await this.getById(input.id);
             skipervehicle.license_plate = input.license_plate;
             skipervehicle.id_cat_travel = input.IdCatTravel;

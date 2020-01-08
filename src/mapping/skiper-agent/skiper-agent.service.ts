@@ -314,7 +314,7 @@ export class SkiperAgentService {
                 uploadvehicleappearearance.url_img_vehicle_inside_two = url_img__vehicle_inside_two;
                 uploadvehicleappearearance.url_img_vehicle_inside_three = url_img__vehicle_inside_three;
                 uploadvehicleappearearance.url_img_vehicle_inside_four = url_img__vehicle_inside_four;
-                uploadvehicleappearearance.idvehicle = registerVehicle.id;
+                uploadvehicleappearearance.skiperVehicleId = registerVehicle.id;
                 let registeruploadappearance = await queryRunner.manager.save(uploadvehicleappearearance);
                 if (!registeruploadappearance) {
                     throw new HttpException(

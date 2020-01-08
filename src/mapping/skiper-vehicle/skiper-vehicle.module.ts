@@ -8,9 +8,11 @@ import { VehicleTrademarksModule } from '../vehicle-trademarks/vehicle-trademark
 import { VehicleModelsModule } from '../vehicle-models/vehicle-models.module';
 import { SkiperCatTravelsModule } from '../skiper-cat-travels/skiper-cat-travels.module';
 import { VehicleYearsModule } from '../vehicle-years/vehicle-years.module';
+import { UploadVehicleAppearanceModule } from '../upload-vehicle-appearance/upload-vehicle-appearance.module';
 
 @Module({
   imports: [
+    UploadVehicleAppearanceModule,
     VehicleCatalogModule,
     VehicleTrademarksModule,
     VehicleModelsModule,

@@ -18,6 +18,7 @@ import { SkiperWalletService } from '../skiper-wallet/skiper-wallet.service';
 import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
 import { User } from '../users/user.entity';
 import { SkiperCatTravelsService } from '../skiper-cat-travels/skiper-cat-travels.service';
+import { Currency } from '../currency/currency.entity';
 require('isomorphic-fetch');
 
 @Injectable()
@@ -108,7 +109,6 @@ export class SkiperTravelsService {
             //.andWhere("SkiperTariffs.idcity = :idcity", { idcity: citie.id })
             .andWhere("SkiperTariffs.id_skiper_cat_travels = :idcategoriaviaje", { idcategoriaviaje })
             .getMany()
-
         if (tarifas.length == 0)
             throw new HttpException(
                 "There are no rates available in this country",
@@ -129,13 +129,15 @@ export class SkiperTravelsService {
         )[0]
         // console.log(tarifa.price_kilometer)  
         // console.log(tarifa.price_minimum)  
-        //console.log(tarifa.price_minute)  
-        // console.log(tarifa.symbol)  
+        //console.log(tarifa.price_minute)
+        let getcurrency = await getConnection().createQueryBuilder(Currency, "Currency")
+            .where("Currency.idcountry = :idcountry", { idcountry: tarifa.idcountry }).getOne();
         var travelTarifaDTo = new TravelTarifaDTo();
         travelTarifaDTo.pricebase = tarifa.price_base;
         travelTarifaDTo.priceckilometer = tarifa.price_kilometer;
         travelTarifaDTo.priceminimun = tarifa.price_minimum;
         travelTarifaDTo.priceminute = tarifa.price_minute;
+        travelTarifaDTo.currencyID = getcurrency.id;
         travelTarifaDTo.symbol = tarifa.symbol;
 
         return travelTarifaDTo
@@ -158,10 +160,12 @@ export class SkiperTravelsService {
         });
 
         if (searchDriveIfHasTravels.length != 0) {
-            throw new HttpException(
-                "Error drive is in other travel ",
-                HttpStatus.BAD_REQUEST
-            );
+            /* throw new HttpException(
+                 "Error drive is in other travel",
+                 HttpStatus.BAD_REQUEST
+             );*/
+            console.log("Error drive is in other travel")
+            return false;
 
         } else {
             let zonahoraria = geotz(inputviaje.lat_initial, inputviaje.lng_initial)
@@ -181,6 +185,15 @@ export class SkiperTravelsService {
                 .where("SkiperAgent.id = :userId", { userId: inputviaje.iddriver })
                 .getOne();
 
+            if (vehiculo == undefined) {
+                /*throw new HttpException(
+                    'Error the drive does not have vehicle available',
+                    HttpStatus.BAD_REQUEST
+                );*/
+                console.log("Error the drive does not have vehicle available");
+                return false;
+            }
+
             let tarifa = await this.CalcularTarifa(inputviaje.ip, vehiculo.id_cat_travel, inputviaje.lat_initial, inputviaje.lng_initial)
             //console.log(tarifa)
             //console.log(tarifa);
@@ -191,11 +204,14 @@ export class SkiperTravelsService {
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
             let user = await this.getUserDatafromDriver(inputviaje.iddriver);
             let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
+
             if (wallet == undefined) {
-                throw new HttpException(
-                    "Error the drive does not have wallet available ",
+                /*throw new HttpException(
+                    "Error the drive does not have wallet available",
                     HttpStatus.BAD_REQUEST
-                );
+                );*/
+                console.log("Error the drive does not have wallet available");
+                return false;
             }
             let getTax = await this.getCountryByDrive(inputviaje.iddriver);
             let tax = (getTax.tax == null) ? 0 : getTax.tax;
@@ -205,10 +221,12 @@ export class SkiperTravelsService {
             let totaldebit = subtotal + calcTax;
 
             if (parseFloat(wallet.amount.toString()) < parseFloat(totaldebit.toFixed(2))) {
-                throw new HttpException(
-                    "Error the drive does not have enough funds ",
+                /*throw new HttpException(
+                    "Error the drive does not have enough funds",
                     HttpStatus.BAD_REQUEST
-                );
+                );*/
+                console.log("Error the drive does not have enough funds");
+                return false;
             }
             return true;
         }
@@ -373,6 +391,7 @@ export class SkiperTravelsService {
                 .innerJoinAndSelect("SkiperVehicle.vehicleModel", "VehicleModels")
                 .innerJoinAndSelect("SkiperVehicle.vehicleTrademark", "VehicleTrademark")
                 .innerJoinAndSelect("SkiperVehicle.vehicleYear", "VehicleYears")
+                .innerJoinAndSelect("SkiperVehicle.uploadVehicleAppearance", "UploadVehicleAppearance")
                 .innerJoinAndSelect("SkiperTravels.skiperTravelsTracing", "SkiperTravelsTracing")
                 .innerJoinAndSelect(subQuery => {
                     return subQuery

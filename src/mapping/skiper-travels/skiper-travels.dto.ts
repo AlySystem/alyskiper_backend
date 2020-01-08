@@ -76,5 +76,6 @@ export class TravelTarifaDTo {
     priceminute: number;
     priceckilometer: number;
     priceminimun: number;
+    currencyID:number;
     symbol: string;
 }

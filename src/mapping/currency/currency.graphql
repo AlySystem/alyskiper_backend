@@ -1,11 +1,15 @@
 input CurrencyInput {
     id: Int
     name: String!
+    idcountry: Int
+    isCrypto: Boolean
 }
 
 type CurrencyDto {
     id: Int!
     name: String
+    idcountry: Int
+    isCrypto: Boolean
 }
 
 type Query {

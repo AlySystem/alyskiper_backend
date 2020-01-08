@@ -1,0 +1,24 @@
+input ExchangeRateInput {
+    id: Int
+    countryid: Int!
+    idcurrency: Int!
+    value: Float!
+    date_in: DateTime
+}
+
+type ExchangeRateDto {
+    id: Int
+    value: Float
+    date_in: DateTime
+    currency: CurrencyDto
+    country: countrieDto
+}
+
+type Query {
+    GetAllExchangeRate:[ExchangeRateDto]!
+    GetByIdExchangeRate(id:Int!): ExchangeRateDto!
+}
+type Mutation {
+    registerExchangeRate(input:ExchangeRateInput):ExchangeRateDto
+    updateExchangeRate(input:ExchangeRateInput):ExchangeRateDto
+}
