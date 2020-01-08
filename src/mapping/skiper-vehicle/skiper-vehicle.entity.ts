@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne, OneToMany, OneToOne, JoinTable } from 'typeorm';
 import { SkiperCatTravel } from "../skiper-cat-travels/skiper-cat-travel.entity";
 import { VehicleCatalog } from "../vehicle-catalog/vehicle-catalog.entity";
 import { VehicleTrademark } from "../vehicle-trademarks/vehicle-trademark.entity";
@@ -42,6 +42,7 @@ export class SkiperVehicle {
     @OneToMany(type => SkiperVehicleAgent, x => x.skiperVehicle)
     skiperVehicleAgent: SkiperVehicleAgent[];
 
-    @OneToMany(type => UploadVehicleAppearance, x => x.skiperVehicle)
-    uploadVehicleAppearance: UploadVehicleAppearance[];
+    @OneToOne(type => UploadVehicleAppearance, uploadvehicleappearance => uploadvehicleappearance.skiperVehicle)
+    uploadVehicleAppearance: UploadVehicleAppearance;
+
 }

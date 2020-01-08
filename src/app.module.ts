@@ -70,10 +70,13 @@ import { ExchangeRateModule } from './mapping/exchange-rate/exchange-rate.module
 import { UsersRatingModule } from './mapping/users-rating/users-rating.module';
 import { AppGateway } from './app.gateway';
 import {UploadImgAgentModule} from './mapping/upload-img-agent/upload-img-agent.module';
+import {UploadVehicleAppearanceModule} from './mapping/upload-vehicle-appearance/upload-vehicle-appearance.module';
+import { from } from 'rxjs';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
   imports: [
+    UploadVehicleAppearanceModule,
     UsersRatingModule,
     AppCitiesModule,
     KindTicketModule,

@@ -9,4 +9,22 @@ type UploadVehicleAppearanceDto {
     url_img_vehicle_inside_three: String
     url_img_vehicle_inside_four: String
     idvehicle: Int
+    skiperVehicle: SkiperVehicleDto
+}
+
+input UploadVehicleAppearanceInput {
+    id: Int
+    url_img_vehicle_front: String
+    url_img_vehicle_behind: String
+    url_img_vehicle_side_right: String
+    url_img_vehicle_side_left: String
+    url_img_vehicle_inside_one: String
+    url_img_vehicle_inside_two: String
+    url_img_vehicle_inside_three: String
+    url_img_vehicle_inside_four: String
+    idvehicle: Int
+}
+type Query {
+    getAllUploadVehicleAppearance:[UploadVehicleAppearanceDto!]
+    getByIdUploadVehicleAppearance(id:Int!):UploadVehicleAppearanceDto
 }

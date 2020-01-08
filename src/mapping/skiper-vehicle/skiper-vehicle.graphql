@@ -21,7 +21,7 @@ type SkiperVehicleDto {
     vehicleModel: VehicleModelsDto
     vehicleYear: VehicleYearsDto
     skiperVehicleAgent: [SkiperVehicleAgentDto]
-    uploadVehicleAppearanceDto: UploadVehicleAppearanceDto
+    uploadVehicleAppearance: UploadVehicleAppearanceDto
 }
 
 type Query {
