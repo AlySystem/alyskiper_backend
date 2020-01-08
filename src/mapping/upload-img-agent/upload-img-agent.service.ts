@@ -62,7 +62,7 @@ export class UploadImgAgentService {
             ",uvld.url_img_mechanical_inspection" +
             ",uvld.url_img_vehicle_circulation " +
             "from skiper_agent sa " +
-            "left outer join skiper_commerces sc on sc.idagent = sa.id" +
+            "left outer join skiper_commerces sc on sc.idagent = sa.id " +
             "left outer join upload_commerce_appearance uca on sc.id = uca.idcommerce " +
             "left outer join upload_commerce_legal_doc ucld on sc.id = ucld.idcommerce " +
             "left outer join upload_img_agent uia on sa.id = uia.id_skiper_agent " +
