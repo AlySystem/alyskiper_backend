@@ -42,6 +42,7 @@ export class CurrencyService {
     private parseCurrency(input: CurrencyInput): Currency {
         let currency: Currency = new Currency();
         currency.name = input.name;
+        currency.url_img = input.url_img;        
         return currency;
     }
 

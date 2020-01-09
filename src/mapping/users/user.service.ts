@@ -90,6 +90,14 @@ export class UserService {
             .where("User.id = :iduser", { iduser: id })
             .andWhere("Currency.isCrypto = 1")
             .getOne();
+
+        const url = `https://api.coinmarketcap.com/v1/ticker/${result.skiperWallet[0].currencyID.name}/`;
+        var cryptodate = await fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                return json;
+            });
+
         return result;
     }
 

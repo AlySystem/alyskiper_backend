@@ -8,6 +8,8 @@ export class Currency {
     @Column('varchar', { length: 30, nullable: false }) name: string;
     @Column('int', { nullable: false }) idcountry: number;
     @Column('boolean') isCrypto: boolean;
+    @Column('text') iso: string;
+    @Column('longtext') url_img: string;
 
     @OneToMany(type => ExchangeRate, exchangerate => exchangerate.currency) exchangerate: ExchangeRate[];
     @OneToMany(type => CountryPaymentCurrency, x => x.currency) countrypaymentcurrency: CountryPaymentCurrency[];

@@ -6,6 +6,8 @@ export class CurrencyInput {
     name: string;
     idcountry: number;
     isCrypto: Boolean;
+    iso: string;
+    url_img: string;
 }
 
 @ObjectType()
@@ -14,4 +16,6 @@ export class CurrencyDto {
     name: string;
     idcountry: number;
     isCrypto: Boolean;
+    iso: string;
+    url_img: string;
 }

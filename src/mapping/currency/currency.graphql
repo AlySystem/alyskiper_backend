@@ -3,6 +3,8 @@ input CurrencyInput {
     name: String!
     idcountry: Int
     isCrypto: Boolean
+    iso: String
+    url_img: String
 }
 
 type CurrencyDto {
@@ -10,6 +12,8 @@ type CurrencyDto {
     name: String
     idcountry: Int
     isCrypto: Boolean
+    iso: String
+    url_img: String
 }
 
 type Query {

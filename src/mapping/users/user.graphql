@@ -17,6 +17,7 @@ input UserInput {
   idcivil_status: Int
 }
 
+
 type UserDto {
   id: Int!
   firstname: String
@@ -37,6 +38,7 @@ type UserDto {
   skiperAgent: [SkiperAgentDto]
   skiperWallet: [SkiperWalletDto]
 }
+
 
 type ChangePassDto {
     message: Boolean
@@ -75,6 +77,7 @@ type Mutation {
   defaultPassword(id: Int!): String!
   changePasswordByEmail(input: ChangePasswordEmailInput):Int
 }
+
 
 type Query {
   users: [UserDto!]!
