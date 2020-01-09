@@ -434,6 +434,7 @@ export class SkiperTravelsService {
                 .innerJoinAndSelect("SkiperTravelsTracing.travelstatus", "SkiperTravelsStatus")
                 //.where("User.id = :iduser", { iduser })
                 .where("SkiperTravelsTracing.idtravelstatus IN (:idstatus)", { idstatus: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] })
+                .orderBy("SkiperTravels.id","DESC")
                 .getMany()
                 .then(item => (item == undefined) ? null : item);
             return result;
