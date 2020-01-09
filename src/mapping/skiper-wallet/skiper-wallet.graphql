@@ -38,7 +38,8 @@ type Query {
     getAmountByCrypto(crypto:String, amount:Float, iduser:Int,idcountry:Int, idpackage:Int):SendDataForPayCrypto
 }
 type Mutation {
-    registerSkiperWallet(input: SkiperWalletInput!):SkiperWalletDto
+    registerSkiperLocalWallet(input: SkiperWalletInput!):SkiperWalletDto
+    registerSkiperCryptoWallet(input: SkiperWalletInput!):SkiperWalletDto
     updateSkiperWallet(input: SkiperWalletInput): SkiperWalletDto
     registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!, is_user:Boolean,description:String!): SkiperWalletDto
     requestWithdrawalOrTransactionReversed(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, amount:Float!, description:String!): SkiperWalletDto
