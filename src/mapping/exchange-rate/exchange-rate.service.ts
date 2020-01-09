@@ -17,16 +17,18 @@ export class ExchangeRateService {
 
     async getAll(): Promise<ExchangeRate[]> {
         try {
-            let x = await this.repository.find();
-            console.log(x)
-            return x;
+            return await this.repository.find({
+                relations: ["country", "currency"]
+            });
         } catch (error) {
             console.log(error)
         }
     }
 
     async getById(id: number) {
-        return this.repository.findOne(id);
+        return this.repository.findOne(id, {
+            relations: ["country", "currency"]
+        });
     }
 
     async create(input: ExchangeRateInput): Promise<ExchangeRate> {
