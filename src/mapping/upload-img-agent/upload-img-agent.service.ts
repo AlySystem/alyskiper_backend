@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UploadImgAgent } from './upload-img-agent.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, createQueryBuilder,getManager, getConnection } from 'typeorm';
+import { Repository, getManager } from 'typeorm';
 import { AllImagesDto } from './upload-img-agent.dto';
 
 @Injectable()
@@ -19,10 +19,10 @@ export class UploadImgAgentService {
         }
     }
 
-    async getAllImages(idagent: number):Promise<AllImagesDto>{
+    async getAllImages(idagent: number): Promise<AllImagesDto> {
         try {
             const entityManager = getManager()
-            let sql = 
+            let sql =
             "select " +
             "sa.id," +
             "sa.`identity`," +
@@ -62,18 +62,21 @@ export class UploadImgAgentService {
             ",uvld.url_img_mechanical_inspection" +
             ",uvld.url_img_vehicle_circulation " +
             "from skiper_agent sa " +
-            "left outer join upload_commerce_appearance uca on sa.id = uca.idcommerce " +
+            "left outer join skiper_commerces sc on sc.idagent = sa.id " +
+            "left outer join upload_commerce_appearance uca on sc.id = uca.idcommerce " +
+            "left outer join upload_commerce_legal_doc ucld on sc.id = ucld.idcommerce " +
             "left outer join upload_img_agent uia on sa.id = uia.id_skiper_agent " +
-            "left outer join upload_commerce_legal_doc ucld on sa.id = ucld.idcommerce " +
             "left outer join skiper_vehicle_agent sva on sa.id = sva.idagent " +
-            "left outer join upload_vehicle_appearance uva on sva.idvehicle = uva.idvehicle " +
-            "left outer join upload_vehicle_legal_doc uvld on sva.idvehicle = uvld.idvehicle " +
-            "where sa.id = '"+ idagent +"'"
-            const data = entityManager.query(sql)
+            "left outer join upload_vehicle_appearance uva on sva.idvehicle = uva.skiperVehicleId " +
+            "left outer join upload_vehicle_legal_doc uvld on sva.idvehicle = uvld.idvehicle " +            
+            "where sa.id = ?"
+            
+            const data = entityManager.query(sql,[idagent])
             console.log(data)
             return await data
         } catch (err) {
             console.log(err)
         }
     }
+
 }

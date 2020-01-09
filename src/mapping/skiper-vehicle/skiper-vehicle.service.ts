@@ -131,6 +131,32 @@ export class SkiperVehicleService {
         }
     }
 
+    async updateSkiperVehicleCatTravel(idVehicle: number, idCatTravel: number): Promise<SkiperVehicle> {
+        try {
+            let skipervehicle = await this.getById(idVehicle);
+
+            /*let newSkiperCatTravel = await createQueryBuilder("SkiperCatTravel")
+            .where("SkiperCatTravel.id = :id", {id:idCatTravel})
+            .getOne();
+
+            if(!newSkiperCatTravel){
+                console.log("CatTravel no encontrado")
+                return;
+            }
+            */
+
+            skipervehicle.id_cat_travel = idCatTravel;
+            skipervehicle.skiperCatTravel.id = idCatTravel;
+            
+            return await this.repository.save(skipervehicle);
+        } catch (error) {
+            throw new HttpException(
+                error,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+    }
+
     private parseSkipeVehicle(input: SkiperVehicleInput): SkiperVehicle {
         let skipervehicle: SkiperVehicle = new SkiperVehicle();
         skipervehicle.id = input.id;
