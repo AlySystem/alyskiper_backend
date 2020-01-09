@@ -83,21 +83,21 @@ export class UserService {
     }
 
     async GetUserWalletsCrypto(id: number) {
-        let result: any = await createQueryBuilder("User")
+        /*
+        const url = `https://api.coinmarketcap.com/v1/ticker/${result.skiperWallet[0].currencyID.name}/`;
+                var cryptodate = await fetch(url)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+        */
+        let result = await createQueryBuilder("User")
             .innerJoinAndSelect("User.skiperWallet", "SkiperWallet")
             .innerJoinAndSelect("SkiperWallet.currencyID", "Currency")
             .innerJoinAndSelect("SkiperWallet.countryID", "Countrie")
             .where("User.id = :iduser", { iduser: id })
             .andWhere("Currency.isCrypto = 1")
             .getOne();
-
-        const url = `https://api.coinmarketcap.com/v1/ticker/${result.skiperWallet[0].currencyID.name}/`;
-        var cryptodate = await fetch(url)
-            .then(response => response.json())
-            .then(json => {
-                return json;
-            });
-
         return result;
     }
 
@@ -160,9 +160,7 @@ export class UserService {
     //Update a user
     async update(input: UserUpdateInput): Promise<User> {
         try {
-            console.log(input)
             let userUpdate = await await this.userRepository.findOneOrFail({ where: { id: input.id } });
-            console.log(userUpdate)
             userUpdate.firstname = input.firstname;
             userUpdate.lastname = input.lastname;
             userUpdate.user = input.username;

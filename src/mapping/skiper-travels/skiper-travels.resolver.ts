@@ -54,4 +54,9 @@ export class SkiperTravelsResolver {
     async getTravelByUserId(@Args('iduser') iduser: number) {
         return await this.service.getTravelByUserId(iduser);
     }
+
+    @Query()
+    async getAllTravels() {
+        return await this.service.getAllTravel();
+    }
 }

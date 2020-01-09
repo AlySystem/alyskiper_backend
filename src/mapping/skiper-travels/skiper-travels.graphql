@@ -72,6 +72,7 @@ type Query {
     getTravels(idagent: Int!):[SkiperTravelsDto!]
     getTravelByAgentId(idagent: Int!): SkiperTravelsDto!
     getTravelByUserId(iduser: Int!): SkiperTravelsDto
+    getAllTravels:[SkiperTravelsDto!]
 }
 
 type Mutation {
