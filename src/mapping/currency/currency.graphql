@@ -18,5 +18,6 @@ type CurrencyDto {
 
 type Query {
     currency: [CurrencyDto!]!
+    Cryptocurrency: [CurrencyDto!]!
     searchcurrency(id:Int): CurrencyDto
 }
