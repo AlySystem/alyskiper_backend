@@ -16,7 +16,13 @@ export class ExchangeRateService {
     ) { }
 
     async getAll(): Promise<ExchangeRate[]> {
-        return await this.repository.find();
+        try {
+            let x = await this.repository.find();
+            console.log(x)
+            return x;
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     async getById(id: number) {

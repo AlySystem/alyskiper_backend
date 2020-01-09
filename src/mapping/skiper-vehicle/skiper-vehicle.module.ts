@@ -12,7 +12,6 @@ import { UploadVehicleAppearanceModule } from '../upload-vehicle-appearance/uplo
 
 @Module({
   imports: [
-    UploadVehicleAppearanceModule,
     VehicleCatalogModule,
     VehicleTrademarksModule,
     VehicleModelsModule,

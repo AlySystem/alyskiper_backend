@@ -24,6 +24,10 @@ input UploadVehicleAppearanceInput {
     url_img_vehicle_inside_four: String
     idvehicle: Int
 }
+type Mutation {
+    updateUploadVehicleAppearance(input:UploadVehicleAppearanceInput!):UploadVehicleAppearanceDto
+    createUploadVehicleAppearance(input:UploadVehicleAppearanceInput!):UploadVehicleAppearanceDto
+}
 type Query {
     getAllUploadVehicleAppearance:[UploadVehicleAppearanceDto!]
     getByIdUploadVehicleAppearance(id:Int!):UploadVehicleAppearanceDto
