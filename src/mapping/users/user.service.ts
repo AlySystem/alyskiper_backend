@@ -60,6 +60,24 @@ export class UserService {
 
     }
 
+    async getLastSkiperUsers(limit: number) {            
+
+        let agents = createQueryBuilder("SkiperAgent")
+            .select("SkiperAgent.id")
+
+        let query = createQueryBuilder("User")
+            .leftJoinAndSelect("User.country", "Countrie")
+            .leftJoinAndSelect("User.city", "Cities")
+            //.leftJoinAndSelect("User.skiperAgent", "SkiperAgent")
+            .leftJoinAndSelect("User.skiperWallet", "SkiperWallet")
+            .where("User.id NOT IN ("+ agents.getSql() +")")
+        if (limit)
+            query.take(limit)
+
+        return await query.orderBy("User.id", "DESC").getMany()
+
+    }
+
     async findById(id: number) {
         let result: any = await createQueryBuilder("User")
             .leftJoinAndSelect("User.country", "Countrie")
