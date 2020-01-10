@@ -13,6 +13,10 @@ export class CurrencyResolver {
         return this.currencyService.getAll();
     }
     @Query()
+    async Cryptocurrency() {
+        return this.currencyService.getAllCrypto();
+    }
+    @Query()
     async searchcurrency(@Args('id', ParseIntPipe) id: number) {
         return this.currencyService.getById(id);
     }

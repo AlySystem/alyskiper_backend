@@ -20,6 +20,7 @@ import { ExchangeRateService } from '../exchange-rate/exchange-rate.service';
 import momentTimeZone from 'moment-timezone';
 import { ExchangeRate } from '../exchange-rate/exchange-rate.entity';
 import node_geocoder from 'node-geocoder';
+import { Currency } from '../currency/currency.entity';
 
 @Injectable()
 export class SkiperWalletService {
@@ -408,6 +409,10 @@ export class SkiperWalletService {
         return await this.repository.find({ relations: ["userID", "currencyID", "countryID"], where: { iduser: id } });
     }
 
+    async getWalletByUserIdAndCurrency(userId, currencyId): Promise<SkiperWallet> {
+        return await this.repository.findOne({ where: { iduser: userId, idcurrency: currencyId } });
+    }
+
     async getById(id: number): Promise<SkiperWallet> {
         try {
             let result = await this.repository.findOne(
@@ -423,6 +428,17 @@ export class SkiperWalletService {
                 errorMessage,
                 HttpStatus.BAD_REQUEST
             )
+        }
+    }
+
+    async getOnlyByTypeCurrency(id: number, iscrypto: boolean) {
+        try {
+            return await createQueryBuilder(Currency, "Currency")
+                .where("Currency.id = :id", { id: id })
+                .andWhere("Currency.isCrypto = :isCrypto", { isCrypto: iscrypto }).getOne()
+
+        } catch (error) {
+
         }
     }
 
@@ -446,20 +462,46 @@ export class SkiperWalletService {
         }
     }
 
-    async registerSkiperwallet(input: SkiperWalletInput) {
+    async registerSkiperLocalwallet(input: SkiperWalletInput) {
         try {
-            let result = this.parseSkiperWallet(input);
-            let searchWallet = await this.getAllByUserId(input.iduser);
-            console.log(searchWallet.length)
-            if (!searchWallet.length) {
-                result = await this.repository.save(result);
-                return result;
+            let currency = await this.getOnlyByTypeCurrency(input.idcurrency, false);
+            console.log(currency)
+            let searchWallet = await this.getWalletByUserIdAndCurrency(input.iduser, input.idcurrency);
+            if (currency != undefined) {
+                if (searchWallet == undefined) {
+                    let parseDateWallet = this.parseSkiperWallet(input);
+                    parseDateWallet.amount = 0;
+                    return await this.repository.save(parseDateWallet);
+                } else {
+                    throw new HttpException('the wallet has already been created', HttpStatus.BAD_REQUEST)
+                }
+            } else {
+                throw new HttpException('sorry! register only local wallet', HttpStatus.BAD_REQUEST)
             }
-            return result;
-
         } catch (error) {
             console.error(error);
-            throw new HttpException('Error al registrar la wallet', HttpStatus.NOT_FOUND)
+            throw new HttpException(error, HttpStatus.NOT_FOUND)
+        }
+    }
+
+    async registerSkiperCryptowallet(input: SkiperWalletInput) {
+        try {
+            let currency = await this.getOnlyByTypeCurrency(input.idcurrency, true);
+            let searchWallet = await this.getWalletByUserIdAndCurrency(input.iduser, input.idcurrency);
+            if (currency != undefined) {
+                if (searchWallet == undefined) {
+                    let parseDateWallet = this.parseSkiperWallet(input);
+                    parseDateWallet.amount = 0;
+                    return await this.repository.save(parseDateWallet);
+                } else {
+                    throw new HttpException('the wallet has already been created', HttpStatus.BAD_REQUEST)
+                }
+            } else {
+                throw new HttpException('sorry! register only crypto wallet', HttpStatus.BAD_REQUEST)
+            }
+        } catch (error) {
+            console.error(error);
+            throw new HttpException(error, HttpStatus.NOT_FOUND)
         }
     }
 

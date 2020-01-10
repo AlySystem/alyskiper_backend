@@ -14,6 +14,10 @@ export class CurrencyService {
         return await this.repository.find();
     }
 
+    async getAllCrypto(): Promise<Currency[]> {
+        return await this.repository.find({ where: { isCrypto: 1 } })
+    }
+
     async getById(id: number): Promise<Currency> {
         return await this.repository.findOneOrFail({ where: { id } });
     }
@@ -42,7 +46,7 @@ export class CurrencyService {
     private parseCurrency(input: CurrencyInput): Currency {
         let currency: Currency = new Currency();
         currency.name = input.name;
-        currency.url_img = input.url_img;        
+        currency.url_img = input.url_img;
         return currency;
     }
 

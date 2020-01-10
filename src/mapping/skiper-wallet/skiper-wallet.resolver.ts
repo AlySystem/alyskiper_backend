@@ -34,18 +34,18 @@ export class SkiperWalletResolver {
     }
 
     @Mutation()
-    registerSkiperWallet(@Args('input') input: SkiperWalletInput) {
-        try {
-            return this.skiperWalletService.registerSkiperwallet(input);
-        } catch (error) {
-            console.error(error);
-        }
+    registerSkiperCryptoWallet(@Args('input') input: SkiperWalletInput) {
+        return this.skiperWalletService.registerSkiperCryptowallet(input);
+    }
+    @Mutation()
+    registerSkiperLocalWallet(@Args('input') input: SkiperWalletInput) {
+        return this.skiperWalletService.registerSkiperLocalwallet(input);
     }
     @Mutation()
     validateHash(@Args('hash') hash: string, @Args('crypto') crypto: string, @Args('total_real') total_real: number, @Args('total_crypto') total_crypto: number, @Args('lat') lat: number, @Args('long') long: number, @Args('ip') ip: string, @Args('email') email: string,
         @Args('invoice') invoice: number = 0,
         @Args('is_user') is_user: boolean = false) {
-        return this.skiperWalletService.validateHash(hash, crypto, invoice, total_real, total_crypto, lat, long, ip, email,is_user);
+        return this.skiperWalletService.validateHash(hash, crypto, invoice, total_real, total_crypto, lat, long, ip, email, is_user);
     }
 
     @Mutation()
@@ -54,10 +54,10 @@ export class SkiperWalletResolver {
         @Args('idtransaction') idtransaction: number,
         @Args('idpayment_method') idpayment_method: number,
         @Args('deposit') deposit: number,
-        @Args('depositCrypto') depositCrypto:number,
-        @Args('description') description:string,
-        @Args('is_user') is_user:boolean = false) {
-        return this.skiperWalletService.registerDeposit(idwallet, idtransaction, idpayment_method, deposit, depositCrypto,is_user,description);
+        @Args('depositCrypto') depositCrypto: number,
+        @Args('description') description: string,
+        @Args('is_user') is_user: boolean = false) {
+        return this.skiperWalletService.registerDeposit(idwallet, idtransaction, idpayment_method, deposit, depositCrypto, is_user, description);
     }
 
     @Mutation()
