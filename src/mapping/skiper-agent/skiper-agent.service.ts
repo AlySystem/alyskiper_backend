@@ -201,18 +201,21 @@ export class SkiperAgentService {
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
 
-        let isPhoneExist = await this.validatePhoneIsExist(phone);
         let isEmailExist = await this.validateEmailIsExist(email);
-        let isUsernameExist = await this.validateUsernameIsExist(username);
         let isLicensePlate = await this.validateLicensePlatenameIsExist(license_plate);
-        //console.log(isLicensePlate)
-        //console.log(isEmailExist, isEmailExist.length)
-        /*if (isPhoneExist.length > 0) {
-            errors.alertPhone = "Este número de teléfono ya está registrado";
+        if (isEmailExist.length == 0) {
+            let isPhoneExist = await this.validatePhoneIsExist(phone);
+            let isUsernameExist = await this.validateUsernameIsExist(username);
+
+            if (isPhoneExist.length > 0) {
+                errors.alertPhone = "Este número de teléfono ya está registrado";
+            }
+            if (isUsernameExist.length > 0) {
+                errors.alertUser = "Este nombre de usuario ya está registrado"
+            }
         }
-        if (isUsernameExist.length > 0) {
-            errors.alertUser = "Este nombre de usuario ya está registrado"
-        }*/
+        //console.log(isLicensePlate)
+        //console.log(isEmailExist, isEmailExist.length)        
         if (isLicensePlate.length > 0) {
             errors.alertLicense_Plate = "Esta placa ya está registrada"
         }
@@ -240,7 +243,7 @@ export class SkiperAgentService {
                 userData = await queryRunner.manager.save(user);
                 if (!userData) {
                     throw new HttpException(
-                        'error service skiper vehicle  agent',
+                        'error service register user',
                         HttpStatus.BAD_REQUEST
                     )
                 }
@@ -249,7 +252,6 @@ export class SkiperAgentService {
             } else {
                 userData = isEmailExist;
             }
-
 
             await queryRunner.startTransaction();
             let agent = new SkiperAgent();
@@ -322,7 +324,7 @@ export class SkiperAgentService {
                 let registeruploadappearance = await queryRunner.manager.save(uploadvehicleappearearance);
                 if (!registeruploadappearance) {
                     throw new HttpException(
-                        'error service uploadd data appearace vehicle',
+                        'error service upload data appearace vehicle',
                         HttpStatus.BAD_REQUEST
                     )
                 }
