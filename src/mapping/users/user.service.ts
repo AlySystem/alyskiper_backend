@@ -91,14 +91,15 @@ export class UserService {
                         return json;
                     });
         */
-        let result = await createQueryBuilder("User")
+        let d = await createQueryBuilder("User")
             .innerJoinAndSelect("User.skiperWallet", "SkiperWallet")
             .innerJoinAndSelect("SkiperWallet.currencyID", "Currency")
             .innerJoinAndSelect("SkiperWallet.countryID", "Countrie")
             .where("User.id = :iduser", { iduser: id })
             .andWhere("Currency.isCrypto = 1")
-            .getOne();
-        return result;
+            .getMany();
+            console.log(d)
+            return d;
     }
 
     async GetUserWallets(id: number) {
