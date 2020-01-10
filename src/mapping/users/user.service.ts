@@ -63,7 +63,7 @@ export class UserService {
     async getLastSkiperUsers(limit: number) {            
 
         let agents = createQueryBuilder("SkiperAgent")
-            .select("SkiperAgent.id")
+            .select("SkiperAgent.iduser")
 
         let query = createQueryBuilder("User")
             .leftJoinAndSelect("User.country", "Countrie")
