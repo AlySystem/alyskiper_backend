@@ -89,4 +89,5 @@ type Query {
   searchUserByEmail(email: String!): UserDto
   getUserWhenAddressNullAndSkiperAgentIdNull: [UserDto!]!
   getLastUsersByCategoryId(limit: Int, categoryId: Int):[UserDto!]
+  getLastSkiperUsers(limit: Int):[UserDto!]
 }

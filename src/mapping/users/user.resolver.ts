@@ -86,6 +86,17 @@ export class UserResolver {
     }
 
     @UseGuards(new AuthGuard())
+    @Query()
+    async getLastSkiperUsers(@Args('limit') limit: number) {
+        try {
+            return await this.userService.getLastSkiperUsers(limit)
+        } catch (error) {
+            console.log(error)
+            return `Error resolver -> ${error}`
+        }
+    }
+
+    @UseGuards(new AuthGuard())
     @Mutation()
     updatePassword(@Args('input') input: UserUpdatePassword) {
         return this.userService.updatePassword(input);
