@@ -9,7 +9,7 @@ input SkiperCatTravelInput {
     btransporte: Boolean!
     paycommission: Int
     percentageagent: Int
-    urlImgName: String;
+    urlImgName: String
 }
 
 type SkiperCatTravelDto {
@@ -23,7 +23,7 @@ type SkiperCatTravelDto {
     btransporte: Boolean
     paycommission: Int
     percentageagent: Int
-    urlImgName:String;
+    urlImgName:String
 }
 
 type Query {
