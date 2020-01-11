@@ -55,7 +55,7 @@ export class SkiperVehicleService {
                 .innerJoinAndSelect("SkiperVehicle.vehicleTrademark", "VehicleTrademark")
                 .innerJoinAndSelect("SkiperVehicle.vehicleModel", "VehicleModels")
                 .innerJoinAndSelect("SkiperVehicle.vehicleYear", "VehicleYears")
-                .innerJoinAndSelect("SkiperVehicle.uploadVehicleAppearance", "UploadVehicleAppearance")
+                .leftJoinAndSelect("SkiperVehicle.uploadVehicleAppearance", "UploadVehicleAppearance")
                 .innerJoin("SkiperVehicleAgent.skiperAgent", "SkiperAgent")
                 .innerJoin("SkiperAgent.user", "User")
                 .where("SkiperAgent.user = :iduser", { iduser: id })
