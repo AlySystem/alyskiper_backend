@@ -228,8 +228,8 @@ export class SkiperAgentService {
 
         try {
             let userData;
-            if (isEmailExist.length == 0) {
-                await queryRunner.startTransaction();
+            await queryRunner.startTransaction();
+            if (isEmailExist.length == 0) {               
                 let user = new User();
                 user.firstname = firtsname;
                 user.lastname = lastname;
@@ -246,12 +246,12 @@ export class SkiperAgentService {
                         'error service register user',
                         HttpStatus.BAD_REQUEST
                     )
-                }
-                await queryRunner.commitTransaction();
+                }                
 
             } else {
                 userData = isEmailExist;
             }
+            await queryRunner.commitTransaction();
 
             await queryRunner.startTransaction();
             let agent = new SkiperAgent();
