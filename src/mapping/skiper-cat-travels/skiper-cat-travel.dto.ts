@@ -12,6 +12,7 @@ export class SkiperCatTravelsInput {
     btransporte: boolean;
     paycommission: number;
     percentageagent: number;
+    urlImgName:string;
 }
 
 @ObjectType()
@@ -23,4 +24,5 @@ export class SkiperCatTravelDto {
     mode_drive: string;
     paycommission: number;
     percentageagent: number;
+    urlImgName:string;
 }

@@ -158,13 +158,13 @@ export class SkiperTravelsService {
         let searchDriveIfHasTravels = await this.repository.find({
             where: { iddriver: inputviaje.iddriver, state: false }
         });
+        console.log(searchDriveIfHasTravels)
 
         if (searchDriveIfHasTravels.length != 0) {
-            /* throw new HttpException(
+            throw new HttpException(
                  "Error drive is in other travel",
                  HttpStatus.BAD_REQUEST
-             );*/
-            console.log("Error drive is in other travel")
+             );            
             return false;
 
         } else {

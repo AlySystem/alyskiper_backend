@@ -60,6 +60,7 @@ export class SkiperCatTravelsService {
         skipercattravel.mode_drive = input.mode_drive;
         skipercattravel.paycommission = input.paycommission;
         skipercattravel.percentageagent = input.percentageagent;
+        skipercattravel.urlImgName = input.urlImgName;
         return skipercattravel;
     }
 
