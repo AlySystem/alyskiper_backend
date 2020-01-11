@@ -25,7 +25,7 @@ export class UploadVehicleAppearanceResolver {
     }
     @Mutation()
     async createUploadVehicleAppearance(@Args('input') input: UploadVehicleAppearanceInput) {
-        return await this.uploadAppearanceVehicleService.update(input);
+        return await this.uploadAppearanceVehicleService.create(input);
     }
 
 
