@@ -5,7 +5,7 @@ import { SkiperTravelsTracingDto } from '../skiper-travels-tracing/skiper-travel
 import { SkiperTariffsDto } from '../skiper-tariffs/skiper-tariffs.dto';
 import { CurrencyDto } from '../currency/currency.dto';
 import { PaymentMethodDto } from '../payment-methods/payment-methods.dto';
-import { SkiperCatTravelDto } from '../skiper-cat-travels/skiper-cat-travel.dto';
+import { SkiperCatTravelDto, SilverDto, GoldenDto, VipDto, PresidentDto } from '../skiper-cat-travels/skiper-cat-travel.dto';
 
 @InputType()
 export class SkiperTravelsInput {
@@ -45,6 +45,15 @@ export class ValidateSkiperDriveInput {
 }
 
 @ObjectType()
+export class AllCategoryDto {
+    silver: SilverDto;
+    golden: GoldenDto;
+    vip: VipDto;
+    president: PresidentDto;
+
+}
+
+@ObjectType()
 export class SkiperTravelsDto {
     id: number;
     lat_initial: number;
@@ -76,6 +85,6 @@ export class TravelTarifaDTo {
     priceminute: number;
     priceckilometer: number;
     priceminimun: number;
-    currencyID:number;
+    currencyID: number;
     symbol: string;
 }

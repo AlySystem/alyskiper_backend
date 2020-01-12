@@ -66,9 +66,18 @@ type TravelTarifaDTo {
     symbol:String
 }
 
+type AllCategoryDto {
+    silver:SilverDto
+    golden: GoldenDto
+    vip:VipDto
+    president:PresidentDto   
+}
+
+
 type Query {
     getAllSkiperTravels: [SkiperTravelsDto!]
     CalculateTariff(ip: String!, idcategoriaviaje: Int!, lat:Float!, lng:Float!): TravelTarifaDTo!
+    CalculateOtherTariffs(ip: String!, idcategoriaviaje: Int!, lat:Float!, lng:Float!, distance:Float!, duration:Float!): AllCategoryDto
     getTravels(idagent: Int!):[SkiperTravelsDto!]
     getTravelByAgentId(idagent: Int!): SkiperTravelsDto!
     getTravelByUserId(iduser: Int!): SkiperTravelsDto

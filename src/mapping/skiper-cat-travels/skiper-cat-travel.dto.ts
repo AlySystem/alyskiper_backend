@@ -12,7 +12,7 @@ export class SkiperCatTravelsInput {
     btransporte: boolean;
     paycommission: number;
     percentageagent: number;
-    urlImgName:string;
+    urlImgName: string;
 }
 
 @ObjectType()
@@ -24,5 +24,47 @@ export class SkiperCatTravelDto {
     mode_drive: string;
     paycommission: number;
     percentageagent: number;
-    urlImgName:string;
+    urlImgName: string;
+}
+
+@ObjectType()
+export class SilverDto {
+    id: number;
+    name: string;
+    url_img_category: string;
+    urlImgName: string;
+    total: number;
+    currency: number;
+    symbolo: string;
+}
+
+@ObjectType()
+export class GoldenDto {
+    id: number;
+    name: string;
+    url_img_category: string;
+    urlImgName: string;
+    total: number;
+    currency: number;
+    symbolo: string;
+}
+@ObjectType()
+export class VipDto {
+    id: number;
+    name: string;
+    url_img_category: string;
+    urlImgName: string;
+    total: number;
+    currency: number;
+    symbolo: string;
+}
+@ObjectType()
+export class PresidentDto {
+    id: number;
+    name: string;
+    url_img_category: string;
+    urlImgName: string;
+    total: number;
+    currency: number;
+    symbolo: string;
 }

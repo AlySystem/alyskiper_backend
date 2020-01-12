@@ -26,6 +26,44 @@ type SkiperCatTravelDto {
     urlImgName:String
 }
 
+type SilverDto {
+    id: Int
+    name: String
+    url_img_category: String
+    urlImgName:String
+    total:Float
+    currency:Int
+    symbolo:String
+}
+
+type GoldenDto {
+    id: Int
+    name: String
+    url_img_category: String   
+    urlImgName:String
+    total:Float
+    currency:Int
+    symbolo:String
+}
+type VipDto {
+    id: Int
+    name: String
+    url_img_category: String   
+    urlImgName:String
+    total:Float
+    currency:Int
+    symbolo:String
+}
+type PresidentDto {
+    id: Int
+    name: String
+    url_img_category: String   
+    urlImgName:String
+    total:Float
+    currency:Int
+    symbolo:String
+}
+
 type Query {
     skipercattravels: [SkiperCatTravelDto!]!
     searchSkiperCatTravel(id: Int): SkiperCatTravelDto

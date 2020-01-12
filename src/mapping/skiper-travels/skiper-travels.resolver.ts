@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { SkiperTravelsService } from './skiper-travels.service';
 import { SkiperTravelsInput, ValidateSkiperDriveInput } from './skiper-travels.dto';
 import { SkiperTravelsTracingResolver } from '../skiper-travels-tracing/skiper-travels-tracing.resolver';
+import { duration } from 'moment';
 
 @Resolver('SkiperTravels')
 export class SkiperTravelsResolver {
@@ -14,6 +15,15 @@ export class SkiperTravelsResolver {
         @Args('lat') lat: number,
         @Args('lng') lng: number) {
         return await this.service.CalcularTarifa(ip, idcategoriaviaje, lat, lng);
+    }
+    @Query()
+    async CalculateOtherTariffs(@Args('ip') ip: string,
+        @Args('lat') lat: number,
+        @Args('lng') lng: number,
+        @Args('distance') distance: number,
+        @Args('duration') duration: number) {
+
+        return await this.service.CalculateTariffs(ip, lat, lng, distance, duration);
     }
 
     @Query()

@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SkiperTravels } from './skiper-travels.entity';
 import { Repository, getManager, getConnection, createQueryBuilder, QueryBuilder, Double } from 'typeorm';
-import { SkiperTravelsInput, TravelTarifaDTo, ValidateSkiperDriveInput } from '../skiper-travels/skiper-travels.dto';
+import { SkiperTravelsInput, ValidateSkiperDriveInput, AllCategoryDto } from '../skiper-travels/skiper-travels.dto';
 import { SkiperTravelsTracing } from '../skiper-travels-tracing/skiper-travels-tracing.entity';
 import { SkiperTariffs } from '../skiper-tariffs/skiper-tariffs.entity';
 import moment = require('moment');
@@ -19,6 +19,8 @@ import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
 import { User } from '../users/user.entity';
 import { SkiperCatTravelsService } from '../skiper-cat-travels/skiper-cat-travels.service';
 import { Currency } from '../currency/currency.entity';
+import { SkiperCatTravelDto, SilverDto, GoldenDto, VipDto, PresidentDto } from '../skiper-cat-travels/skiper-cat-travel.dto';
+import { TravelTarifaDTo } from './skiper-travels.dto';
 require('isomorphic-fetch');
 
 @Injectable()
@@ -56,6 +58,107 @@ export class SkiperTravelsService {
     private timeToDecimal(t) {
         t = t.split(':');
         return parseInt(t[0], 10) * 1 + parseInt(t[1], 10) / 60;
+    }
+
+    async CalculateTariffs(ip: string, lat: number, lng: number, distance: number, duration: number) {
+        let skipercatTravels = this.skipercattravelservice.getAll()
+        let silver = this.CalcularTarifa(ip, 1, lat, lng);
+        let golden = this.CalcularTarifa(ip, 2, lat, lng);
+        let vip = this.CalcularTarifa(ip, 3, lat, lng);
+        let president = this.CalcularTarifa(ip, 4, lat, lng);
+
+        return Promise.all([silver, golden, vip, president, skipercatTravels]).then(result => {
+
+            let silverdto = new SilverDto();
+            silverdto.id = result[4][0].id;
+            silverdto.name = result[4][0].name;
+            silverdto.url_img_category = result[4][0].url_img_category;
+            silverdto.urlImgName = result[4][0].urlImgName;
+            silverdto.total = this.calcaulatePriceSilver(distance, duration, result[0].priceckilometer, result[0].priceminute, result[0].pricebase, result[0].priceminimun);
+            silverdto.currency = result[0].currencyID;
+            silverdto.symbolo = result[0].symbol;
+
+            let goldendto = new GoldenDto();
+            goldendto.id = result[4][1].id;
+            goldendto.name = result[4][1].name;
+            goldendto.url_img_category = result[4][1].url_img_category;
+            goldendto.urlImgName = result[4][1].urlImgName;
+            goldendto.total = this.calcaulatePriceGolden(distance, duration, result[1].priceckilometer, result[1].priceminute, result[1].pricebase, result[1].priceminimun);
+            goldendto.currency = result[0].currencyID;
+            goldendto.symbolo = result[0].symbol;
+
+            let vipdto = new VipDto();
+            vipdto.id = result[4][2].id;
+            vipdto.name = result[4][2].name;
+            vipdto.url_img_category = result[4][2].url_img_category;
+            vipdto.urlImgName = result[4][2].urlImgName;
+            vipdto.total = this.calcaulatePriceVip(distance, duration, result[2].priceckilometer, result[2].priceminute, result[2].pricebase, result[2].priceminimun);
+            vipdto.currency = result[0].currencyID;
+            vipdto.symbolo = result[0].symbol;
+
+            let presidentdto = new PresidentDto();
+            presidentdto.id = result[4][3].id;
+            presidentdto.name = result[4][3].name;
+            presidentdto.url_img_category = result[4][3].url_img_category;
+            presidentdto.urlImgName = result[4][3].urlImgName;
+            presidentdto.total = this.calcaulatePricePresident(distance, duration, result[3].priceckilometer, result[3].priceminute, result[3].pricebase, result[3].priceminimun);
+            presidentdto.currency = result[0].currencyID;
+            presidentdto.symbolo = result[0].symbol;
+
+            let allcategory = new AllCategoryDto();
+            allcategory.silver = silverdto;
+            allcategory.golden = goldendto;
+            allcategory.vip = vipdto;
+            allcategory.president = presidentdto;
+
+            return allcategory;
+
+        })
+    }
+
+    calcaulatePriceSilver(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
+        distance = (distance / 1000);
+        duration = (duration / 60)
+
+        let ValorXKm = priceckilometer * distance;
+        let ValorXMin = priceminute * duration;
+        let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
+        let total = valorviaje <= priceminimun ? priceminimun : valorviaje
+
+        return parseFloat(total.toFixed(2).toString());
+    }
+    calcaulatePriceGolden(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
+        distance = (distance / 1000);
+        duration = (duration / 60)
+
+        let ValorXKm = priceckilometer * distance;
+        let ValorXMin = priceminute * duration;
+        let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
+        let total = valorviaje <= priceminimun ? priceminimun : valorviaje
+
+        return parseFloat(total.toFixed(2).toString());
+    }
+    calcaulatePriceVip(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
+        distance = (distance / 1000);
+        duration = (duration / 60)
+
+        let ValorXKm = priceckilometer * distance;
+        let ValorXMin = priceminute * duration;
+        let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
+        let total = valorviaje <= priceminimun ? priceminimun : valorviaje
+
+        return parseFloat(total.toFixed(2).toString());
+    }
+    calcaulatePricePresident(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
+        distance = (distance / 1000);
+        duration = (duration / 60)
+
+        let ValorXKm = priceckilometer * distance;
+        let ValorXMin = priceminute * duration;
+        let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
+        let total = valorviaje <= priceminimun ? priceminimun : valorviaje
+
+        return parseFloat(total.toFixed(2).toString());
     }
 
     async CalcularTarifa(ip: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
@@ -162,9 +265,9 @@ export class SkiperTravelsService {
 
         if (searchDriveIfHasTravels.length != 0) {
             throw new HttpException(
-                 "Error drive is in other travel",
-                 HttpStatus.BAD_REQUEST
-             );            
+                "Error drive is in other travel",
+                HttpStatus.BAD_REQUEST
+            );
             return false;
 
         } else {
@@ -434,7 +537,7 @@ export class SkiperTravelsService {
                 .innerJoinAndSelect("SkiperTravelsTracing.travelstatus", "SkiperTravelsStatus")
                 //.where("User.id = :iduser", { iduser })
                 .where("SkiperTravelsTracing.idtravelstatus IN (:idstatus)", { idstatus: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] })
-                .orderBy("SkiperTravels.id","DESC")
+                .orderBy("SkiperTravels.id", "DESC")
                 .getMany()
                 .then(item => (item == undefined) ? null : item);
             return result;
