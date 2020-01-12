@@ -16,7 +16,8 @@ import { SkiperVehicleAgent } from '../skiper-vehicle-agent/skiper-vehicle-agent
 import { UploadImgAgent } from '../upload-img-agent/upload-img-agent.entity';
 import { UploadVehicleAppearance } from '../upload-vehicle-appearance/upload-vehicle-appearance.entity';
 import { UploadVehicleLegalDoc } from '../upload-vehicle-legal-doc/upload-vehicle-legal-doc.entity';
-import { isNamedType } from 'graphql';
+import { UploadVehicleAppearanceService } from '../upload-vehicle-appearance/upload-vehicle-appearance.service';
+import { UploadVehicleLegalDocService } from '../upload-vehicle-legal-doc/upload-vehicle-legal-doc.service';
 
 require('isomorphic-fetch');
 
@@ -28,8 +29,10 @@ export class SkiperAgentService {
         private readonly userService: UserService,
         private readonly categoryAgentService: CategoryAgentService,
         private readonly skiperTravelsService: SkiperTravelsService,
-        private readonly skiperVehicle: SkiperVehicleService,
-        private readonly skipervehicleagent: SkiperVehicleAgentService
+        private readonly skiperVehicleService: SkiperVehicleService,
+        private readonly skipervehicleagent: SkiperVehicleAgentService,
+        private readonly uploadvehicleappearanceservice: UploadVehicleAppearanceService,
+        private readonly uploadvehiclelegaldocservice: UploadVehicleLegalDocService
     ) { }
 
     async getAll() {
@@ -197,9 +200,6 @@ export class SkiperAgentService {
         url_img_license_plate: string
     ) {
         let errors = { alertPhone: "", alertEmail: "", alertUser: "", alertLicense_Plate: "" };
-        let connection = getConnection();
-        let queryRunner = connection.createQueryRunner();
-        await queryRunner.connect();
 
         let isEmailExist = await this.validateEmailIsExist(email);
         let isLicensePlate = await this.validateLicensePlatenameIsExist(license_plate);
@@ -225,159 +225,213 @@ export class SkiperAgentService {
                 HttpStatus.BAD_REQUEST
             )
         }
-
         try {
             let userData;
-            await queryRunner.startTransaction();
-            if (isEmailExist.length == 0) {               
-                let user = new User();
-                user.firstname = firtsname;
-                user.lastname = lastname;
-                user.email = email;
-                user.user = username;
-                user.password = password;
-                user.address = address;
-                user.phone = phone;
-                user.idcountry = idcountry;
-                user.idcity = idcity;
-                userData = await queryRunner.manager.save(user);
-                if (!userData) {
-                    throw new HttpException(
-                        'error service register user',
-                        HttpStatus.BAD_REQUEST
-                    )
-                }                
-
+            if (isEmailExist.length == 0) {
+                userData = await this.registerUser(firtsname, lastname, email, username, password, address, phone, idcountry, idcity);
             } else {
-                userData = isEmailExist;
+                userData = await isEmailExist;
             }
+            console.log(userData);
+            let agentData;
+            if (userData) {
+                agentData = await this.registerAgent(userData[0].id, identity);
+            }
+    
+            if (agentData) {
+                await this.registerUploadImageAgent(agentData[0].id, url_img_identity, url_img_verify_identity, url_img_letterone_recomendation, url_img_lettertwo_recomendation, url_img_driver_license, url_img_police_record, url_img_driving_record)
+            }
+            let registerVehicle;
+            if (license_plate != null) {
+                registerVehicle = await this.registerVehicle(license_plate, idcattravel, id_vehicle_catalog, idtrademark, idmodel, idyear);
+            }
+    
+            if (agentData && registerVehicle) {
+                await this.registerAgentVehicle(agentData[0].id, registerVehicle[0].id);
+            }
+    
+            if (registerVehicle) {
+                await this.registerVehicleUploadAppeareance(registerVehicle[0].id, url_img__vehicle_front, url_img__vehicle_behind, url_img__vehicle_side_right, url_img__vehicle_side_left, url_img__vehicle_inside_one, url_img__vehicle_inside_two, url_img__vehicle_inside_three, url_img__vehicle_inside_four);
+            }
+            if (registerVehicle) {
+                await this.registerVehicleUploadLegalDoc(registerVehicle[0].id, url_img_gas_emission, url_img_insurance, url_img_license_plate, url_img_mechanical_inspection, url_img_vehicle_circulation);
+            }
+            return "Exito";    
+        } catch (error) {
+            console.log(error)
+        }
+        
+    }
+
+    async registerAgentVehicle(agentId: number, vehicleId: number) {
+        let connect = getConnection();
+        let queryRunner = connect.createQueryRunner();
+        queryRunner.connect();
+        try {
+            await queryRunner.startTransaction();
+            let skipervehicleAgent = new SkiperVehicleAgent();
+            skipervehicleAgent.idagent = agentId;
+            skipervehicleAgent.idvehicle = vehicleId;
+            skipervehicleAgent.is_owner = 1;
+            let skipervehicleagent = await queryRunner.manager.save(skipervehicleAgent);
+            await queryRunner.commitTransaction();
+            return await this.skipervehicleagent.getById(skipervehicleagent.id)
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+    async registerVehicleUploadLegalDoc(vehicleId: number, url_img_gas_emission: string, url_img_insurance: string, url_img_license_plate: string, url_img_mechanical_inspection: string, url_img_vehicle_circulation: string) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        try {
+            await queryRunner.startTransaction();
+            let uploadvehiclelegaldoc = new UploadVehicleLegalDoc();
+            uploadvehiclelegaldoc.url_img_gas_emission = url_img_gas_emission;
+            uploadvehiclelegaldoc.url_img_insurance = url_img_insurance;
+            uploadvehiclelegaldoc.url_img_license_plate = url_img_license_plate;
+            uploadvehiclelegaldoc.url_img_mechanical_inspection = url_img_mechanical_inspection;
+            uploadvehiclelegaldoc.url_img_vehicle_circulation = url_img_vehicle_circulation;
+            uploadvehiclelegaldoc.idvehicle = vehicleId;
+            let uploadvehiclelegaldocSaved = await queryRunner.manager.save(uploadvehiclelegaldoc);
+            await queryRunner.commitTransaction();
+            return await this.uploadvehiclelegaldocservice.getById(uploadvehiclelegaldocSaved.id);
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+    async registerVehicleUploadAppeareance(vehicleId: number, url_img_vehicle_front: string, url_img_vehicle_behind: string, url_img_vehicle_side_right: string, url_img_vehicle_side_left: string, url_img_vehicle_inside_one: string, url_img_vehicle_inside_two: string, url_img_vehicle_inside_three: string, url_img_vehicle_inside_four: string) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        try {
+            await queryRunner.startTransaction();
+            let uploadvehicleappeareance = new UploadVehicleAppearance();
+            uploadvehicleappeareance.url_img_vehicle_front = url_img_vehicle_front;
+            uploadvehicleappeareance.url_img_vehicle_behind = url_img_vehicle_behind;
+            uploadvehicleappeareance.url_img_vehicle_side_right = url_img_vehicle_side_right;
+            uploadvehicleappeareance.url_img_vehicle_side_left = url_img_vehicle_side_left;
+            uploadvehicleappeareance.url_img_vehicle_inside_one = url_img_vehicle_inside_one;
+            uploadvehicleappeareance.url_img_vehicle_inside_two = url_img_vehicle_inside_two;
+            uploadvehicleappeareance.url_img_vehicle_inside_three = url_img_vehicle_inside_three;
+            uploadvehicleappeareance.url_img_vehicle_inside_four = url_img_vehicle_inside_four;
+            uploadvehicleappeareance.skiperVehicleId = vehicleId;
+            let uploadvehicleappeareanceSaved = await queryRunner.manager.save(uploadvehicleappeareance);
+
+            await queryRunner.commitTransaction();
+            return await this.uploadvehicleappearanceservice.getById(uploadvehicleappeareanceSaved.id);
+        } catch (error) {
+            queryRunner.rollbackTransaction();
+        } finally {
+            queryRunner.release();
+        }
+    }
+
+    async registerVehicle(license_plate: string, idcatTravel: number, vehicleCatalogId: number, trademarkId: number, modelId: number, yearId: number, ) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        try {
+            await queryRunner.startTransaction();
+            let vehicle = new SkiperVehicle();
+            vehicle.license_plate = license_plate;
+            vehicle.id_cat_travel = idcatTravel;
+            vehicle.id_vehicle_catalog = vehicleCatalogId;
+            vehicle.idtrademark = trademarkId;
+            vehicle.idmodel = modelId;
+            vehicle.idyear = yearId;
+            let vehicleSaved = await queryRunner.manager.save(vehicle);
+
+            await queryRunner.commitTransaction();
+            return await this.skiperTravelsService.getById(vehicleSaved.id);
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            await queryRunner.release();
+        }
+    }
+
+    async registerUploadImageAgent(agentId: number, url_img_identity: string, url_img_verify_identity: string, url_img_letterone_recomendation: string, url_img_lettertwo_recomendation: string, url_img_driver_license: string, url_img_police_record: string, url_img_driving_record: string) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        try {
+            await queryRunner.startTransaction();
+            let uploadingAgent = new UploadImgAgent();
+            uploadingAgent.id_skiper_agent = agentId;
+            uploadingAgent.url_img_identity = url_img_identity;
+            uploadingAgent.url_img_verify_identity = url_img_verify_identity;
+            uploadingAgent.url_img_letterone_recomendation = url_img_letterone_recomendation;
+            uploadingAgent.url_img_lettertwo_recomendation = url_img_lettertwo_recomendation;
+            uploadingAgent.url_img_driver_license = url_img_driver_license;
+            uploadingAgent.url_img_police_record = url_img_police_record;
+            uploadingAgent.url_img_driving_record = url_img_driving_record;
+
+            let uploadingAgentSaved = await queryRunner.manager.save(uploadingAgent)
             await queryRunner.commitTransaction();
 
+            return await this.uploadvehicleappearanceservice.getById(uploadingAgentSaved.id);
+
+        } catch (error) {
+            queryRunner.rollbackTransaction();
+        } finally {
+            queryRunner.release();
+        }
+    }
+    async registerAgent(userId: number, identity: string) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        try {
             await queryRunner.startTransaction();
             let agent = new SkiperAgent();
-            agent.iduser = userData[0].id;
+            agent.iduser = userId;
             agent.idcategory_agent = 1;
             agent.state = false;
             agent.identity = identity;
             agent.create_at = new Date();
-            let registerAgent = await queryRunner.manager.save(agent);
-            if (!registerAgent) {
-                throw new HttpException(
-                    'error service skiper vehicle  agent',
-                    HttpStatus.BAD_REQUEST
-                )
-            }
+            let agentSaved = await queryRunner.manager.save(agent);
             await queryRunner.commitTransaction();
-
-            await queryRunner.startTransaction();
-            let uploadimgagent = new UploadImgAgent();
-            uploadimgagent.id_skiper_agent = registerAgent.id;
-            uploadimgagent.url_img_identity = url_img_identity;
-            uploadimgagent.url_img_verify_identity = url_img_verify_identity;
-            uploadimgagent.url_img_letterone_recomendation = url_img_letterone_recomendation;
-            uploadimgagent.url_img_lettertwo_recomendation = url_img_lettertwo_recomendation;
-            uploadimgagent.url_img_driver_license = url_img_driver_license;
-            uploadimgagent.url_img_police_record = url_img_police_record;
-            uploadimgagent.url_img_driving_record = url_img_driving_record;
-
-            let uploadimg = await queryRunner.manager.save(uploadimgagent)
-            if (!uploadimg) {
-                throw new HttpException(
-                    'error service  upload url docs agent',
-                    HttpStatus.BAD_REQUEST
-                )
-            }
-            await queryRunner.commitTransaction();
-
-            let registerVehicle;
-            if (license_plate != null) {
-                await queryRunner.startTransaction();
-                let vehicle = new SkiperVehicle();
-                vehicle.license_plate = license_plate;
-                vehicle.id_cat_travel = idcattravel;
-                vehicle.id_vehicle_catalog = id_vehicle_catalog;
-                vehicle.idtrademark = idtrademark;
-                vehicle.idmodel = idmodel;
-                vehicle.idyear = idyear;
-                registerVehicle = await queryRunner.manager.save(vehicle);
-                if (!registerVehicle) {
-                    throw new HttpException(
-                        'error service skiper vehicle  agent',
-                        HttpStatus.BAD_REQUEST
-                    )
-                }
-                await queryRunner.commitTransaction();
-            }
-
-            if (registerVehicle) {
-                await queryRunner.startTransaction();
-                let uploadvehicleappearearance = new UploadVehicleAppearance();
-                uploadvehicleappearearance.url_img_vehicle_front = url_img__vehicle_front;
-                uploadvehicleappearearance.url_img_vehicle_behind = url_img__vehicle_behind;
-                uploadvehicleappearearance.url_img_vehicle_side_right = url_img__vehicle_side_right;
-                uploadvehicleappearearance.url_img_vehicle_side_left = url_img__vehicle_side_left;
-                uploadvehicleappearearance.url_img_vehicle_inside_one = url_img__vehicle_inside_one;
-                uploadvehicleappearearance.url_img_vehicle_inside_two = url_img__vehicle_inside_two;
-                uploadvehicleappearearance.url_img_vehicle_inside_three = url_img__vehicle_inside_three;
-                uploadvehicleappearearance.url_img_vehicle_inside_four = url_img__vehicle_inside_four;
-                uploadvehicleappearearance.skiperVehicleId = registerVehicle.id;
-                let registeruploadappearance = await queryRunner.manager.save(uploadvehicleappearearance);
-                if (!registeruploadappearance) {
-                    throw new HttpException(
-                        'error service upload data appearace vehicle',
-                        HttpStatus.BAD_REQUEST
-                    )
-                }
-                await queryRunner.commitTransaction();
-            }
-
-
-            if (registerVehicle) {
-                await queryRunner.startTransaction();
-                let uploadvehiclelegaldoc = new UploadVehicleLegalDoc();
-                uploadvehiclelegaldoc.url_img_gas_emission = url_img_gas_emission;
-                uploadvehiclelegaldoc.url_img_insurance = url_img_insurance;
-                uploadvehiclelegaldoc.url_img_license_plate = url_img_license_plate;
-                uploadvehiclelegaldoc.url_img_mechanical_inspection = url_img_mechanical_inspection;
-                uploadvehiclelegaldoc.url_img_vehicle_circulation = url_img_vehicle_circulation;
-                uploadvehiclelegaldoc.idvehicle = registerVehicle.id;
-                let registeruploadvehiclelegaldoc = await queryRunner.manager.save(uploadvehiclelegaldoc);
-                if (!registeruploadvehiclelegaldoc) {
-                    throw new HttpException(
-                        'error service upload data vehicle',
-                        HttpStatus.BAD_REQUEST
-                    )
-                }
-                await queryRunner.commitTransaction();
-            }
-            if (registerVehicle) {
-                await queryRunner.startTransaction();
-                let skipervehicleAgent = new SkiperVehicleAgent();
-                skipervehicleAgent.idagent = registerAgent.id;
-                skipervehicleAgent.idvehicle = registerVehicle.id;
-                skipervehicleAgent.is_owner = 1;
-                let skipervehicleagent = await queryRunner.manager.save(skipervehicleAgent);
-                if (!skipervehicleagent) {
-                    throw new HttpException(
-                        'error service skiper vehicle  agent',
-                        HttpStatus.BAD_REQUEST
-                    )
-                }
-                await queryRunner.commitTransaction();
-            }
-
-            return "success transaction";
+            return await this.getById(agentSaved.id);
         } catch (error) {
             await queryRunner.rollbackTransaction();
-            throw new HttpException(
-                error,
-                HttpStatus.BAD_REQUEST
-            );
-
         } finally {
             await queryRunner.release();
         }
+    }
 
+    async registerUser(firtsname: string, lastname: string, email: string, username: string, password: string, address: string, phone: string, idcountry: number, idcity: number) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        try {
+            await queryRunner.startTransaction();
+            let user = new User();
+            user.firstname = firtsname;
+            user.lastname = lastname;
+            user.email = email;
+            user.user = username;
+            user.password = password;
+            user.address = address;
+            user.phone = phone;
+            user.idcountry = idcountry;
+            user.idcity = idcity;
+            let userSaved = await queryRunner.manager.save(user);
+            await queryRunner.commitTransaction();
+
+            return await this.userService.getUserById(userSaved.id)
+
+        } catch (error) {
+            await queryRunner.rollbackTransaction();
+        } finally {
+            await queryRunner.release();
+        }
     }
 
 
