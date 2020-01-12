@@ -227,59 +227,62 @@ export class SkiperAgentService {
         }
         try {
             let userData;
+            let agentData;
             if (isEmailExist.length == 0) {
                 userData = await this.registerUser(firtsname, lastname, email, username, password, address, phone, idcountry, idcity);
+                console.log(userData.id)
+                agentData = await this.registerAgent(userData.id, identity);
             } else {
                 userData = await isEmailExist;
-            }
-            console.log(userData);
-            let agentData;
-            if (userData) {
                 agentData = await this.registerAgent(userData[0].id, identity);
+                console.log(agentData)
             }
-    
+
             if (agentData) {
-                await this.registerUploadImageAgent(agentData[0].id, url_img_identity, url_img_verify_identity, url_img_letterone_recomendation, url_img_lettertwo_recomendation, url_img_driver_license, url_img_police_record, url_img_driving_record)
+                await this.registerUploadImageAgent(agentData.id, url_img_identity, url_img_verify_identity, url_img_letterone_recomendation, url_img_lettertwo_recomendation, url_img_driver_license, url_img_police_record, url_img_driving_record)
             }
             let registerVehicle;
-            if (license_plate != null) {
+            if (license_plate != null && agentData) {
                 registerVehicle = await this.registerVehicle(license_plate, idcattravel, id_vehicle_catalog, idtrademark, idmodel, idyear);
             }
-    
+
             if (agentData && registerVehicle) {
-                await this.registerAgentVehicle(agentData[0].id, registerVehicle[0].id);
+                await this.registerAgentVehicle(agentData.id, registerVehicle.id);
             }
-    
+
             if (registerVehicle) {
-                await this.registerVehicleUploadAppeareance(registerVehicle[0].id, url_img__vehicle_front, url_img__vehicle_behind, url_img__vehicle_side_right, url_img__vehicle_side_left, url_img__vehicle_inside_one, url_img__vehicle_inside_two, url_img__vehicle_inside_three, url_img__vehicle_inside_four);
+                await this.registerVehicleUploadAppeareance(registerVehicle.id, url_img__vehicle_front, url_img__vehicle_behind, url_img__vehicle_side_right, url_img__vehicle_side_left, url_img__vehicle_inside_one, url_img__vehicle_inside_two, url_img__vehicle_inside_three, url_img__vehicle_inside_four);
             }
             if (registerVehicle) {
-                await this.registerVehicleUploadLegalDoc(registerVehicle[0].id, url_img_gas_emission, url_img_insurance, url_img_license_plate, url_img_mechanical_inspection, url_img_vehicle_circulation);
+                await this.registerVehicleUploadLegalDoc(registerVehicle.id, url_img_gas_emission, url_img_insurance, url_img_license_plate, url_img_mechanical_inspection, url_img_vehicle_circulation);
             }
-            return "Exito";    
+            return "Exito";
         } catch (error) {
             console.log(error)
         }
-        
+
     }
 
     async registerAgentVehicle(agentId: number, vehicleId: number) {
         let connect = getConnection();
         let queryRunner = connect.createQueryRunner();
         queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
         try {
-            await queryRunner.startTransaction();
             let skipervehicleAgent = new SkiperVehicleAgent();
             skipervehicleAgent.idagent = agentId;
             skipervehicleAgent.idvehicle = vehicleId;
             skipervehicleAgent.is_owner = 1;
             let skipervehicleagent = await queryRunner.manager.save(skipervehicleAgent);
             await queryRunner.commitTransaction();
-            return await this.skipervehicleagent.getById(skipervehicleagent.id)
+            result = await this.skipervehicleagent.getById(skipervehicleagent.id)
         } catch (error) {
+            console.log(error)
             await queryRunner.rollbackTransaction();
         } finally {
             await queryRunner.release();
+            return result;
         }
     }
 
@@ -287,8 +290,9 @@ export class SkiperAgentService {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
         try {
-            await queryRunner.startTransaction();
             let uploadvehiclelegaldoc = new UploadVehicleLegalDoc();
             uploadvehiclelegaldoc.url_img_gas_emission = url_img_gas_emission;
             uploadvehiclelegaldoc.url_img_insurance = url_img_insurance;
@@ -298,11 +302,13 @@ export class SkiperAgentService {
             uploadvehiclelegaldoc.idvehicle = vehicleId;
             let uploadvehiclelegaldocSaved = await queryRunner.manager.save(uploadvehiclelegaldoc);
             await queryRunner.commitTransaction();
-            return await this.uploadvehiclelegaldocservice.getById(uploadvehiclelegaldocSaved.id);
+            result = await this.uploadvehiclelegaldocservice.getById(uploadvehiclelegaldocSaved.id);
         } catch (error) {
+            console.log(error)
             await queryRunner.rollbackTransaction();
         } finally {
             await queryRunner.release();
+            return result;
         }
     }
 
@@ -310,8 +316,9 @@ export class SkiperAgentService {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
         try {
-            await queryRunner.startTransaction();
             let uploadvehicleappeareance = new UploadVehicleAppearance();
             uploadvehicleappeareance.url_img_vehicle_front = url_img_vehicle_front;
             uploadvehicleappeareance.url_img_vehicle_behind = url_img_vehicle_behind;
@@ -325,11 +332,13 @@ export class SkiperAgentService {
             let uploadvehicleappeareanceSaved = await queryRunner.manager.save(uploadvehicleappeareance);
 
             await queryRunner.commitTransaction();
-            return await this.uploadvehicleappearanceservice.getById(uploadvehicleappeareanceSaved.id);
+            result = await this.uploadvehicleappearanceservice.getById(uploadvehicleappeareanceSaved.id);
         } catch (error) {
+            console.log(error)
             queryRunner.rollbackTransaction();
         } finally {
             queryRunner.release();
+            return result;
         }
     }
 
@@ -337,8 +346,9 @@ export class SkiperAgentService {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
         try {
-            await queryRunner.startTransaction();
             let vehicle = new SkiperVehicle();
             vehicle.license_plate = license_plate;
             vehicle.id_cat_travel = idcatTravel;
@@ -349,11 +359,13 @@ export class SkiperAgentService {
             let vehicleSaved = await queryRunner.manager.save(vehicle);
 
             await queryRunner.commitTransaction();
-            return await this.skiperTravelsService.getById(vehicleSaved.id);
+            result = await this.skiperVehicleService.getById(vehicleSaved.id);
         } catch (error) {
+            console.log(error)
             await queryRunner.rollbackTransaction();
         } finally {
             await queryRunner.release();
+            return result;
         }
     }
 
@@ -361,8 +373,9 @@ export class SkiperAgentService {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
         try {
-            await queryRunner.startTransaction();
             let uploadingAgent = new UploadImgAgent();
             uploadingAgent.id_skiper_agent = agentId;
             uploadingAgent.url_img_identity = url_img_identity;
@@ -376,20 +389,23 @@ export class SkiperAgentService {
             let uploadingAgentSaved = await queryRunner.manager.save(uploadingAgent)
             await queryRunner.commitTransaction();
 
-            return await this.uploadvehicleappearanceservice.getById(uploadingAgentSaved.id);
+            result = await this.uploadvehicleappearanceservice.getById(uploadingAgentSaved.id);
 
         } catch (error) {
+            console.log(error)
             queryRunner.rollbackTransaction();
         } finally {
             queryRunner.release();
+            return result;
         }
     }
     async registerAgent(userId: number, identity: string) {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
         try {
-            await queryRunner.startTransaction();
             let agent = new SkiperAgent();
             agent.iduser = userId;
             agent.idcategory_agent = 1;
@@ -398,11 +414,13 @@ export class SkiperAgentService {
             agent.create_at = new Date();
             let agentSaved = await queryRunner.manager.save(agent);
             await queryRunner.commitTransaction();
-            return await this.getById(agentSaved.id);
+            result = await this.getById(agentSaved.id);
         } catch (error) {
+            console.log(error)
             await queryRunner.rollbackTransaction();
         } finally {
             await queryRunner.release();
+            return result;
         }
     }
 
@@ -410,8 +428,9 @@ export class SkiperAgentService {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
         try {
-            await queryRunner.startTransaction();
             let user = new User();
             user.firstname = firtsname;
             user.lastname = lastname;
@@ -425,12 +444,14 @@ export class SkiperAgentService {
             let userSaved = await queryRunner.manager.save(user);
             await queryRunner.commitTransaction();
 
-            return await this.userService.getUserById(userSaved.id)
+            result = await this.userService.getUserById(userSaved.id)
 
         } catch (error) {
+            console.log(error)
             await queryRunner.rollbackTransaction();
         } finally {
             await queryRunner.release();
+            return result;
         }
     }
 
