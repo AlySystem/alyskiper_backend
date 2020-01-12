@@ -35,7 +35,7 @@ export class SilverDto {
     urlImgName: string;
     total: number;
     currency: number;
-    symbolo: string;
+    symbol: string;
 }
 
 @ObjectType()
@@ -46,7 +46,7 @@ export class GoldenDto {
     urlImgName: string;
     total: number;
     currency: number;
-    symbolo: string;
+    symbol: string;
 }
 @ObjectType()
 export class VipDto {
@@ -56,7 +56,7 @@ export class VipDto {
     urlImgName: string;
     total: number;
     currency: number;
-    symbolo: string;
+    symbol: string;
 }
 @ObjectType()
 export class PresidentDto {
@@ -66,5 +66,5 @@ export class PresidentDto {
     urlImgName: string;
     total: number;
     currency: number;
-    symbolo: string;
+    symbol: string;
 }

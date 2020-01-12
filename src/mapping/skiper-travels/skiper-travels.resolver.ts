@@ -17,13 +17,13 @@ export class SkiperTravelsResolver {
         return await this.service.CalcularTarifa(ip, idcategoriaviaje, lat, lng);
     }
     @Query()
-    async CalculateOtherTariffs(@Args('ip') ip: string,
+    async CategoryTravelsWhitPrice(@Args('ip') ip: string,
         @Args('lat') lat: number,
         @Args('lng') lng: number,
         @Args('distance') distance: number,
         @Args('duration') duration: number) {
 
-        return await this.service.CalculateTariffs(ip, lat, lng, distance, duration);
+        return await this.service.CategoryTravelsWhitPrice(ip, lat, lng, distance, duration);
     }
 
     @Query()

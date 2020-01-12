@@ -60,7 +60,7 @@ export class SkiperTravelsService {
         return parseInt(t[0], 10) * 1 + parseInt(t[1], 10) / 60;
     }
 
-    async CalculateTariffs(ip: string, lat: number, lng: number, distance: number, duration: number) {
+    async CategoryTravelsWhitPrice(ip: string, lat: number, lng: number, distance: number, duration: number) {
         let skipercatTravels = this.skipercattravelservice.getAll()
         let silver = this.CalcularTarifa(ip, 1, lat, lng);
         let golden = this.CalcularTarifa(ip, 2, lat, lng);
@@ -76,7 +76,7 @@ export class SkiperTravelsService {
             silverdto.urlImgName = result[4][0].urlImgName;
             silverdto.total = this.calcaulatePriceSilver(distance, duration, result[0].priceckilometer, result[0].priceminute, result[0].pricebase, result[0].priceminimun);
             silverdto.currency = result[0].currencyID;
-            silverdto.symbolo = result[0].symbol;
+            silverdto.symbol = result[0].symbol;
 
             let goldendto = new GoldenDto();
             goldendto.id = result[4][1].id;
@@ -85,7 +85,7 @@ export class SkiperTravelsService {
             goldendto.urlImgName = result[4][1].urlImgName;
             goldendto.total = this.calcaulatePriceGolden(distance, duration, result[1].priceckilometer, result[1].priceminute, result[1].pricebase, result[1].priceminimun);
             goldendto.currency = result[0].currencyID;
-            goldendto.symbolo = result[0].symbol;
+            goldendto.symbol = result[0].symbol;
 
             let vipdto = new VipDto();
             vipdto.id = result[4][2].id;
@@ -94,7 +94,7 @@ export class SkiperTravelsService {
             vipdto.urlImgName = result[4][2].urlImgName;
             vipdto.total = this.calcaulatePriceVip(distance, duration, result[2].priceckilometer, result[2].priceminute, result[2].pricebase, result[2].priceminimun);
             vipdto.currency = result[0].currencyID;
-            vipdto.symbolo = result[0].symbol;
+            vipdto.symbol = result[0].symbol;
 
             let presidentdto = new PresidentDto();
             presidentdto.id = result[4][3].id;
@@ -103,7 +103,7 @@ export class SkiperTravelsService {
             presidentdto.urlImgName = result[4][3].urlImgName;
             presidentdto.total = this.calcaulatePricePresident(distance, duration, result[3].priceckilometer, result[3].priceminute, result[3].pricebase, result[3].priceminimun);
             presidentdto.currency = result[0].currencyID;
-            presidentdto.symbolo = result[0].symbol;
+            presidentdto.symbol = result[0].symbol;
 
             let allcategory = new AllCategoryDto();
             allcategory.silver = silverdto;

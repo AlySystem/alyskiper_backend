@@ -33,7 +33,7 @@ type SilverDto {
     urlImgName:String
     total:Float
     currency:Int
-    symbolo:String
+    symbol:String
 }
 
 type GoldenDto {
@@ -43,7 +43,7 @@ type GoldenDto {
     urlImgName:String
     total:Float
     currency:Int
-    symbolo:String
+    symbol:String
 }
 type VipDto {
     id: Int
@@ -52,7 +52,7 @@ type VipDto {
     urlImgName:String
     total:Float
     currency:Int
-    symbolo:String
+    symbol:String
 }
 type PresidentDto {
     id: Int
@@ -61,7 +61,7 @@ type PresidentDto {
     urlImgName:String
     total:Float
     currency:Int
-    symbolo:String
+    symbol:String
 }
 
 type Query {
