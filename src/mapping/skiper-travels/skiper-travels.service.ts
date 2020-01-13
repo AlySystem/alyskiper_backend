@@ -78,6 +78,7 @@ export class SkiperTravelsService {
             silverdto.currency = result[0].currencyID;
             silverdto.symbol = result[0].symbol;
 
+
             let goldendto = new GoldenDto();
             goldendto.id = result[4][1].id;
             goldendto.name = result[4][1].name;
@@ -110,22 +111,25 @@ export class SkiperTravelsService {
             allcategory.golden = goldendto;
             allcategory.vip = vipdto;
             allcategory.president = presidentdto;
-
+            
             return allcategory;
 
         })
     }
 
     calcaulatePriceSilver(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
-        distance = (distance / 1000);
-        duration = (duration / 60)
+        try {
+            distance = (distance / 1000);
+            duration = (duration / 60)
 
-        let ValorXKm = priceckilometer * distance;
-        let ValorXMin = priceminute * duration;
-        let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
-        let total = valorviaje <= priceminimun ? priceminimun : valorviaje
+            let ValorXKm = priceckilometer * distance;
+            let ValorXMin = priceminute * duration;
+            let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
+            let total = valorviaje <= priceminimun ? priceminimun : valorviaje
+            return total;
+        } catch (error) {
 
-        return parseFloat(total.toFixed(2).toString());
+        }
     }
     calcaulatePriceGolden(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
         distance = (distance / 1000);
@@ -135,8 +139,7 @@ export class SkiperTravelsService {
         let ValorXMin = priceminute * duration;
         let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
         let total = valorviaje <= priceminimun ? priceminimun : valorviaje
-
-        return parseFloat(total.toFixed(2).toString());
+        return total;
     }
     calcaulatePriceVip(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
         distance = (distance / 1000);
@@ -146,8 +149,8 @@ export class SkiperTravelsService {
         let ValorXMin = priceminute * duration;
         let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
         let total = valorviaje <= priceminimun ? priceminimun : valorviaje
-
-        return parseFloat(total.toFixed(2).toString());
+        
+        return total;
     }
     calcaulatePricePresident(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
         distance = (distance / 1000);
@@ -157,8 +160,8 @@ export class SkiperTravelsService {
         let ValorXMin = priceminute * duration;
         let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
         let total = valorviaje <= priceminimun ? priceminimun : valorviaje
-
-        return parseFloat(total.toFixed(2).toString());
+        
+        return total;
     }
 
     async CalcularTarifa(ip: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
