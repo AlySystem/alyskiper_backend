@@ -14,7 +14,7 @@ export class SkiperVehicleResolver {
     }
 
     @Query()
-    getSkiperVehicleById(@Args('id', ParseIntPipe) id: number) {
+    getSkiperVehicleByVehicleId(@Args('id', ParseIntPipe) id: number) {
         return this.service.getById(id);
     }
 
