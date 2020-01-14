@@ -113,14 +113,13 @@ export class SkiperVehicleService {
 
     async updateSkiperVehicle(input: SkiperVehicleInput): Promise<SkiperVehicle> {
         try {
-
             let skipervehicle = await this.getById(input.id);
             skipervehicle.license_plate = input.license_plate;
-            skipervehicle.id_cat_travel = input.IdCatTravel;
-            skipervehicle.id_vehicle_catalog = input.IdVehiclecatalog;
-            skipervehicle.idtrademark = input.IdTrademark;
-            skipervehicle.idmodel = input.IdModel;
-            skipervehicle.idyear = input.IdYear;
+            skipervehicle.skiperCatTravel.id = input.IdCatTravel;
+            skipervehicle.vehicleCatalog.id = input.IdVehiclecatalog;
+            skipervehicle.vehicleTrademark.id = input.IdTrademark;
+            skipervehicle.vehicleModel.id = input.IdModel;
+            skipervehicle.vehicleYear.id = input.IdYear;
             skipervehicle.lat = input.lat == undefined ? "" : input.lat;
             skipervehicle.lon = input.lon == undefined ? "" : input.lon;
             return await this.repository.save(skipervehicle);
