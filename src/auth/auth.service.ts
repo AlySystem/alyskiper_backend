@@ -219,6 +219,7 @@ export class AuthService {
             .innerJoinAndSelect("SkiperVehicle.vehicleModel", "VehicleModel")
             .innerJoinAndSelect("SkiperVehicle.vehicleYear", "VehicleYear")
             .innerJoinAndSelect("SkiperVehicle.vehicleCatalog", "VehicleCatalog")
+            .innerJoinAndSelect("SkiperVehicle.uploadVehicleAppearance", "UploadVehicleAppearance")
             .innerJoinAndSelect("SkiperVehicle.skiperVehicleAgent", "SkiperVehicleAgent")
             .innerJoinAndSelect("SkiperVehicleAgent.skiperAgent", "SkiperAgent")
             .innerJoin("SkiperAgent.user", "User")

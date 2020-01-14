@@ -111,7 +111,7 @@ export class SkiperTravelsService {
             allcategory.golden = goldendto;
             allcategory.vip = vipdto;
             allcategory.president = presidentdto;
-            
+
             return allcategory;
 
         })
@@ -149,7 +149,7 @@ export class SkiperTravelsService {
         let ValorXMin = priceminute * duration;
         let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
         let total = valorviaje <= priceminimun ? priceminimun : valorviaje
-        
+
         return total;
     }
     calcaulatePricePresident(distance: number, duration: number, priceckilometer: number, priceminute: number, pricebase: number, priceminimun: number, ) {
@@ -160,13 +160,11 @@ export class SkiperTravelsService {
         let ValorXMin = priceminute * duration;
         let valorviaje = ValorXKm + ValorXMin + parseFloat(pricebase.toString())
         let total = valorviaje <= priceminimun ? priceminimun : valorviaje
-        
+
         return total;
     }
 
     async CalcularTarifa(ip: string, idcategoriaviaje: number, lat: number, lng: number): Promise<TravelTarifaDTo> {
-        //var code = await geoip_lite.lookup(ip);
-        // esto lo use para conseguir la ciudad por lat y long pero no es preciso
         var options = {
             provider: 'google',
             httpAdapter: 'https', // Default
@@ -192,15 +190,11 @@ export class SkiperTravelsService {
                   console.log(json)
               });*/
 
-
-        //console.log(datecountry[0].administrativeLevels.level1long)
-        //console.log(datecountry)
         var zonahoraria = geotz(lat, lng);
         var fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
-        //console.log('entre aqui')
-        //vamos a obtener el precio base
-        //vamos a obtener la zona horaria del solicitante del viaje
+
         let country = await this.getCountrieByName(datecountry[0].country);
+
         if (country == undefined) {
             throw new HttpException(
                 "There are no rates available in this country",
@@ -233,9 +227,7 @@ export class SkiperTravelsService {
                 time >= 0 &&
                 this.timeToDecimal(x.driverShedule.final_time.toString()) >= time)
         )[0]
-        // console.log(tarifa.price_kilometer)  
-        // console.log(tarifa.price_minimum)  
-        //console.log(tarifa.price_minute)
+
         let getcurrency = await getConnection().createQueryBuilder(Currency, "Currency")
             .where("Currency.idcountry = :idcountry", { idcountry: tarifa.idcountry }).getOne();
         var travelTarifaDTo = new TravelTarifaDTo();
