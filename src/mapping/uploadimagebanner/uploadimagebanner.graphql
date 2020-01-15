@@ -1,0 +1,13 @@
+input uploadimagebannerInput {
+    id: Int
+    urlImageBanner: String
+}
+
+type uploadimagebannerDto {
+    id: Int
+    urlImageBanner: String
+}
+
+type Query  {
+    getAllImageBanner:[uploadimagebannerDto]!
+}
