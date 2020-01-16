@@ -72,6 +72,7 @@ import { AppGateway } from './app.gateway';
 import {UploadImgAgentModule} from './mapping/upload-img-agent/upload-img-agent.module';
 import {UploadVehicleAppearanceModule} from './mapping/upload-vehicle-appearance/upload-vehicle-appearance.module';
 import { from } from 'rxjs';
+import { UploadimagebannerModule } from './mapping/uploadimagebanner/uploadimagebanner.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -179,7 +180,8 @@ import { from } from 'rxjs';
     DetailAlycoinInvoiceModule,
     HashConfirmedModule,
     ExchangeRateModule,
-    UploadImgAgentModule
+    UploadImgAgentModule,
+    UploadimagebannerModule
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,

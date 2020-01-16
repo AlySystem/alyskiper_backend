@@ -114,7 +114,7 @@ export class UserService {
             .innerJoinAndSelect("SkiperWallet.currencyID", "Currency")
             .innerJoinAndSelect("SkiperWallet.countryID", "Countrie")
             .where("User.id = :iduser", { iduser: id })
-            .andWhere("Currency.isCrypto = 1")
+            //.andWhere("Currency.isCrypto = 1")
             .getMany();
             console.log(d)
             return d;
