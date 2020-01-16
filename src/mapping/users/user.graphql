@@ -76,6 +76,7 @@ type Mutation {
   getAvatarImage(id: Int!): String!
   defaultPassword(id: Int!): String!
   changePasswordByEmail(input: ChangePasswordEmailInput):Int
+  updateUserSponsor(idUser: Int,idSponsor: Int):String
 }
 
 

@@ -309,6 +309,14 @@ export class UserService {
         return await this.userRepository.findOne({ user })
     }
 
+    async updateUserSponsor(idUser: number, idSponsor: number){
+
+        let user = await this.getUserById(idUser)
+        user.sponsor_id = idSponsor
+        
+        return this.userRepository.save(user)
+    }
+
     // Metodo para parsear de UserInput a User
     public static parseUser(input: UserInput, city?, country?, civil_status?): User {
         let user: User = new User();
