@@ -98,6 +98,19 @@ export class UserResolver {
 
     @UseGuards(new AuthGuard())
     @Mutation()
+    async updateUserSponsor(@Args('idUser') idUser:number, @Args('idSponsor') idSponsor: number){
+        try {
+            await this.userService.updateUserSponsor(idUser,idSponsor)
+            return "DONE!"
+        }catch(err){
+            console.log(err)
+            return `Error resolver -> ${err}`
+        }
+
+    }
+
+    @UseGuards(new AuthGuard())
+    @Mutation()
     updatePassword(@Args('input') input: UserUpdatePassword) {
         return this.userService.updatePassword(input);
     }
