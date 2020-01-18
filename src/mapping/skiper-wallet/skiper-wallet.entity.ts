@@ -24,10 +24,10 @@ export class SkiperWallet {
 
     @Column('boolean', { nullable: false }) bretirar: boolean;
 
-    @ManyToOne(type => User, { nullable: false })
+    @ManyToOne(type => User, x => x.id)
     @JoinColumn({ name: 'iduser' }) userID: User;
 
-    @ManyToOne(type => Currency, { nullable: false })
+    @ManyToOne(type => Currency, currency => currency.skiperwallet)
     @JoinColumn({ name: 'idcurrency' }) currencyID: Currency;
 
     @ManyToOne(type => Countrie, { nullable: false })

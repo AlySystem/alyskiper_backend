@@ -3,7 +3,7 @@ import { citiesDto } from "../cities/cities.dto";
 import { countrieDto } from "../countries/countrie.dto";
 import { UserCivilStatusDto } from "../user-civil-status/user-civil-status.dto";
 import { SkiperAgentDto } from "../skiper-agent/skiper-agent.dto";
-import { SkiperWalletDto } from "../skiper-wallet/skiper-wallet.dto";
+import { SkiperWalletDto, SkiperWalletCryptoDto, SkiperWalletLocalDto, pruebaDto, Bitcoin, LiteCoin, Ethereum, Alycoin, Dash } from '../skiper-wallet/skiper-wallet.dto';
 
 @InputType()
 export class UserInput {
@@ -71,9 +71,37 @@ export class UserDto {
     country: countrieDto;
     civilStatus: UserCivilStatusDto;
     skiperAgent: SkiperAgentDto[]
-    skiperWallet: SkiperWalletDto[]
+    skiperWalletLocal: SkiperWalletLocalDto[]
 }
-
+@ObjectType()
+export class UserCryptoDto {
+    id: number;
+    firstname: string;
+    lastname: string;
+    email: string;
+    user: string;
+    password: string;
+    sponsor_id: number = null;
+    address: string;
+    phone: string;
+    create_at: Date;
+    date_birth: Date;
+    is_online: boolean = false;
+    avatar: string;
+    city: citiesDto;
+    country: countrieDto;
+    civilStatus: UserCivilStatusDto;
+    skiperAgent: SkiperAgentDto[];
+    skiperWallet: SkiperWalletCryptoDto[];
+}
+@ObjectType()
+export class CryptosDto {
+    bitcoin: Bitcoin;
+    litecoin: LiteCoin;
+    dash: Dash;
+    alycoin: Alycoin;
+    ethereum: Ethereum;
+}
 @ObjectType()
 export class ChangePassDto {
     message: Boolean;

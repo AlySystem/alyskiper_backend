@@ -25,9 +25,92 @@ export class SendDataForPayCrypto {
 }
 
 @ObjectType()
+export class SkiperWalletLocalDto {
+    id: number;
+    amount: number;
+    minimun: number;
+    bretirar: boolean;
+    date_in: Date;
+    userID: UserDto;
+    currencyID: CurrencyDto;
+    countryID: countrieDto;
+}
+
+@ObjectType()
 export class SkiperWalletDto {
     id: number;
     amount: number;
+    amount_crypto: number;
+    minimun: number;
+    bretirar: boolean;
+    date_in: Date;
+    userID: UserDto;
+    currencyID: CurrencyDto;
+    countryID: countrieDto;
+}
+@ObjectType()
+export class pruebaDto {
+    id: number;
+}
+
+@ObjectType()
+export class Bitcoin {
+    id: number;
+    amount_crypto: number;
+    name: string;
+    url_img: string;
+    price_usd: number;
+    price_local: number;
+    price_crypto:number;
+}
+
+@ObjectType()
+export class Ethereum {
+    id: number;
+    amount_crypto: number;
+    name: string;
+    url_img: string;
+    price_usd: number;
+    price_local: number;
+    price_crypto:number;
+}
+
+@ObjectType()
+export class LiteCoin {
+    id: number;
+    amount_crypto: number;
+    name: string;
+    url_img: string;
+    price_usd: number;
+    price_local: number;
+    price_crypto:number;
+}
+
+@ObjectType()
+export class Dash {
+    id: number;
+    amount_crypto: number;
+    name: string;
+    url_img: string;
+    price_usd: number;
+    price_local: number;
+    price_crypto:number;
+}
+
+@ObjectType()
+export class Alycoin {
+    id: number;
+    amount_crypto: number;
+    name: string;
+    url_img: string;
+    price_usd: number;
+    price_local: number;
+    price_crypto:number;
+}
+
+@ObjectType()
+export class SkiperWalletCryptoDto {
+    id: number;
     amount_crypto: number;
     minimun: number;
     bretirar: boolean;

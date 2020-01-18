@@ -36,7 +36,28 @@ type UserDto {
   city: citiesDto
   civilStatus: UserCivilStatusDto
   skiperAgent: [SkiperAgentDto]
-  skiperWallet: [SkiperWalletDto]
+  skiperWalletLocal: [SkiperWalletLocalDto]
+}
+
+type UserCryptoDto {
+  id: Int!
+  firstname: String
+  lastname: String
+  email: String
+  user: String
+  password: String
+  sponsor_id: Int
+  phone: String
+  address: String
+  create_at: DateTime
+  date_birth: DateTime
+  is_online: Boolean
+  avatar: String
+  country: countrieDto
+  city: citiesDto
+  civilStatus: UserCivilStatusDto
+  skiperAgent: [SkiperAgentDto]
+  skiperWallet: [SkiperWalletCryptoDto]
 }
 
 
@@ -67,6 +88,13 @@ input ChangePasswordEmailInput {
     repeatpassword: String
 }
 
+type  CryptosDto {
+    bitcoin: Bitcoin
+    litecoin: LiteCoin
+    dash: Dash
+    alycoin: Alycoin
+    ethereum: Ethereum
+}
 
 type Mutation {
   createUser(input: UserInput!): UserDto
@@ -84,7 +112,7 @@ type Query {
   getLastUsers: [UserDto!]!
   searchUser(id: ID!): UserDto
   GetUserWallets(id: Int!): UserDto!
-  GetUserWalletsCrypto(id: Int!): UserDto!
+  GetUserWalletsCrypto(id: Int!, lat:Float!, long:Float!): CryptosDto!
   searchUsersBySponsorId(id:Int):[UserDto!]!
   searchUserByEmail(email: String!): UserDto
   getUserWhenAddressNullAndSkiperAgentIdNull: [UserDto!]!

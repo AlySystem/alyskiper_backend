@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection, createQueryBuilder, QueryBuilder } from 'typeorm';
 import { SkiperWallet } from './skiper-wallet.entity';
@@ -28,6 +28,7 @@ export class SkiperWalletService {
         @InjectRepository(SkiperWallet)
         private readonly repository: Repository<SkiperWallet>,
         private readonly walletservice: WalletscompaniesService,
+        @Inject(forwardRef(()=>UserService))
         private readonly userservice: UserService,
         private readonly hashconfirmed: HashConfirmedService
 
@@ -406,7 +407,11 @@ export class SkiperWalletService {
     }
 
     async getAllByUserId(id: number): Promise<SkiperWallet[]> {
-        return await this.repository.find({ relations: ["userID", "currencyID", "countryID"], where: { iduser: id } });
+        return await this.repository.find({
+            relations: ["userID", "currencyID", "countryID"], where: {
+                iduser: id
+            }
+        });        
     }
 
     async getWalletByUserIdAndCurrency(userId, currencyId): Promise<SkiperWallet> {

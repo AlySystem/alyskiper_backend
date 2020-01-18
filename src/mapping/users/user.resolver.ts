@@ -44,8 +44,8 @@ export class UserResolver {
     }
 
     @Query()
-    GetUserWalletsCrypto(@Args('id', ParseIntPipe) id: number) {
-        return this.userService.GetUserWalletsCrypto(id)
+    GetUserWalletsCrypto(@Args('id', ParseIntPipe) id: number, @Args('lat') lat:number,@Args('long') long:number) {
+        return this.userService.GetUserWalletsCrypto(id, lat, long)
     }
 
     @Mutation()
