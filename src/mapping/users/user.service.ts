@@ -16,11 +16,13 @@ import momentTimeZone from 'moment-timezone';
 import geotz from 'geo-tz';
 import { Countrie } from '../countries/countrie.entity';
 import { Currency } from '../currency/currency.entity';
+const rp = require('request-promise');
 
 @Injectable()
 export class UserService {
 
     private logger = new Logger('UserService');
+
 
     constructor(
         @InjectRepository(User) private readonly userRepository: Repository<User>,
@@ -113,101 +115,66 @@ export class UserService {
 
     async GetUserWalletsCrypto(id: number, lat: number, long: number) {
 
-        let all = createQueryBuilder(User)
-            .innerJoinAndSelect("User.skiperWallet", "SkiperWallet")
-            .innerJoinAndSelect("SkiperWallet.currencyID", "Currency")
-            .innerJoinAndSelect("SkiperWallet.countryID", "Countrie")
-            .where("User.id = :iduser", { iduser: id })
-            .andWhere("Currency.isCrypto = 1")
-            .getOne();
-
-        let currencieswhitwallet = createQueryBuilder(Currency, "Currency")
-            .leftJoinAndSelect("Currency.skiperwallet", "skiperwallet")
-            .leftJoinAndSelect("skiperwallet.userID", "userID")
-            .where("userID.id = :id", { id: id })
-            .andWhere("Currency.isCrypto = 1").getOne();
         let currencies = createQueryBuilder(Currency, "Currency")
             .andWhere("Currency.isCrypto = 1").getMany();
+        let bitcoin = this.getAmountByNameCurrency("BTC", id);
+        let ethereum = this.getAmountByNameCurrency("ETH", id);
+        let litecoin = this.getAmountByNameCurrency("LTC", id);
+        let dash = this.getAmountByNameCurrency("DASH", id);
+        // let alycoin = this.getAmountByNameCurrency("Alycoin", id);
 
-
-
-        const url = `https://api.coinmarketcap.com/v1/ticker/${(await all).skiperWallet[0].currencyID.name}/`;
-        var cryptodate = fetch(url)
-            .then(response => response.json())
-            .then(json => {
-                return json;
-            });
-        let country = this.country.getById((await all).idcountry);
+        let country = this.country.getById(154);
         let zonahoraria = geotz(lat, long)
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
-
         let exchange = this.skiperwalletservice.getExchange((await country).nicename, date);
-
-        return await Promise.all([all, exchange, cryptodate, currencies, currencieswhitwallet]).then(async result => {
-
-
+        return Promise.all([exchange, currencies, bitcoin, ethereum, litecoin, dash]).then(async result => {
             let bitcoin = new Bitcoin();
-            bitcoin.id = result[3][0].id;
-            bitcoin.name = result[3][0].name;
-            bitcoin.url_img = result[3][0].url_img;
-            let amount_btc = await this.getAmountByNameCurrency(bitcoin.name, id);
-            bitcoin.amount_crypto = (amount_btc.amount_crypto != undefined) ? amount_btc.amount_crypto : null;
-            let btc_price_usd = await this.getAmountByBTC(bitcoin.name, bitcoin.amount_crypto);
-            bitcoin.price_usd = parseFloat(btc_price_usd.toString());
-            let btc_local = bitcoin.price_usd * result[1].value
+            bitcoin.id = result[1][0].id;
+            bitcoin.name = result[1][0].name;
+            bitcoin.url_img = result[1][0].url_img;
+            bitcoin.amount_crypto = result[2].amount;
+            bitcoin.price_usd = result[2].price_usd;
+            let btc_local = bitcoin.price_usd * result[0].value
             bitcoin.price_local = parseFloat(btc_local.toFixed(2));
-            let btc_price_crypto = await this.getPriceCrypto(bitcoin.name);
-            bitcoin.price_crypto = parseFloat(btc_price_crypto);
+            bitcoin.price_crypto = result[2].price_crypto;
 
             let ethereum = new Ethereum();
-            ethereum.id = result[3][1].id;
-            ethereum.name = result[3][1].name;
-            ethereum.url_img = result[3][1].url_img;
-            let amount_eth = await this.getAmountByNameCurrency(ethereum.name, id);
-            ethereum.amount_crypto = (amount_eth.amount_crypto != undefined) ? amount_eth.amount_crypto : null;
-            let eth_price_usd = await this.getAmountByBTC(ethereum.name, ethereum.amount_crypto);
-            ethereum.price_usd = parseFloat(eth_price_usd.toString());
-            let eth_local = ethereum.price_usd * result[1].value
+            ethereum.id = result[1][1].id;
+            ethereum.name = result[1][1].name;
+            ethereum.url_img = result[1][1].url_img;
+            ethereum.amount_crypto = result[3].amount;
+            ethereum.price_usd = result[3].price_usd;
+            let eth_local = ethereum.price_usd * result[0].value
             ethereum.price_local = parseFloat(eth_local.toFixed(2));
-            let eth_price_crypto = await this.getPriceCrypto(ethereum.name);
-            ethereum.price_crypto = parseFloat(eth_price_crypto);
+            ethereum.price_crypto = result[3].price_crypto;
 
             let litecoin = new LiteCoin();
-            litecoin.id = result[3][2].id;
-            litecoin.name = result[3][2].name;
-            litecoin.url_img = result[3][2].url_img;
-            let amount_litecoin = await this.getAmountByNameCurrency(litecoin.name, id);
-            litecoin.amount_crypto = (amount_litecoin != undefined) ? amount_litecoin.amount_crypto : null;
-            let lite_price_usd = await this.getAmountByBTC(litecoin.name, litecoin.amount_crypto);
-            litecoin.price_usd = parseFloat(lite_price_usd.toString());
-            let lite_local = litecoin.price_usd * result[1].value
+            litecoin.id = result[1][2].id;
+            litecoin.name = result[1][2].name;
+            litecoin.url_img = result[1][2].url_img;
+            litecoin.amount_crypto = result[4].amount;
+            litecoin.price_usd = result[4].price_usd;
+            let lite_local = litecoin.price_usd * result[0].value
             litecoin.price_local = parseFloat(lite_local.toFixed(2));
-            let lite_price_crypto = await this.getPriceCrypto(litecoin.name);
-            litecoin.price_crypto = parseFloat(lite_price_crypto);
+            litecoin.price_crypto = result[4].price_crypto;
 
             let dash = new Dash();
-            dash.id = result[3][3].id;
-            dash.name = result[3][3].name;
-            dash.url_img = result[3][3].url_img;
-            let amount_dash = await this.getAmountByNameCurrency(dash.name, id);
-            dash.amount_crypto = (amount_dash != undefined) ? amount_dash.amount_crypto : null;
-            let dash_price_usd = await this.getAmountByBTC(dash.name, dash.amount_crypto);
-            dash.price_usd = parseFloat(dash_price_usd.toString());
-            let dash_local = dash.price_usd * result[1].value
+            dash.id = result[1][3].id;
+            dash.name = result[1][3].name;
+            dash.url_img = result[1][3].url_img;
+            dash.amount_crypto = result[5].amount;
+            dash.price_usd = result[5].price_usd;
+            let dash_local = dash.price_usd * result[0].value
             dash.price_local = parseFloat(dash_local.toFixed(2));
-            let dash_price_crypto = await this.getPriceCrypto(dash.name);
-            dash.price_crypto = parseFloat(dash_price_crypto);
-
+            dash.price_crypto = result[5].price_crypto;
 
             let alycoin = new Alycoin();
-            alycoin.id = result[3][4].id;
-            alycoin.name = result[3][4].name;
-            bitcoin.url_img = result[3][4].url_img;
-            let amount_alycoin = await this.getAmountByNameCurrency(alycoin.name, id);
-            alycoin.amount_crypto = (amount_alycoin != undefined) ? amount_alycoin.amount_crypto : null;
-            let aly_price_usd = await this.getAmountByBTC(alycoin.name, alycoin.amount_crypto);
-            alycoin.price_usd = parseFloat(aly_price_usd.toString());
-            let aly_local = alycoin.price_usd * result[1].value
+            alycoin.id = result[1][4].id;
+            alycoin.name = result[1][4].name;
+            bitcoin.url_img = result[1][4].url_img;            
+            alycoin.amount_crypto = 0;            
+            alycoin.price_usd = 1;
+            let aly_local = alycoin.price_usd * result[0].value
             alycoin.price_local = parseFloat(aly_local.toFixed(2));
             alycoin.price_crypto = 1;
 
@@ -222,51 +189,50 @@ export class UserService {
         })
 
     }
-    async getPriceCrypto(crypto: string) {
-        try {
-            let url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;
-            let cryptodate = await fetch(url)
-                .then(response => response.json())
-                .then(json => {
-                    return json;
-                });
-            let price_return = parseFloat(cryptodate[0].price_usd);
-            return price_return.toFixed(2);
-        } catch (error) {
-            console.log(error)
-        }
-    }
-    async getAmountByBTC(crypto: string, amountCrypto: number) {
-        try {
-            if (amountCrypto != null) {
-                if (crypto != "Alycoin") {
-                    let url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;
-                    let cryptodate = await fetch(url)
-                        .then(response => response.json())
-                        .then(json => {
-                            return json;
-                        });
-                    let result = parseFloat(amountCrypto.toString()) * parseFloat(cryptodate[0].price_usd);
-                    return result.toFixed(2);
-                } else {
-                    let result = parseFloat(amountCrypto.toString()) * 1;
-                    return result;
-                }
-            } else {
-                return 0;
-            }
-        } catch (error) {
-            console.log(error)
-        }
-    }
 
 
     async getAmountByNameCurrency(crypto: string, id: number) {
-        return await createQueryBuilder(SkiperWallet)
-            .innerJoinAndSelect("SkiperWallet.currencyID", "currencyID")
-            .innerJoinAndSelect("SkiperWallet.userID", "userID")
-            .where("currencyID.name = :name", { name: crypto })
-            .andWhere("userID.id = :id", { id: id }).getOne();
+        const requestOptions = {
+            method: 'GET',
+            uri: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${crypto}`,
+            qs: {
+                'convert': 'USD'
+            },
+            headers: {
+                'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
+            },
+            json: true,
+            gzip: true
+        };
+        try {
+            return rp(requestOptions).then(async response => {
+                let wallet = await createQueryBuilder(SkiperWallet)
+                    .innerJoinAndSelect("SkiperWallet.currencyID", "currencyID")
+                    .innerJoinAndSelect("SkiperWallet.userID", "userID")
+                    .where("currencyID.iso = :iso", { iso: crypto })
+                    .andWhere("userID.id = :id", { id: id }).getOne();
+                if (wallet != undefined) {
+                    let cryptodate = {
+                        currency: wallet.currencyID.name,
+                        amount: wallet.amount_crypto,
+                        price_usd: parseFloat((wallet.amount_crypto * response.data[`${crypto}`].quote.USD.price).toString()).toFixed(2),
+                        price_crypto: parseFloat(response.data[`${crypto}`].quote.USD.price).toFixed(2)
+                    }
+                    return cryptodate;
+                }
+                let cryptodate = {
+                    currency: crypto,
+                    amount: null,
+                    price_usd: 0,
+                    price_crypto: parseFloat(response.data[`${crypto}`].quote.USD.price).toFixed(2)
+                }
+                return cryptodate;
+            }).catch((err) => {
+                console.log('API call error:', err.message);
+            });
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     async GetUserWallets(id: number) {
@@ -459,11 +425,11 @@ export class UserService {
         return await this.userRepository.findOne({ user })
     }
 
-    async updateUserSponsor(idUser: number, idSponsor: number){
+    async updateUserSponsor(idUser: number, idSponsor: number) {
 
         let user = await this.getUserById(idUser)
         user.sponsor_id = idSponsor
-        
+
         return this.userRepository.save(user)
     }
 
