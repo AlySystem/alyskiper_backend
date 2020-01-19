@@ -121,13 +121,13 @@ export class UserService {
         let ethereum = this.getAmountByNameCurrency("ETH", id);
         let litecoin = this.getAmountByNameCurrency("LTC", id);
         let dash = this.getAmountByNameCurrency("DASH", id);
-        // let alycoin = this.getAmountByNameCurrency("Alycoin", id);
+        let alycoin = this.getAmountByNameCurrency("ALY", id);
 
         let country = this.country.getById(154);
         let zonahoraria = geotz(lat, long)
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
         let exchange = this.skiperwalletservice.getExchange((await country).nicename, date);
-        return Promise.all([exchange, currencies, bitcoin, ethereum, litecoin, dash]).then(async result => {
+        return Promise.all([exchange, currencies, bitcoin, ethereum, litecoin, dash, alycoin]).then(async result => {
             let bitcoin = new Bitcoin();
             bitcoin.id = result[1][0].id;
             bitcoin.name = result[1][0].name;
@@ -171,12 +171,12 @@ export class UserService {
             let alycoin = new Alycoin();
             alycoin.id = result[1][4].id;
             alycoin.name = result[1][4].name;
-            bitcoin.url_img = result[1][4].url_img;            
-            alycoin.amount_crypto = 0;            
-            alycoin.price_usd = 1;
+            alycoin.url_img = result[1][4].url_img;
+            alycoin.amount_crypto = result[6].amount;
+            alycoin.price_usd = result[6].price_usd;
             let aly_local = alycoin.price_usd * result[0].value
             alycoin.price_local = parseFloat(aly_local.toFixed(2));
-            alycoin.price_crypto = 1;
+            alycoin.price_crypto = result[6].price_crypto;
 
             let cryptosDto = new CryptosDto();
             cryptosDto.bitcoin = bitcoin;
@@ -205,12 +205,23 @@ export class UserService {
             gzip: true
         };
         try {
+            let wallet = await createQueryBuilder(SkiperWallet)
+                .innerJoinAndSelect("SkiperWallet.currencyID", "currencyID")
+                .innerJoinAndSelect("SkiperWallet.userID", "userID")
+                .where("currencyID.iso = :iso", { iso: crypto })
+                .andWhere("userID.id = :id", { id: id }).getOne();
+            if (wallet != undefined) {
+                if(wallet.currencyID.name == "Alycoin"){
+                    let cryptodate = {
+                        currency: wallet.currencyID.name,
+                        amount: wallet.amount_crypto,
+                        price_usd: parseFloat((wallet.amount_crypto * 1).toString()).toFixed(2),
+                        price_crypto: 1
+                    }
+                    return cryptodate;
+                }
+            }
             return rp(requestOptions).then(async response => {
-                let wallet = await createQueryBuilder(SkiperWallet)
-                    .innerJoinAndSelect("SkiperWallet.currencyID", "currencyID")
-                    .innerJoinAndSelect("SkiperWallet.userID", "userID")
-                    .where("currencyID.iso = :iso", { iso: crypto })
-                    .andWhere("userID.id = :id", { id: id }).getOne();
                 if (wallet != undefined) {
                     let cryptodate = {
                         currency: wallet.currencyID.name,
