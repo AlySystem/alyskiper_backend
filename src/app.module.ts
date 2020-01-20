@@ -73,6 +73,7 @@ import {UploadImgAgentModule} from './mapping/upload-img-agent/upload-img-agent.
 import {UploadVehicleAppearanceModule} from './mapping/upload-vehicle-appearance/upload-vehicle-appearance.module';
 import { from } from 'rxjs';
 import { UploadimagebannerModule } from './mapping/uploadimagebanner/uploadimagebanner.module';
+import { SkiperTariffsModule } from './mapping/skiper-tariffs/skiper-tariffs.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -181,7 +182,8 @@ import { UploadimagebannerModule } from './mapping/uploadimagebanner/uploadimage
     HashConfirmedModule,
     ExchangeRateModule,
     UploadImgAgentModule,
-    UploadimagebannerModule
+    UploadimagebannerModule,
+    SkiperTariffsModule
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,

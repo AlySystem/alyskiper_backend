@@ -1,0 +1,52 @@
+type SkiperTariffsDto {
+    id:Int
+    skiperCatTravel: SkiperCatTravelDto
+    driverShedule: DriverScheduleDto
+    price_base: Float
+    price_minute: Float
+    price_kilometer:  Float
+    price_minimum: Int
+    countrie: countrieDto
+    cities: citiesDto
+    symbol: String
+}
+
+
+input SkiperTariffsInput {
+    id:Int
+    idSkiperCatTravels: Int
+    idDriverSchedule: Int
+    price_base: Float
+    price_minute: Float
+    price_kilometer:  Float
+    price_minimum: Float
+    idCountry: Int
+    idCity: Int
+    symbol: String
+}
+
+input SkiperTariffsFilterInput {
+    idCountry: Int
+    idCity: Int
+    idSchedule: Int
+    idCatTravel: Int
+}
+
+type TariffBatchLog {
+    tariffInput: String
+    status: String
+    error: String
+}
+
+type Query {
+    getAllTariffs:[SkiperTariffsDto]
+    getTariffsById(id:Int!):SkiperTariffsDto
+    getTariffsByCountryId(idCountry:Int!):[SkiperTariffsDto]
+    findTariffsWithFilters(filter: SkiperTariffsFilterInput!):[SkiperTariffsDto]
+}
+
+type Mutation {
+    insertTariff(input: SkiperTariffsInput):SkiperTariffsDto
+    updateTariff(input: SkiperTariffsInput):SkiperTariffsDto
+    tariffBatchInsert(input: [SkiperTariffsInput]):[TariffBatchLog]
+}
