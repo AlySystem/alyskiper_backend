@@ -168,6 +168,7 @@ export class UserService {
             dash.price_local = parseFloat(dash_local.toFixed(2));
             dash.price_crypto = result[5].price_crypto;
 
+            // let alycoin = new Alycoin();
             let alycoin = new Alycoin();
             alycoin.id = result[1][4].id;
             alycoin.name = result[1][4].name;
@@ -192,6 +193,7 @@ export class UserService {
 
 
     async getAmountByNameCurrency(crypto: string, id: number) {
+
         const requestOptions = {
             method: 'GET',
             uri: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${crypto}`,
@@ -210,8 +212,8 @@ export class UserService {
                 .innerJoinAndSelect("SkiperWallet.userID", "userID")
                 .where("currencyID.iso = :iso", { iso: crypto })
                 .andWhere("userID.id = :id", { id: id }).getOne();
-            if (wallet != undefined) {
-                if(wallet.currencyID.name == "Alycoin"){
+            if (crypto == "ALY") {
+                if (wallet != undefined) {
                     let cryptodate = {
                         currency: wallet.currencyID.name,
                         amount: wallet.amount_crypto,
@@ -220,6 +222,13 @@ export class UserService {
                     }
                     return cryptodate;
                 }
+                let cryptodate = {
+                    currency: crypto,
+                    amount: null,
+                    price_usd: 0,
+                    price_crypto:1
+                }
+                return cryptodate;
             }
             return rp(requestOptions).then(async response => {
                 if (wallet != undefined) {
