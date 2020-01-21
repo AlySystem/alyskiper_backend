@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus, Inject, forwardRef } from '@nest
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, getConnection, createQueryBuilder, QueryBuilder } from 'typeorm';
 import { SkiperWallet } from './skiper-wallet.entity';
-import { SkiperWalletInput } from './skiper-wallet.dto';
+import { SkiperWalletInput, SkiperWalletCreateInput } from './skiper-wallet.dto';
 import { SkiperWalletsHistory } from '../skiper-wallets-history/skiper-wallets-history.entity';
 import { TransactionType } from '../transaction-type/transaction-type.entity';
 import { WalletscompaniesService } from "../walletscompanies/walletscompanies.service";
@@ -21,6 +21,7 @@ import momentTimeZone from 'moment-timezone';
 import { ExchangeRate } from '../exchange-rate/exchange-rate.entity';
 import node_geocoder from 'node-geocoder';
 import { Currency } from '../currency/currency.entity';
+import { CountrieService } from '../countries/countrie.service';
 
 @Injectable()
 export class SkiperWalletService {
@@ -28,9 +29,10 @@ export class SkiperWalletService {
         @InjectRepository(SkiperWallet)
         private readonly repository: Repository<SkiperWallet>,
         private readonly walletservice: WalletscompaniesService,
-        @Inject(forwardRef(()=>UserService))
+        @Inject(forwardRef(() => UserService))
         private readonly userservice: UserService,
-        private readonly hashconfirmed: HashConfirmedService
+        private readonly hashconfirmed: HashConfirmedService,
+        private readonly country: CountrieService
 
     ) { }
 
@@ -411,7 +413,7 @@ export class SkiperWalletService {
             relations: ["userID", "currencyID", "countryID"], where: {
                 iduser: id
             }
-        });        
+        });
     }
 
     async getWalletByUserIdAndCurrency(userId, currencyId): Promise<SkiperWallet> {
@@ -443,7 +445,7 @@ export class SkiperWalletService {
                 .andWhere("Currency.isCrypto = :isCrypto", { isCrypto: iscrypto }).getOne()
 
         } catch (error) {
-
+            console.log(error)
         }
     }
 
@@ -467,14 +469,15 @@ export class SkiperWalletService {
         }
     }
 
-    async registerSkiperLocalwallet(input: SkiperWalletInput) {
+    async registerSkiperLocalwallet(input: SkiperWalletCreateInput) {
         try {
+            let zonahoraria = geotz(input.lat, input.long);
+            let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
             let currency = await this.getOnlyByTypeCurrency(input.idcurrency, false);
-            console.log(currency)
             let searchWallet = await this.getWalletByUserIdAndCurrency(input.iduser, input.idcurrency);
             if (currency != undefined) {
                 if (searchWallet == undefined) {
-                    let parseDateWallet = this.parseSkiperWallet(input);
+                    let parseDateWallet = this.parseSkiperWallet(input, date);
                     parseDateWallet.amount = 0;
                     return await this.repository.save(parseDateWallet);
                 } else {
@@ -489,15 +492,21 @@ export class SkiperWalletService {
         }
     }
 
-    async registerSkiperCryptowallet(input: SkiperWalletInput) {
+    async registerSkiperCryptowallet(input: SkiperWalletCreateInput) {
         try {
-            let currency = await this.getOnlyByTypeCurrency(input.idcurrency, true);
-            let searchWallet = await this.getWalletByUserIdAndCurrency(input.iduser, input.idcurrency);
+            let zonahoraria = geotz(input.lat, input.long);
+            let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
+            let currency = await this.getOnlyByTypeCurrency(input.idcurrency, true);            
+            let country = await this.country.getById(input.idcountry);
+            let user = await this.userservice.getUserById(input.iduser);
             if (currency != undefined) {
+                let searchWallet = await this.getWalletByUserIdAndCurrency(input.iduser, input.idcurrency);
                 if (searchWallet == undefined) {
-                    let parseDateWallet = this.parseSkiperWallet(input);
-                    parseDateWallet.amount = 0;
-                    return await this.repository.save(parseDateWallet);
+                    let parseDateWallet = this.parseSkiperWallet(input, date, country, currency, user);
+                    let result = this.repository.save(parseDateWallet);
+                    if (result) {
+                        return "success! your wallet has been created";
+                    }
                 } else {
                     throw new HttpException('the wallet has already been created', HttpStatus.BAD_REQUEST)
                 }
@@ -721,14 +730,12 @@ export class SkiperWalletService {
         }
     }
 
-    private parseSkiperWallet(input: SkiperWalletInput): SkiperWallet {
+    private parseSkiperWallet(input: SkiperWalletCreateInput, date: Date, country?, currency?, user?): SkiperWallet {
         let skiperwallet: SkiperWallet = new SkiperWallet();
-        skiperwallet.iduser = input.iduser;
-        skiperwallet.amount = input.amount;
-        skiperwallet.idcountry = input.idcountry;
-        skiperwallet.date_in = input.date_in;
-        skiperwallet.idcurrency = input.idcurrency;
-        skiperwallet.date_in = input.date_in;
+        skiperwallet.userID = user;
+        skiperwallet.date_in = date;
+        skiperwallet.countryID = country;
+        skiperwallet.currencyID = currency;
         skiperwallet.minimun = input.minimun;
         skiperwallet.bretirar = input.bretirar;
         return skiperwallet;

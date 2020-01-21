@@ -10,6 +10,16 @@ input SkiperWalletInput {
     date_in: DateTime!
 }
 
+input SkiperWalletCreateInput {
+    id: Int
+    iduser: Int!
+    idcurrency: Int!
+    idcountry: Int!
+    minimun: Int
+    bretirar: Boolean 
+    lat: Float!
+    long: Float!
+}
 type SkiperWalletLocalDto {
     id: Int
     amount: Float!  
@@ -86,10 +96,9 @@ type Ethereum {
 
 type SkiperWalletCryptoDto {
     id: Int   
-    amount_crypto: Float!
-    date_in: DateTime!
-    minimun: Float!
-    bretirar: Boolean!
+    date_in: DateTime
+    minimun: Float
+    bretirar: Boolean
     userID: UserDto
     currencyID: CurrencyDto
     countryID: countrieDto
@@ -113,8 +122,8 @@ type Query {
     getAmountByCrypto(crypto:String, amount:Float, iduser:Int,idcountry:Int, idpackage:Int):SendDataForPayCrypto
 }
 type Mutation {
-    registerSkiperLocalWallet(input: SkiperWalletInput!):SkiperWalletLocalDto
-    registerSkiperCryptoWallet(input: SkiperWalletInput!):SkiperWalletCryptoDto
+    registerSkiperLocalWallet(input: SkiperWalletCreateInput!):String
+    registerSkiperCryptoWallet(input: SkiperWalletCreateInput!):String
     updateSkiperWallet(input: SkiperWalletInput): SkiperWalletDto
     registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!, is_user:Boolean,description:String!): SkiperWalletDto
     requestWithdrawalOrTransactionReversed(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, amount:Float!, description:String!): SkiperWalletDto

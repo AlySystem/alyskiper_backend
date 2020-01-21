@@ -7,9 +7,11 @@ import { WalletscompaniesModule } from '../walletscompanies/walletscompanies.mod
 import { UsersModule } from '../users/users.module';
 import { HashConfirmedModule } from '../hash-confirmed/hash-confirmed.module';
 import { UserService } from '../users/user.service';
+import {CountriesModule} from '../countries/countries.module';
 
 @Module({
   imports: [
+    CountriesModule,
     HashConfirmedModule,
     WalletscompaniesModule,
     forwardRef(() => UsersModule),

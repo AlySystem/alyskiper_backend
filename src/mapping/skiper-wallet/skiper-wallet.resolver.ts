@@ -1,7 +1,7 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { SkiperWalletService } from './skiper-wallet.service';
 import { ParseIntPipe } from '@nestjs/common';
-import { SkiperWalletInput } from './skiper-wallet.dto';
+import { SkiperWalletInput,SkiperWalletCreateInput } from './skiper-wallet.dto';
 require('isomorphic-fetch');
 
 @Resolver('SkiperWallet')
@@ -34,11 +34,11 @@ export class SkiperWalletResolver {
     }
 
     @Mutation()
-    registerSkiperCryptoWallet(@Args('input') input: SkiperWalletInput) {
+    registerSkiperCryptoWallet(@Args('input') input: SkiperWalletCreateInput) {
         return this.skiperWalletService.registerSkiperCryptowallet(input);
     }
     @Mutation()
-    registerSkiperLocalWallet(@Args('input') input: SkiperWalletInput) {
+    registerSkiperLocalWallet(@Args('input') input: SkiperWalletCreateInput) {
         return this.skiperWalletService.registerSkiperLocalwallet(input);
     }
     @Mutation()
