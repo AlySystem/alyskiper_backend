@@ -49,8 +49,13 @@ export class UserResolver {
     }
 
     @Mutation()
-    sendPinByEmail(@Args('email') email:string,@Args('lat') lat:number, @Args('long') long:number, ) {
-        return this.userService.sendPinByMail(email);
+    sendPinByEmail(@Args('email') email: string, @Args('lat') lat: number, @Args('long') long: number, ) {
+        return this.userService.sendPinByMail(email, lat, long);
+    }
+
+    @Mutation()
+    validateCode(@Args('code') code: number, @Args('email') email: string, @Args('lat') lat: number, @Args('long') long: number, ) {
+        return this.userService.validateCode(email, code, lat, long);
     }
 
     @Mutation()

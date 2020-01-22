@@ -17,6 +17,7 @@ import geotz from 'geo-tz';
 import { Countrie } from '../countries/countrie.entity';
 import { Currency } from '../currency/currency.entity';
 import { MailerService } from '@nest-modules/mailer';
+import moment = require('moment');
 const rp = require('request-promise');
 let gpc = require('generate-pincode');
 
@@ -37,33 +38,66 @@ export class UserService {
 
     ) { }
 
+    async validateCode(email: string, code: number, lat: number, long: number) {
+        let zonahoraria = geotz(lat, long);
+        let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss");
+        let verifycode = await createQueryBuilder(User, "User")
+            .where("User.email=:email", { email: email })
+            .andWhere("User.pin =:pin", { pin: code })
+            .andWhere("User.resetPasswordExpires > :resetPasswordExpires", { resetPasswordExpires: date })
+            .getOne();
+        if(verifycode !== undefined){
+            return true;
+        }
+        return false;
+    }
 
-    async  sendPinByMail(email: string) {
+    async  sendPinByMail(email: string, lat: number, long: number) {
+        let zonahoraria = geotz(lat, long);
+        let datebruto = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss");
+        let date = Date.parse(datebruto) + 300000;
         let verifyEmail = await createQueryBuilder(User, "User")
             .where("User.email=:email", { email: email }).getOne();
         if (verifyEmail != undefined) {
             let pin = gpc(6);
-            return this
-                .mailerService
-                .sendMail({
-                    to: verifyEmail.email,
-                    from: 'gerencia@alysystem.com',
-                    subject: 'Has recibido un pin de seguridad ✔',
-                    template: 'sendcodepin', // The `.pug` or `.hbs` extension is appended automatically.
-                    context: {  // Data to be sent to template engine.
-                        code: pin,
-                        username: verifyEmail.firstname,
-                    }
-                })
-                .then((result) => {
-                    if (result) {
-                        return "send successfully"
-                    }
-                    return "error send email"
-                })
-                .catch((error) => { console.log(error) });
+            verifyEmail.pin = pin;
+            verifyEmail.resetPasswordExpires = moment(date).format("YYYY-MM-DD HH:mm:ss");
+            let savePin = await this.userRepository.save(verifyEmail);
+            if (savePin) {
+                return this
+                    .mailerService
+                    .sendMail({
+                        to: verifyEmail.email,
+                        from: 'gerencia@alysystem.com',
+                        subject: 'Has recibido un pin de seguridad ✔',
+                        template: 'sendcodepin',
+                        context: {
+                            code: pin,
+                            username: verifyEmail.firstname,
+                        }
+                    })
+                    .then((result) => {
+                        if (result) {
+                            return "send successfully"
+                        }
+                        throw new HttpException(
+                            "Error email not sent",
+                            HttpStatus.BAD_REQUEST
+                        )
+                    })
+                    .catch((error) => { console.log(error) });
+            } else {
+                throw new HttpException(
+                    "Error code not sent",
+                    HttpStatus.BAD_REQUEST
+                )
+            }
+
         } else {
-            return "email not exist";
+            throw new HttpException(
+                "Error email not exist",
+                HttpStatus.BAD_REQUEST
+            )
         }
     }
 
