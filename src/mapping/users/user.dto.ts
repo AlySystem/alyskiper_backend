@@ -93,6 +93,9 @@ export class UserCryptoDto {
     civilStatus: UserCivilStatusDto;
     skiperAgent: SkiperAgentDto[];
     skiperWallet: SkiperWalletCryptoDto[];
+    token_reset: string;
+    resetPasswordExpires: Date;
+    pin: number;
 }
 @ObjectType()
 export class CryptosDto {

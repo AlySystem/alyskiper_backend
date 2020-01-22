@@ -69,11 +69,12 @@ import { HashConfirmedModule } from './mapping/hash-confirmed/hash-confirmed.mod
 import { ExchangeRateModule } from './mapping/exchange-rate/exchange-rate.module';
 import { UsersRatingModule } from './mapping/users-rating/users-rating.module';
 import { AppGateway } from './app.gateway';
-import {UploadImgAgentModule} from './mapping/upload-img-agent/upload-img-agent.module';
-import {UploadVehicleAppearanceModule} from './mapping/upload-vehicle-appearance/upload-vehicle-appearance.module';
+import { UploadImgAgentModule } from './mapping/upload-img-agent/upload-img-agent.module';
+import { UploadVehicleAppearanceModule } from './mapping/upload-vehicle-appearance/upload-vehicle-appearance.module';
 import { from } from 'rxjs';
 import { UploadimagebannerModule } from './mapping/uploadimagebanner/uploadimagebanner.module';
 import { SkiperTariffsModule } from './mapping/skiper-tariffs/skiper-tariffs.module';
+import { HandlebarsAdapter, MailerModule } from '@nest-modules/mailer';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -115,6 +116,21 @@ import { SkiperTariffsModule } from './mapping/skiper-tariffs/skiper-tariffs.mod
     SkiperCommerceFavoritesModule,
     UsersCommissionsModule,
     CategoryLevelModule,
+    MailerModule.forRootAsync({
+      useFactory: () => ({
+        transport: 'smtp://info@alycoin.net:Rolas1.19@smtp.zoho.com',
+        defaults: {
+          from: '"nest-modules" <gerencia@alysystem.com>',
+        },
+        template: {
+          dir: __dirname + '../../src/templates',
+          adapter: new HandlebarsAdapter(), // or new PugAdapter()
+          options: {
+            strict: true,
+          },
+        },
+      }),
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       // host: gpcloud,

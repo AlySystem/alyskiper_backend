@@ -67,6 +67,9 @@ export class User {
 
     @Column('longtext', { nullable: true }) avatar: string;
 
+    @Column('longtext', { nullable: true }) token_reset: string;
+    @Column('datetime', { nullable: true }) resetPasswordExpires: string;
+    @Column('int', { nullable: true }) pin: number;
     @ManyToOne(type => Countrie, { nullable: false })
     @JoinColumn({ name: 'idcountry' }) country: Countrie;
 

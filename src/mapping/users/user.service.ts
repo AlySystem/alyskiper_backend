@@ -1,4 +1,4 @@
-import { Injectable, Logger, HttpException, HttpStatus, forwardRef, Inject } from '@nestjs/common';
+import { Injectable, Logger, HttpException, HttpStatus, forwardRef, Inject, Response } from '@nestjs/common';
 import { User } from './user.entity';
 import { Repository, createQueryBuilder } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,7 +16,9 @@ import momentTimeZone from 'moment-timezone';
 import geotz from 'geo-tz';
 import { Countrie } from '../countries/countrie.entity';
 import { Currency } from '../currency/currency.entity';
+import { MailerService } from '@nest-modules/mailer';
 const rp = require('request-promise');
+let gpc = require('generate-pincode');
 
 @Injectable()
 export class UserService {
@@ -30,9 +32,40 @@ export class UserService {
         private readonly skiperwalletservice: SkiperWalletService,
         private readonly city: CitiesService,
         private readonly country: CountrieService,
-        private readonly civil: UserCivilStatusService
+        private readonly civil: UserCivilStatusService,
+        private readonly mailerService: MailerService
 
     ) { }
+
+
+    async  sendPinByMail(email: string) {
+        let verifyEmail = await createQueryBuilder(User, "User")
+            .where("User.email=:email", { email: email }).getOne();
+        if (verifyEmail != undefined) {
+            let pin = gpc(6);
+            return this
+                .mailerService
+                .sendMail({
+                    to: verifyEmail.email,
+                    from: 'gerencia@alysystem.com',
+                    subject: 'Has recibido un pin de seguridad ✔',
+                    template: 'sendcodepin', // The `.pug` or `.hbs` extension is appended automatically.
+                    context: {  // Data to be sent to template engine.
+                        code: pin,
+                        username: verifyEmail.firstname,
+                    }
+                })
+                .then((result) => {
+                    if (result) {
+                        return "send successfully"
+                    }
+                    return "error send email"
+                })
+                .catch((error) => { console.log(error) });
+        } else {
+            return "email not exist";
+        }
+    }
 
     async getAll(): Promise<User[]> {
         try {
@@ -226,7 +259,7 @@ export class UserService {
                     currency: crypto,
                     amount: null,
                     price_usd: 0,
-                    price_crypto:1
+                    price_crypto: 1
                 }
                 return cryptodate;
             }

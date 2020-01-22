@@ -44,8 +44,13 @@ export class UserResolver {
     }
 
     @Query()
-    GetUserWalletsCrypto(@Args('id', ParseIntPipe) id: number, @Args('lat') lat:number,@Args('long') long:number) {
+    GetUserWalletsCrypto(@Args('id', ParseIntPipe) id: number, @Args('lat') lat: number, @Args('long') long: number) {
         return this.userService.GetUserWalletsCrypto(id, lat, long)
+    }
+
+    @Mutation()
+    sendPinByEmail(@Args('email') email:string,@Args('lat') lat:number, @Args('long') long:number, ) {
+        return this.userService.sendPinByMail(email);
     }
 
     @Mutation()
@@ -78,7 +83,7 @@ export class UserResolver {
     @Query()
     async getLastUsersByCategoryId(@Args('limit') limit: number, @Args('categoryId') categoryId: number) {
         try {
-            return await this.userService.getLastUsersByCategoryId(limit,categoryId)
+            return await this.userService.getLastUsersByCategoryId(limit, categoryId)
         } catch (error) {
             console.log(error)
             return `Error resolver -> ${error}`
@@ -98,11 +103,11 @@ export class UserResolver {
 
     @UseGuards(new AuthGuard())
     @Mutation()
-    async updateUserSponsor(@Args('idUser') idUser:number, @Args('idSponsor') idSponsor: number){
+    async updateUserSponsor(@Args('idUser') idUser: number, @Args('idSponsor') idSponsor: number) {
         try {
-            await this.userService.updateUserSponsor(idUser,idSponsor)
+            await this.userService.updateUserSponsor(idUser, idSponsor)
             return "DONE!"
-        }catch(err){
+        } catch (err) {
             console.log(err)
             return `Error resolver -> ${err}`
         }
@@ -118,7 +123,7 @@ export class UserResolver {
     @Mutation()
     async changePasswordByEmail(@Args('input') input: ChangePasswordEmailInput) {
         try {
-            let result = await this.userService.updatePasswordByEmail(input);           
+            let result = await this.userService.updatePasswordByEmail(input);
             if (result) {
                 return await true
             } else {
