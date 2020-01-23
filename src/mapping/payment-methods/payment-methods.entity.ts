@@ -9,5 +9,9 @@ export class PaymentMethods {
 
     @Column('boolean') pay_commissions: boolean;
 
+    @Column('boolean') active: boolean;
+
+    @Column('longtext') urlImg: string;
+
     @OneToMany(type => CountryPaymentCurrency, x => x.paymentmethod) countrypayment: CountryPaymentCurrency[];
 }

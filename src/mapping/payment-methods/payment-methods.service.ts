@@ -16,6 +16,12 @@ export class PaymentMethodsService {
         return await this.respository.find();
     }
 
+    async getActive(): Promise<PaymentMethods[]> {
+        return await this.respository.find({
+            where: { active: true }
+        });
+    }
+
     async getById(id: number): Promise<PaymentMethods> {
         return await this.respository.findOneOrFail({ where: { id } });
     }

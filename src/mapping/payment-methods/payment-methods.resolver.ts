@@ -11,6 +11,11 @@ export class PaymentMethodsResolver {
         return await this.paymentMethodService.getAll();
     }
 
+    @Query('PaymentMethodActive')
+    async PaymentMethodActive() {
+        return await this.paymentMethodService.getActive();
+    }
+
     @Query()
     async searchPaymentMethod(@Args('id', ParseIntPipe) id: number) {
         return await this.paymentMethodService.getById(id);

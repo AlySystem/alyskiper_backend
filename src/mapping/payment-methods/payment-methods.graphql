@@ -2,15 +2,20 @@ input PaymentMethodInput {
     id: Int
     name:String
     pay_commissions:Boolean
+    active:Boolean
+    urlImg:String
 }
 
 type PaymentMethodDto {
     id: Int
     name:String
     pay_commissions:Boolean
+    active:Boolean
+    urlImg:String
 }
 
 type Query {
     PaymentMethod: [PaymentMethodDto]
     searchPaymentMethod(id:Int): PaymentMethodDto
+    PaymentMethodActive:[PaymentMethodDto]
 }
