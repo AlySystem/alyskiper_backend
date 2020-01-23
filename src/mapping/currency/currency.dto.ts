@@ -1,4 +1,5 @@
 import { InputType, ObjectType } from "type-graphql";
+import {countrieDto} from '../countries/countrie.dto';
 
 @InputType()
 export class CurrencyInput {
@@ -18,4 +19,5 @@ export class CurrencyDto {
     isCrypto: Boolean;
     iso: string;
     url_img: string;
+    country:countrieDto;
 }

@@ -96,7 +96,7 @@ export class SkiperCommerceService {
             let options = {
                 provider: 'google',
                 httpAdapter: 'https', // Default
-                apiKey: 'AIzaSyDRc0P0ozp5BU98gDG06OXbFaGk3OiOYxw', // for Mapquest, OpenCage, Google Premier
+                apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
                 formatter: 'json' // 'gpx', 'string', ...
             };
             let geocoder = node_geocoder(options);

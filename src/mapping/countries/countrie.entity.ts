@@ -4,6 +4,7 @@ import { CountryPaymentCurrency } from "../country-payment-currency/country-paym
 import { User } from '../users/user.entity';
 import { SkiperUserInvoice } from '../skiper-user-invoice/skiper-user-invoice.entity';
 import { ExchangeRate } from '../exchange-rate/exchange-rate.entity';
+import { Currency } from '../currency/currency.entity';
 
 
 @Entity('countries')
@@ -42,6 +43,9 @@ export class Countrie {
 
     @OneToMany(type => SkiperUserInvoice, x => x.country)
     skiperuserinvoice: SkiperUserInvoice[];
+
+    @OneToMany(type => Currency, x => x.idcountry)
+    currency: Currency[];
 
     @OneToMany(type => ExchangeRate, exchangerate => exchangerate.country)
     exchangerate: ExchangeRate[];

@@ -14,6 +14,7 @@ type CurrencyDto {
     isCrypto: Boolean
     iso: String
     url_img: String
+    country:countrieDto
 }
 
 type Query {

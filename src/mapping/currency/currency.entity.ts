@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn, OneToOne, ManyToOne } from 'typeorm';
 import { CountryPaymentCurrency } from '../country-payment-currency/country-payment-currency.entity';
 import { ExchangeRate } from '../exchange-rate/exchange-rate.entity';
 import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
+import { Countrie } from '../countries/countrie.entity';
 
 @Entity('currency')
 export class Currency {
@@ -15,4 +16,6 @@ export class Currency {
     @OneToMany(type => SkiperWallet, skiperwallet => skiperwallet.currencyID) skiperwallet: SkiperWallet[];
     @OneToMany(type => ExchangeRate, exchangerate => exchangerate.currency) exchangerate: ExchangeRate[];
     @OneToMany(type => CountryPaymentCurrency, x => x.currency) countrypaymentcurrency: CountryPaymentCurrency[];
+    @ManyToOne(type => Countrie)
+    @JoinColumn({ name: 'idcountry' }) country: Countrie;
 }

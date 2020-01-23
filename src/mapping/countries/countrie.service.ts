@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Countrie } from './countrie.entity';
-import { Repository,createQueryBuilder } from 'typeorm';
+import { Repository, createQueryBuilder, getConnection } from 'typeorm';
 import { countrieInput } from './countrie.dto';
 
 @Injectable()
@@ -26,6 +26,18 @@ export class CountrieService {
             where: { id: id }
         })
     }
+
+    async getCountrieByName(name: string) {
+        try {
+            return await getConnection().createQueryBuilder(Countrie, "Countrie")
+                .where("Countrie.name = :name", { name: name.toUpperCase() }).getOne();
+        } catch (error) {
+            throw new HttpException(
+                "Error get country" + error,
+                HttpStatus.BAD_REQUEST
+            )
+        }
+    }    
 
     async showAll(page: number = 1): Promise<Countrie[]> {
         const countries = await this.countrieRepository.find({

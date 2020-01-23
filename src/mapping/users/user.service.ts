@@ -17,6 +17,7 @@ import geotz from 'geo-tz';
 import { Countrie } from '../countries/countrie.entity';
 import { Currency } from '../currency/currency.entity';
 import { MailerService } from '@nest-modules/mailer';
+import node_geocoder from 'node-geocoder';
 import moment = require('moment');
 const rp = require('request-promise');
 let gpc = require('generate-pincode');
@@ -46,7 +47,7 @@ export class UserService {
             .andWhere("User.pin =:pin", { pin: code })
             .andWhere("User.resetPasswordExpires > :resetPasswordExpires", { resetPasswordExpires: date })
             .getOne();
-        if(verifycode !== undefined){
+        if (verifycode !== undefined) {
             return true;
         }
         return false;
@@ -181,6 +182,15 @@ export class UserService {
     }
 
     async GetUserWalletsCrypto(id: number, lat: number, long: number) {
+        var options = {
+            provider: 'google',
+            httpAdapter: 'https', // Default
+            apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
+            formatter: 'json' // 'gpx', 'string', ...
+        };
+        var geocoder = node_geocoder(options);
+        var datecountry = await geocoder.reverse({ lat: lat, lon: long })
+
 
         let currencies = createQueryBuilder(Currency, "Currency")
             .andWhere("Currency.isCrypto = 1").getMany();
@@ -190,7 +200,7 @@ export class UserService {
         let dash = this.getAmountByNameCurrency("DASH", id);
         let alycoin = this.getAmountByNameCurrency("ALY", id);
 
-        let country = this.country.getById(154);
+        let country = this.country.getCountrieByName(datecountry[0].country);
         let zonahoraria = geotz(lat, long)
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
         let exchange = this.skiperwalletservice.getExchange((await country).nicename, date);
@@ -257,7 +267,6 @@ export class UserService {
         })
 
     }
-
 
     async getAmountByNameCurrency(crypto: string, id: number) {
 

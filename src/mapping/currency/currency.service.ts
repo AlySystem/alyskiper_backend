@@ -15,7 +15,7 @@ export class CurrencyService {
     }
 
     async getAllCrypto(): Promise<Currency[]> {
-        return await this.repository.find({ where: { isCrypto: 1 } })
+        return await this.repository.find({relations:['country'], where: { isCrypto: 1 } })
     }
 
     async getById(id: number): Promise<Currency> {
