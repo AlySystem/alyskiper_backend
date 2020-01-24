@@ -44,6 +44,20 @@ export class ValidateSkiperDriveInput {
     idcurrency: number;
 }
 
+export class ValidateUserInput {
+    userId: number;
+    driverId: number;
+    categoryTravelId: number;
+    latInitial: number;
+    lngInitial: number;
+    dateInit: Date;
+    distance: number;
+    time: number;
+    Total: number;
+    ip: string;
+    idcurrency: number;
+}
+
 @ObjectType()
 export class AllCategoryDto {
     silver: SilverDto;

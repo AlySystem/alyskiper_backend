@@ -12,10 +12,11 @@ type PaymentMethodDto {
     pay_commissions:Boolean
     active:Boolean
     urlImg:String
+    currency:[CurrencyDto]
 }
 
 type Query {
     PaymentMethod: [PaymentMethodDto]
     searchPaymentMethod(id:Int): PaymentMethodDto
-    PaymentMethodActive:[PaymentMethodDto]
+    PaymentMethodActive(lat:Float!, long:Float!):[PaymentMethodDto]
 }

@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SkiperTravels } from './skiper-travels.entity';
 import { Repository, getManager, getConnection, createQueryBuilder, QueryBuilder, Double } from 'typeorm';
-import { SkiperTravelsInput, ValidateSkiperDriveInput, AllCategoryDto } from '../skiper-travels/skiper-travels.dto';
+import { SkiperTravelsInput, ValidateSkiperDriveInput,ValidateUserInput, AllCategoryDto } from '../skiper-travels/skiper-travels.dto';
 import { SkiperTravelsTracing } from '../skiper-travels-tracing/skiper-travels-tracing.entity';
 import { SkiperTariffs } from '../skiper-tariffs/skiper-tariffs.entity';
 import moment = require('moment');
@@ -253,11 +253,88 @@ export class SkiperTravelsService {
         }
     }
 
+    async ValidateUser(inputviaje: ValidateUserInput) {
+        let searchUserIfHasTravels = await this.repository.find({
+            where: { idusersa: inputviaje.userId, state: false }
+        });
+
+        if (searchUserIfHasTravels.length != 0) {
+            throw new HttpException(
+                "Error user is in other travel",
+                HttpStatus.BAD_REQUEST
+            );
+            return false;
+
+        } else {
+            let zonahoraria = geotz(inputviaje.latInitial, inputviaje.lngInitial)
+            let fecha = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
+            inputviaje.dateInit = fecha;
+            inputviaje.distance = (inputviaje.distance / 1000);
+            inputviaje.time = (inputviaje.time / 60)
+            //console.log("distancia " + inputviaje.distance, "tiempo " + inputviaje.time)
+            let viaje = new SkiperTravels();
+            //vamos a calcular la tarifa del viaje
+            //vamos a obtener la categoria de drive y el pais y ciudad del drive
+            let vehiculo = await getConnection()
+                .createQueryBuilder(SkiperVehicle, "SkiperVehicle")
+                .innerJoinAndSelect("SkiperVehicle.skiperVehicleAgent", "SkiperVehicleAgent")
+                .innerJoinAndSelect("SkiperVehicleAgent.skiperAgent", "SkiperAgent")
+                .innerJoinAndSelect("SkiperAgent.user", "User")
+                .where("SkiperAgent.id = :userId", { userId: inputviaje.driverId })
+                .getOne();
+
+            if (vehiculo == undefined) {
+                /*throw new HttpException(
+                    'Error the drive does not have vehicle available',
+                    HttpStatus.BAD_REQUEST
+                );*/
+                console.log("Error the drive does not have vehicle available");
+                return false;
+            }
+
+            let tarifa = await this.CalcularTarifa(inputviaje.ip, vehiculo.id_cat_travel, inputviaje.latInitial, inputviaje.lngInitial)
+            //console.log(tarifa)
+            //console.log(tarifa);
+            //console.log(inputviaje);
+            let ValorXKm = tarifa.priceckilometer * inputviaje.distance
+            let ValorXMin = tarifa.priceminute * inputviaje.time
+            let valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
+            inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
+
+            let user = await this.getUserDatafromDriver(inputviaje.userId);
+            let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
+
+            if (wallet == undefined) {
+                /*throw new HttpException(
+                    "Error the drive does not have wallet available",
+                    HttpStatus.BAD_REQUEST
+                );*/
+                console.log("Error the user does not have wallet available");
+                return false;
+            }
+            // let getTax = await this.getCountryByDrive(inputviaje.driverId);
+            // let tax = (getTax.tax == null) ? 0 : getTax.tax;
+            // let skiperPorcentagePay = await this.skipercattravelservice.getById(inputviaje.categoryTravelId);
+            // let subtotal = (inputviaje.Total * parseInt(skiperPorcentagePay.paycommission.toString())) / 100;
+            // let calcTax = (subtotal * tax) / 100;
+            // let totaldebit = subtotal + calcTax;
+
+            if (parseFloat(wallet.amount.toString()) < parseFloat(inputviaje.Total.toFixed(2))) {
+                /*throw new HttpException(
+                    "Error the drive does not have enough funds",
+                    HttpStatus.BAD_REQUEST
+                );*/
+                console.log("Error the drive does not have enough funds");
+                return false;
+            }
+            return true;
+        }
+    }
+
     async ValidateDriveAvailable(inputviaje: ValidateSkiperDriveInput) {
         let searchDriveIfHasTravels = await this.repository.find({
             where: { iddriver: inputviaje.iddriver, state: false }
         });
-        console.log(searchDriveIfHasTravels)
 
         if (searchDriveIfHasTravels.length != 0) {
             throw new HttpException(

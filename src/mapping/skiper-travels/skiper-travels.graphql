@@ -73,6 +73,20 @@ type AllCategoryDto {
     president:PresidentDto   
 }
 
+type ValidateUserInput {
+    userId: Int
+    driverId:Int
+    categoryTravelId: Int
+    latInitial: Float
+    lngInitial: Float
+    dateInit: DateTime
+    distance: Float
+    time: Float
+    Total: Float
+    ip: String
+    idcurrency: Int
+}
+
 
 type Query {
     getAllSkiperTravels: [SkiperTravelsDto!]
