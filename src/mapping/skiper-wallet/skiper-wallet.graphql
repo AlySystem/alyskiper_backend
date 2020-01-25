@@ -53,7 +53,7 @@ type Alycoin {
     price_usd:Float
     price_local:Float
     price_crypto:Float
-    priceTravel:Float
+    priceTravel:Float    
 }
 
 type Dash {
@@ -65,6 +65,7 @@ type Dash {
     price_local:Float
     price_crypto:Float
     priceTravel:Float
+    change24h:Float
 }
 
 type LiteCoin {
@@ -76,6 +77,7 @@ type LiteCoin {
     price_local:Float
     price_crypto:Float
     priceTravel:Float
+    change24h:Float
 }
 
 type Bitcoin {
@@ -87,6 +89,7 @@ type Bitcoin {
     price_local:Float
     price_crypto:Float 
     priceTravel:Float
+    change24h:Float
 }
 type Ethereum {
     id: Int
@@ -97,6 +100,7 @@ type Ethereum {
     price_local:Float
     price_crypto:Float
     priceTravel:Float
+    change24h:Float
 }
 
 type SkiperWalletCryptoDto {

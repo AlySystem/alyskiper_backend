@@ -79,14 +79,17 @@ export class PaymentMethodsService {
             bitcoin.id = result[1].currency[0].id;
             bitcoin.name = result[1].currency[0].name;
             bitcoin.url_img = result[1].currency[0].url_img;
-            bitcoin.amount_crypto = result[2].amount;
+            let btc_amount = parseFloat(result[2].amount).toFixed(8);
+            console.log(btc_amount)
+            bitcoin.amount_crypto =parseFloat(btc_amount);
             bitcoin.price_usd = result[2].price_usd;
             let btc_local = bitcoin.price_usd * result[7].value
             bitcoin.price_local = parseFloat(btc_local.toFixed(2));
             bitcoin.price_crypto = result[2].price_crypto;
             let usdb = total / result[7].value;
             let incryptob = parseFloat(usdb.toFixed(2)) / bitcoin.price_crypto;
-            bitcoin.priceTravel =parseFloat(incryptob.toFixed(8));
+            bitcoin.priceTravel = parseFloat(incryptob.toFixed(8));
+            bitcoin.change24h = result[2].change24h;
 
 
             let ethereum = new Ethereum();
@@ -100,7 +103,8 @@ export class PaymentMethodsService {
             ethereum.price_crypto = result[3].price_crypto;
             let usde = total / result[7].value;
             let incryptoe = parseFloat(usde.toFixed(2)) / ethereum.price_crypto;
-            ethereum.priceTravel =parseFloat(incryptoe.toFixed(8));
+            ethereum.priceTravel = parseFloat(incryptoe.toFixed(8));
+            ethereum.change24h = result[3].change24h;
 
             let litecoin = new LiteCoin();
             litecoin.id = result[1].currency[2].id;
@@ -113,7 +117,8 @@ export class PaymentMethodsService {
             litecoin.price_crypto = result[4].price_crypto;
             let usdl = total / result[7].value;
             let incryptol = parseFloat(usdl.toFixed(2)) / litecoin.price_crypto;
-            litecoin.priceTravel =parseFloat(incryptol.toFixed(8));
+            litecoin.priceTravel = parseFloat(incryptol.toFixed(8));
+            litecoin.change24h = result[4].change24h;
 
             let dash = new Dash();
             dash.id = result[1].currency[3].id;
@@ -126,7 +131,8 @@ export class PaymentMethodsService {
             dash.price_crypto = result[5].price_crypto;
             let usdd = total / result[7].value;
             let incryptod = parseFloat(usdd.toFixed(2)) / dash.price_crypto;
-            dash.priceTravel =parseFloat(incryptod.toFixed(8));
+            dash.priceTravel = parseFloat(incryptod.toFixed(8));
+            dash.change24h = result[5].change24h;
 
 
             let alycoin = new Alycoin();
@@ -140,7 +146,7 @@ export class PaymentMethodsService {
             alycoin.price_crypto = result[6].price_crypto;
             let usda = total / result[7].value;
             let incryptoa = parseFloat(usda.toFixed(2)) / alycoin.price_crypto;
-            alycoin.priceTravel =parseFloat(incryptoa.toFixed(8));
+            alycoin.priceTravel = parseFloat(incryptoa.toFixed(8));
 
             let alypayPaymentDto = new AlypayPaymentDto();
             alypayPaymentDto.id = result[1].id

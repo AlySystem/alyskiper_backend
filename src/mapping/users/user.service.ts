@@ -295,6 +295,7 @@ export class UserService {
                         amount: wallet.amount_crypto,
                         price_usd: parseFloat((wallet.amount_crypto * 1).toString()).toFixed(2),
                         price_crypto: 1
+
                     }
                     return cryptodate;
                 }
@@ -312,7 +313,8 @@ export class UserService {
                         currency: wallet.currencyID.name,
                         amount: wallet.amount_crypto,
                         price_usd: parseFloat((wallet.amount_crypto * response.data[`${crypto}`].quote.USD.price).toString()).toFixed(2),
-                        price_crypto: parseFloat(response.data[`${crypto}`].quote.USD.price).toFixed(2)
+                        price_crypto: parseFloat(response.data[`${crypto}`].quote.USD.price).toFixed(2),
+                        change24h: (response.data[`${crypto}`].quote.USD.percent_change_24h)
                     }
                     return cryptodate;
                 }
@@ -320,7 +322,8 @@ export class UserService {
                     currency: crypto,
                     amount: null,
                     price_usd: 0,
-                    price_crypto: parseFloat(response.data[`${crypto}`].quote.USD.price).toFixed(2)
+                    price_crypto: parseFloat(response.data[`${crypto}`].quote.USD.price).toFixed(2),
+                    change24h: (response.data[`${crypto}`].quote.USD.percent_change_24h) 
                 }
                 return cryptodate;
             }).catch((err) => {
