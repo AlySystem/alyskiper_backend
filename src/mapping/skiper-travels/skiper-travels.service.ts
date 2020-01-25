@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SkiperTravels } from './skiper-travels.entity';
 import { Repository, getManager, getConnection, createQueryBuilder, QueryBuilder, Double } from 'typeorm';
-import { SkiperTravelsInput, ValidateSkiperDriveInput,ValidateUserInput, AllCategoryDto } from '../skiper-travels/skiper-travels.dto';
+import { SkiperTravelsInput, ValidateSkiperDriveInput, ValidateUserInput, AllCategoryDto } from '../skiper-travels/skiper-travels.dto';
 import { SkiperTravelsTracing } from '../skiper-travels-tracing/skiper-travels-tracing.entity';
 import { SkiperTariffs } from '../skiper-tariffs/skiper-tariffs.entity';
 import moment = require('moment');
@@ -301,7 +301,7 @@ export class SkiperTravelsService {
             let valorviaje = ValorXKm + ValorXMin + parseFloat(tarifa.pricebase.toString())
             inputviaje.Total = valorviaje <= tarifa.priceminimun ? tarifa.priceminimun : valorviaje
 
-            let user = await this.getUserDatafromDriver(inputviaje.userId);
+            let user = await this.userService.getUserById(inputviaje.userId);
             let wallet = await this.getWalletFromUser(user.id, inputviaje.idcurrency);
 
             if (wallet == undefined) {

@@ -73,7 +73,7 @@ type AllCategoryDto {
     president:PresidentDto   
 }
 
-type ValidateUserInput {
+input ValidateUserInput {
     userId: Int
     driverId:Int
     categoryTravelId: Int
@@ -101,4 +101,5 @@ type Query {
 type Mutation {
     GenerateTravel(inputviaje: SkiperTravelsInput!, ip:String!):SkiperTravelsDto!
     ValidateDriveAvailable(input: ValidateSkiperDriveInput):Boolean
+    ValidateUser(input:ValidateUserInput):Boolean
 }

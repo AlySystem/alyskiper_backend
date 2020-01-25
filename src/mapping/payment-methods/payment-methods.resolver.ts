@@ -12,8 +12,8 @@ export class PaymentMethodsResolver {
     }
 
     @Query('PaymentMethodActive')
-    async PaymentMethodActive(@Args('lat') lat: number, @Args('long') long: number) {
-        return await this.paymentMethodService.getActive(lat, long);
+    async PaymentMethodActive(@Args('total') total: number, @Args('userId') userId: number, @Args('lat') lat: number, @Args('long') long: number) {
+        return await this.paymentMethodService.getActive(total, userId, lat, long);
     }
 
     @Query()

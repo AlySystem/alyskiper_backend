@@ -73,6 +73,7 @@ export class Bitcoin {
     price_usd: number;
     price_local: number;
     price_crypto: number;
+    priceTravel:number;
 }
 
 @ObjectType()
@@ -84,6 +85,7 @@ export class Ethereum {
     price_usd: number;
     price_local: number;
     price_crypto: number;
+    priceTravel:number;
 }
 
 @ObjectType()
@@ -95,6 +97,7 @@ export class LiteCoin {
     price_usd: number;
     price_local: number;
     price_crypto: number;
+    priceTravel:number;
 }
 
 @ObjectType()
@@ -106,6 +109,7 @@ export class Dash {
     price_usd: number;
     price_local: number;
     price_crypto: number;
+    priceTravel:number;
 }
 
 @ObjectType()
@@ -117,6 +121,7 @@ export class Alycoin {
     price_usd: number;
     price_local: number;
     price_crypto: number;
+    priceTravel:number;
 }
 
 @ObjectType()

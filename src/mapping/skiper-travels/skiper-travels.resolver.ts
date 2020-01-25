@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { SkiperTravelsService } from './skiper-travels.service';
-import { SkiperTravelsInput, ValidateSkiperDriveInput } from './skiper-travels.dto';
+import { SkiperTravelsInput, ValidateSkiperDriveInput, ValidateUserInput } from './skiper-travels.dto';
 import { SkiperTravelsTracingResolver } from '../skiper-travels-tracing/skiper-travels-tracing.resolver';
 import { duration } from 'moment';
 
@@ -39,6 +39,11 @@ export class SkiperTravelsResolver {
     @Mutation()
     async ValidateDriveAvailable(@Args('input') input: ValidateSkiperDriveInput) {
         return await this.service.ValidateDriveAvailable(input);
+    }
+
+    @Mutation()
+    async ValidateUser(@Args('input') input: ValidateUserInput) {
+        return await this.service.ValidateUser(input);
     }
 
     @Mutation()
