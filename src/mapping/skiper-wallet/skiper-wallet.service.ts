@@ -22,6 +22,7 @@ import { ExchangeRate } from '../exchange-rate/exchange-rate.entity';
 import node_geocoder from 'node-geocoder';
 import { Currency } from '../currency/currency.entity';
 import { CountrieService } from '../countries/countrie.service';
+const InputDataDecoder = require('ethereum-input-data-decoder');
 
 @Injectable()
 export class SkiperWalletService {
@@ -50,17 +51,20 @@ export class SkiperWalletService {
 
     async getAmountByCrypto(crypto: string, amount: number, iduser: number, idcountry: number, idpackage: number) {
         try {
-            const url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;
-            var cryptodate = await fetch(url)
-                .then(response => response.json())
-                .then(json => {
-                    return json;
-                });
+            let walletcompanies = await this.walletservice.getWalletByCrypto(crypto)
+            let Price_usd;
+            if (walletcompanies.identifier != "alycoin") {
+                const url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;
+                let cryptodate = await fetch(url)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                Price_usd = parseFloat(cryptodate[0].price_usd);
+            } else { Price_usd = 1 }
 
-            let Price_usd = parseFloat(cryptodate[0].price_usd);
             let numfact = await this.CreateInvoice(iduser, idcountry, idpackage, amount);
             let user = await this.userservice.getUserById(numfact.iduser);
-            let walletcompanies = await this.walletservice.getWalletByCrypto(crypto)
             let amountpay = (amount / Price_usd).toFixed(8)
             let datasend = {
                 numberFact: numfact.numfac,
@@ -112,8 +116,6 @@ export class SkiperWalletService {
             queryRunner.release();
             return result;
         }
-
-
     }
 
     async validateHash(hash: string, crypto: string, invoice: number, total_real: number, total_crypto: number, lat: number, long: number, ip: string, email: string, is_user: boolean) {
@@ -157,7 +159,6 @@ export class SkiperWalletService {
                     if (cryptodate.addresses.includes(wallet.txt)) {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
-                                let code = await geoip_lite.lookup(ip);
                                 if (is_user == false) {
                                     crypto = undefined;
                                 }
@@ -214,7 +215,6 @@ export class SkiperWalletService {
                     if (cryptodate2.addresses.includes(wallet.txt)) {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
-                                let code = await geoip_lite.lookup(ip);
                                 let wallet = await this.getWalletsByEmailUser(email, crypto);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
@@ -269,7 +269,6 @@ export class SkiperWalletService {
                     if (cryptodate3.addresses.includes(wallet.txt)) {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
-                                let code = await geoip_lite.lookup(ip);
                                 let wallet = await this.getWalletsByEmailUser(email, crypto);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
@@ -309,7 +308,7 @@ export class SkiperWalletService {
                 }
                 break
             case 'ethereum':
-                const url4 = `https://api.blockcypher.com/v1/ltc/main/txs/${hash}`;
+                const url4 = `https://api.blockcypher.com/v1/eth/main/txs/${hash}`;
                 let cryptodate4 = await fetch(url4)
                     .then(response => response.json())
                     .then(json => {
@@ -324,7 +323,406 @@ export class SkiperWalletService {
                     if (cryptodate4.addresses.includes(wcompay.toLowerCase())) {
                         if (arraymi.includes(total_crypto.toString())) {
                             try {
-                                let code = await geoip_lite.lookup(ip);
+                                let wallet = await this.getWalletsByEmailUser(email, crypto);
+                                if (wallet != undefined) {
+                                    let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
+                                    let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
+                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let exchanging = (total_real * exchance).toFixed(2);
+                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
+                                }
+                                throw new HttpException(
+                                    `error wallet is not exist `,
+                                    HttpStatus.BAD_REQUEST
+                                )
+                            } catch (error) {
+                                throw new HttpException(
+                                    `error system ${error}`,
+                                    HttpStatus.BAD_REQUEST
+                                )
+                            }
+                        } else {
+                            throw new HttpException(
+                                "you did not send the amount necessary to accept your transaction",
+                                HttpStatus.BAD_REQUEST
+                            )
+                        }
+                    } else {
+                        throw new HttpException(
+                            "We have not found our wallet in your transaction",
+                            HttpStatus.BAD_REQUEST
+                        )
+                    }
+
+                } else {
+                    throw new HttpException(
+                        "We have not found our wallet in your transaction",
+                        HttpStatus.BAD_REQUEST
+                    )
+                }
+                break
+            case 'alycoin':
+                let abiExample = {
+                    'abi': [
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "name",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "string"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": false,
+                            "inputs": [
+                                {
+                                    "name": "_spender",
+                                    "type": "address"
+                                },
+                                {
+                                    "name": "_value",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "name": "approve",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "bool"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "generatedBy",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "string"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "totalSupply",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": false,
+                            "inputs": [],
+                            "name": "endCrowdsale",
+                            "outputs": [],
+                            "payable": false,
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        },
+                        {
+                            "constant": false,
+                            "inputs": [
+                                {
+                                    "name": "_from",
+                                    "type": "address"
+                                },
+                                {
+                                    "name": "_to",
+                                    "type": "address"
+                                },
+                                {
+                                    "name": "_value",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "name": "transferFrom",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "bool"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "isMinting",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "bool"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "decimals",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "uint8"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "_totalSupply",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": false,
+                            "inputs": [
+                                {
+                                    "name": "_value",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "name": "changeCrowdsaleRate",
+                            "outputs": [],
+                            "payable": false,
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "RATE",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": false,
+                            "inputs": [
+                                {
+                                    "name": "_value",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "name": "burnTokens",
+                            "outputs": [],
+                            "payable": false,
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [
+                                {
+                                    "name": "_owner",
+                                    "type": "address"
+                                }
+                            ],
+                            "name": "balanceOf",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "owner",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "address"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [],
+                            "name": "symbol",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "string"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "constant": false,
+                            "inputs": [
+                                {
+                                    "name": "_to",
+                                    "type": "address"
+                                },
+                                {
+                                    "name": "_value",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "name": "transfer",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "bool"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "nonpayable",
+                            "type": "function"
+                        },
+                        {
+                            "constant": false,
+                            "inputs": [],
+                            "name": "createTokens",
+                            "outputs": [],
+                            "payable": true,
+                            "stateMutability": "payable",
+                            "type": "function"
+                        },
+                        {
+                            "constant": true,
+                            "inputs": [
+                                {
+                                    "name": "_owner",
+                                    "type": "address"
+                                },
+                                {
+                                    "name": "_spender",
+                                    "type": "address"
+                                }
+                            ],
+                            "name": "allowance",
+                            "outputs": [
+                                {
+                                    "name": "",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "payable": false,
+                            "stateMutability": "view",
+                            "type": "function"
+                        },
+                        {
+                            "inputs": [],
+                            "payable": false,
+                            "stateMutability": "nonpayable",
+                            "type": "constructor"
+                        },
+                        {
+                            "payable": true,
+                            "stateMutability": "payable",
+                            "type": "fallback"
+                        },
+                        {
+                            "anonymous": false,
+                            "inputs": [
+                                {
+                                    "indexed": true,
+                                    "name": "_from",
+                                    "type": "address"
+                                },
+                                {
+                                    "indexed": true,
+                                    "name": "_to",
+                                    "type": "address"
+                                },
+                                {
+                                    "indexed": false,
+                                    "name": "_value",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "name": "Transfer",
+                            "type": "event"
+                        },
+                        {
+                            "anonymous": false,
+                            "inputs": [
+                                {
+                                    "indexed": true,
+                                    "name": "_owner",
+                                    "type": "address"
+                                },
+                                {
+                                    "indexed": true,
+                                    "name": "_spender",
+                                    "type": "address"
+                                },
+                                {
+                                    "indexed": false,
+                                    "name": "_value",
+                                    "type": "uint256"
+                                }
+                            ],
+                            "name": "Approval",
+                            "type": "event"
+                        }
+                    ]
+                };
+                const url5 = `https://api.blockcypher.com/v1/eth/main/txs/${hash}`;
+                let cryptodate5 = await fetch(url5)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate5.error) {
+                    const decoder = new InputDataDecoder(abiExample.abi);
+                    let result = decoder.decodeData(cryptodate5.outputs[0].script);
+                    var wcompanystring = wallet.txt
+                    var wcompay = wcompanystring.substr(2);
+                    if (result.inputs[0] == wcompay.toLowerCase()) {
+                        let amountFromContract = parseFloat(result.inputs[1].words[0]) / 10000;
+                        if (amountFromContract <= total_crypto) {
+                            try {
                                 let wallet = await this.getWalletsByEmailUser(email, crypto);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
@@ -496,7 +894,7 @@ export class SkiperWalletService {
         try {
             let zonahoraria = geotz(input.lat, input.long);
             let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss")
-            let currency = await this.getOnlyByTypeCurrency(input.idcurrency, true);            
+            let currency = await this.getOnlyByTypeCurrency(input.idcurrency, true);
             let country = await this.country.getById(input.idcountry);
             let user = await this.userservice.getUserById(input.iduser);
             if (currency != undefined) {
@@ -674,7 +1072,6 @@ export class SkiperWalletService {
         let result;
         let walletHistory = new SkiperWalletsHistory();
         try {
-            let transacionType = await queryRunner.manager.findOneOrFail(TransactionType, { where: { id: idtransaction } });
             walletHistory.amount = 0;
             walletHistory.amount_crypto = deposit;
             walletHistory.idcurrency = wallet.idcurrency;
