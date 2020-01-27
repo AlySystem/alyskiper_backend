@@ -50,8 +50,7 @@ export class SkiperWalletService {
     }
 
     async getAmountByCrypto(crypto: string, amount: number, iduser: number, idcountry: number, idpackage: number) {
-        try {
-            console.log('k')
+        try {            
             let walletcompanies = await this.walletservice.getWalletByCrypto(crypto)
             let Price_usd;
             if (walletcompanies.identifier != "alycoin") {
