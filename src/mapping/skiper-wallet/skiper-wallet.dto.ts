@@ -30,9 +30,14 @@ export class SkiperWalletCreateInput {
 @ObjectType()
 export class SendDataForPayCrypto {
     crypto: string;
+    concept: string;
     company: string;
     walletReceive: string;
     amounSend: number;
+    numberFact: number;
+    nameUser: string;
+    state: boolean
+    priceUsd: number;
 }
 
 @ObjectType()
@@ -73,8 +78,8 @@ export class Bitcoin {
     price_usd: number;
     price_local: number;
     price_crypto: number;
-    priceTravel:number;
-    change24h:number;
+    priceTravel: number;
+    change24h: number;
 }
 
 @ObjectType()
@@ -86,8 +91,8 @@ export class Ethereum {
     price_usd: number;
     price_local: number;
     price_crypto: number;
-    priceTravel:number;
-    change24h:number;
+    priceTravel: number;
+    change24h: number;
 }
 
 @ObjectType()
@@ -99,8 +104,8 @@ export class LiteCoin {
     price_usd: number;
     price_local: number;
     price_crypto: number;
-    priceTravel:number;
-    change24h:number;
+    priceTravel: number;
+    change24h: number;
 }
 
 @ObjectType()
@@ -112,8 +117,8 @@ export class Dash {
     price_usd: number;
     price_local: number;
     price_crypto: number;
-    priceTravel:number;
-    change24h:number;
+    priceTravel: number;
+    change24h: number;
 }
 
 @ObjectType()
@@ -125,7 +130,7 @@ export class Alycoin {
     price_usd: number;
     price_local: number;
     price_crypto: number;
-    priceTravel:number;
+    priceTravel: number;
 }
 
 @ObjectType()

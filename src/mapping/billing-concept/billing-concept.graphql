@@ -1,0 +1,10 @@
+
+input BillingConceptInput {
+    id: Int
+    name: String
+}
+
+type BillingConceptDto {
+    id: Int
+    name: String
+}

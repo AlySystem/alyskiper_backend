@@ -7,10 +7,17 @@ import { WalletscompaniesModule } from '../walletscompanies/walletscompanies.mod
 import { UsersModule } from '../users/users.module';
 import { HashConfirmedModule } from '../hash-confirmed/hash-confirmed.module';
 import { UserService } from '../users/user.service';
-import {CountriesModule} from '../countries/countries.module';
-
+import { CountriesModule } from '../countries/countries.module';
+import { CurrencyModule } from '../currency/currency.module';
+import { PackageAlycoinModule } from '../package-alycoin/package-alycoin.module';
+import { DetailAlycoinInvoiceModule } from '../detail-alycoin-invoice/detail-alycoin-invoice.module';
+import {AlycoinInvoicesModule} from '../alycoin-invoices/alycoin-invoices.module';
 @Module({
   imports: [
+    AlycoinInvoicesModule,
+    DetailAlycoinInvoiceModule,
+    PackageAlycoinModule,
+    CurrencyModule,
     CountriesModule,
     HashConfirmedModule,
     WalletscompaniesModule,

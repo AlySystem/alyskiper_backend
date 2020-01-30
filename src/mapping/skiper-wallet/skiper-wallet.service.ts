@@ -22,7 +22,14 @@ import { ExchangeRate } from '../exchange-rate/exchange-rate.entity';
 import node_geocoder from 'node-geocoder';
 import { Currency } from '../currency/currency.entity';
 import { CountrieService } from '../countries/countrie.service';
+import { BillingConcept } from '../billing-concept/billing-concept.entity';
+import { MailerService } from '@nest-modules/mailer';
 const InputDataDecoder = require('ethereum-input-data-decoder');
+const rp = require('request-promise');
+import { CurrencyService } from '../currency/currency.service';
+import { PackageAlycoinService } from '../package-alycoin/package-alycoin.service';
+import { DetailAlycoinInvoiceService } from '../detail-alycoin-invoice/detail-alycoin-invoice.service';
+import { AlycoinInvoicesService } from '../alycoin-invoices/alycoin-invoices.service';
 
 @Injectable()
 export class SkiperWalletService {
@@ -33,7 +40,12 @@ export class SkiperWalletService {
         @Inject(forwardRef(() => UserService))
         private readonly userservice: UserService,
         private readonly hashconfirmed: HashConfirmedService,
-        private readonly country: CountrieService
+        private readonly country: CountrieService,
+        private readonly currency: CurrencyService,
+        private readonly mailerservice: MailerService,
+        private readonly packageAlycoinservice: PackageAlycoinService,
+        private readonly detailalycoininvoiceservice: DetailAlycoinInvoiceService,
+        private readonly alycoinInvoiceService: AlycoinInvoicesService
 
     ) { }
 
@@ -49,31 +61,46 @@ export class SkiperWalletService {
         }
     }
 
-    async getAmountByCrypto(crypto: string, amount: number, iduser: number, idcountry: number, idpackage: number) {
-        try {            
-            let walletcompanies = await this.walletservice.getWalletByCrypto(crypto)
+    async getAmountByCrypto(cryptoId: number, concept: number, amount: number, iduser: number, idcountry: number, idpackage: number) {
+        try {
+            let currency = await this.currency.getById(cryptoId);
+            let walletcompanies = await this.walletservice.getWalletByCrypto(currency.name.toLowerCase());
             let Price_usd;
             if (walletcompanies.identifier != "alycoin") {
-                const url = `https://api.coinmarketcap.com/v1/ticker/${crypto}/`;
-                let cryptodate = await fetch(url)
-                    .then(response => response.json())
-                    .then(json => {
-                        return json;
-                    });
-                Price_usd = parseFloat(cryptodate[0].price_usd);
+                const requestOptions = {
+                    method: 'GET',
+                    uri: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${currency.iso}`,
+                    qs: {
+                        'convert': 'USD'
+                    },
+                    headers: {
+                        'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
+                    },
+                    json: true,
+                    gzip: true
+                };
+                let dataCoinMarketCap = await rp(requestOptions).then(result => {
+                    return result;
+                })
+                Price_usd = parseFloat(dataCoinMarketCap.data[`${currency.iso}`].quote.USD.price);
             } else { Price_usd = 1 }
 
-            let numfact = await this.CreateInvoice(iduser, idcountry, idpackage, amount);
-            let user = await this.userservice.getUserById(numfact.iduser);
+            let invoiceConcept = await createQueryBuilder(BillingConcept, "BillingConcept")
+                .where("BillingConcept.id = :id", { id: concept }).getOne();
             let amountpay = (amount / Price_usd).toFixed(8)
+            let numfact = await this.CreateInvoice(iduser, idcountry, invoiceConcept.id, idpackage, amount, parseFloat(amountpay), Price_usd, currency.id);
+            let user = await this.userservice.getUserById(numfact.iduser);
+
             let datasend = {
                 numberFact: numfact.numfac,
                 nameUser: `${user.firstname} ${user.lastname}`,
                 state: false,
                 crypto: walletcompanies.identifier,
+                concept: invoiceConcept.name,
                 company: walletcompanies.name_company,
                 walletReceive: walletcompanies.txt,
-                amounSend: amountpay
+                amounSend: amountpay,
+                priceUsd: Price_usd
             };
             return datasend;
         } catch (error) {
@@ -81,39 +108,52 @@ export class SkiperWalletService {
         }
     }
 
-    private async CreateInvoice(iduser: number, idcountry: number, idpackage: number, amount: number): Promise<AlycoinInvoices> {
+    private async CreateInvoice(iduser: number, idcountry: number, concept: number, idpackage: number, amount: number, amountCrypto: number, priceCryptoUSD: number, receivedCurrencyId: number): Promise<AlycoinInvoices> {
         const connection = getConnection();
         const queryRunner = connection.createQueryRunner();
-        let result;
-        let alycoininvoice = new AlycoinInvoices();
-        let detailalycoininvoice = new DetailAlycoinIinvoice();
         await queryRunner.startTransaction();
+        let result;
         try {
             let response = await createQueryBuilder(AlycoinInvoices, "AlycoinInvoices")
                 .addOrderBy('AlycoinInvoices.id', 'DESC')
                 .limit(1)
                 .getOne();
+            let alycoininvoice = new AlycoinInvoices();
             if (response != undefined) {
                 alycoininvoice.numfac = response.numfac + 1;
             } else {
                 alycoininvoice.numfac = 1;
             }
+
             alycoininvoice.iduser = iduser;
             alycoininvoice.idcountry = idcountry;
             alycoininvoice.date_in = new Date();
             result = await queryRunner.manager.save(alycoininvoice);
 
+            let detailalycoininvoice = new DetailAlycoinIinvoice();
             detailalycoininvoice.idinvoice = result.id;
             detailalycoininvoice.idpackage = idpackage;
+            detailalycoininvoice.amountCrypto = amountCrypto;
+            detailalycoininvoice.priceCryptoUSD = priceCryptoUSD;
+            detailalycoininvoice.receivedCurrencyId = receivedCurrencyId;
+            detailalycoininvoice.billingConceptId = concept
+            if (concept == 2) {
+                detailalycoininvoice.sendCurrencyId = 11;
+                detailalycoininvoice.sent = false;
+                detailalycoininvoice.amountSendAlycoin = amount / 1;
+            }
+            detailalycoininvoice.sent = true;
+            detailalycoininvoice.dateIn = new Date();
             detailalycoininvoice.total = amount;
             await queryRunner.manager.save(detailalycoininvoice);
 
             await queryRunner.commitTransaction();
 
         } catch (error) {
+            console.error(error)
             await queryRunner.rollbackTransaction();
         } finally {
-            queryRunner.release();
+            await queryRunner.release();
             return result;
         }
     }
@@ -768,6 +808,246 @@ export class SkiperWalletService {
                 )
         }
 
+    }
+
+    async validateHashBuyAlycoin(hash: string, invoice: number, lat: number, long: number, packageId: number, userId: number) {
+
+        let options = {
+            provider: 'google',
+            httpAdapter: 'https', // Default
+            apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
+            formatter: 'json' // 'gpx', 'string', ...
+        };
+        let geocoder = node_geocoder(options);
+        let datecountry = await geocoder.reverse({ lat: lat, lon: long })
+        let user = await this.userservice.getUserById(userId);
+        let zonahoraria = geotz(lat, long)
+        let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
+        let validaHas = await this.hashconfirmed.getByHash(hash);
+        let packageA = await this.packageAlycoinservice.getById(packageId);
+        let getDetailInvoice = await this.detailalycoininvoiceservice.getDetailByNumfact(invoice);
+        if (getDetailInvoice == undefined) {
+            throw new HttpException(
+                'no data invoice',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+        let wallet = await this.walletservice.getWalletByCrypto(getDetailInvoice.receiveCurrency.name.toLowerCase());
+
+        if (validaHas != undefined) {
+            throw new HttpException(
+                'hash has already been confirmed',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+        let arraymi = new Array();
+        switch (getDetailInvoice.receiveCurrency.name.toLowerCase()) {
+            case 'bitcoin':
+                let url = `https://api.blockcypher.com/v1/btc/main/txs/${hash}`;
+                let cryptodate = await fetch(url)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+
+                if (!cryptodate.error) {
+                    cryptodate.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
+                    })
+
+                    if (cryptodate.addresses.includes(wallet.txt)) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
+                            let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                            updateInvoice.state = true;
+                            this.alycoinInvoiceService.update(updateInvoice)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            return true;
+                        } else {
+                            return false;
+                            // throw new HttpException(
+                            //     `you did not send the amount necessary to accept your transaction`,
+                            //     HttpStatus.BAD_REQUEST
+                            // )
+                        }
+                    } else {
+                        return false;
+                        // throw new HttpException(
+                        //     `We have not found our wallet in your transaction`,
+                        //     HttpStatus.BAD_REQUEST
+                        // )
+                    }
+
+                } else {
+                    return false;
+                    // throw new HttpException(
+                    //     `wrong hash check and try again`,
+                    //     HttpStatus.BAD_REQUEST
+                    // )
+                }
+                break
+            case 'dash':
+                const url2 = `https://api.blockcypher.com/v1/dash/main/txs/${hash}`;
+                let cryptodate2 = await fetch(url2)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate2.error) {
+                    cryptodate2.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
+                    })
+
+                    if (cryptodate2.addresses.includes(wallet.txt)) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
+                            let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                            updateInvoice.state = true;
+                            this.alycoinInvoiceService.update(updateInvoice)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            return true;
+                        } else {
+                            return false;
+                            // throw new HttpException(
+                            //     'you did not send the amount necessary to accept your transaction',
+                            //     HttpStatus.BAD_REQUEST
+                            // )
+                        }
+                    } else {
+                        return false;
+                        // throw new HttpException(
+                        //     'We have not found our wallet in your transaction',
+                        //     HttpStatus.BAD_REQUEST
+                        // )
+                    }
+
+                } else {
+                    return false;
+                    // throw new HttpException(
+                    //     'wrong hash check and try again',
+                    //     HttpStatus.BAD_REQUEST
+                    // )
+                }
+                break
+            case 'litecoin':
+                const url3 = `https://api.blockcypher.com/v1/ltc/main/txs/${hash}`;
+                let cryptodate3 = await fetch(url3)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate3.error) {
+                    cryptodate3.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.00000001).toFixed(8)).toString()))
+                    })
+
+                    if (cryptodate3.addresses.includes(wallet.txt)) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
+                            let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                            updateInvoice.state = true;
+                            this.alycoinInvoiceService.update(updateInvoice)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            return true;
+                        } else {
+                            return false;
+                            // throw new HttpException(
+                            //     'you did not send the amount necessary to accept your transaction',
+                            //     HttpStatus.BAD_REQUEST
+                            // )
+                        }
+                    } else {
+                        return false;
+                        // throw new HttpException(
+                        //     'We have not found our wallet in your transaction',
+                        //     HttpStatus.BAD_REQUEST
+                        // )
+                    }
+
+                } else {
+                    return false;
+                    // throw new HttpException(
+                    //     'wrong hash check and try again',
+                    //     HttpStatus.BAD_REQUEST
+                    // )
+                }
+                break
+            case 'ethereum':
+                const url4 = `https://api.blockcypher.com/v1/eth/main/txs/${hash}`;
+                let cryptodate4 = await fetch(url4)
+                    .then(response => response.json())
+                    .then(json => {
+                        return json;
+                    });
+                if (!cryptodate4.error) {
+                    cryptodate4.outputs.forEach(output => {
+                        arraymi.push((((parseFloat(output.value) * 0.000000000000000001).toFixed(8)).toString()))
+                    })
+                    var wcompanystring = wallet.txt
+                    var wcompay = wcompanystring.substr(2);
+                    if (cryptodate4.addresses.includes(wcompay.toLowerCase())) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
+                            let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                            updateInvoice.state = true;
+                            this.alycoinInvoiceService.update(updateInvoice)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            return true;
+                        } else {
+                            return false;
+                            // throw new HttpException(
+                            //     "you did not send the amount necessary to accept your transaction",
+                            //     HttpStatus.BAD_REQUEST
+                            // )
+                        }
+                    } else {
+                        return false;
+                        // throw new HttpException(
+                        //     "We have not found our wallet in your transaction",
+                        //     HttpStatus.BAD_REQUEST
+                        // )
+                    }
+
+                } else {
+                    return false;
+                    // throw new HttpException(
+                    //     "We have not found our wallet in your transaction",
+                    //     HttpStatus.BAD_REQUEST
+                    // )
+                }
+                break
+            default:
+                return false;
+            // throw new HttpException(
+            //     "select an available method",
+            //     HttpStatus.BAD_REQUEST
+            // )
+        }
+
+    }
+
+    private async sendInvoiceAlypayByEmail(nameCrypto: string, email: string, hash: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, amountAly: number, country: string) {
+        this.mailerservice.sendMail({
+            to: email,
+            from: 'Alycoin <gerencia@alysystem.com>',
+            subject: 'Has recibido factura por tu compra en alyskiper',
+            template: 'sendInvoiceAlypay',
+            context: {
+                hash: hash,
+                name: name,
+                lastname: lastname,
+                invoiceNumber: invoicenumber,
+                date: date,
+                package: packageName,
+                amountCrypto: amountCrypto,
+                amountReal: amountReal.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
+                nameCrypto: nameCrypto,
+                priceUSD: priceUSD.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
+                cantAly: amountAly,
+                country: country
+            }
+        }).then(result => {
+            if (result) {
+                return true;
+            }
+            return false;
+        });
     }
 
     private async getTransactionType(name: string): Promise<TransactionType> {

@@ -75,6 +75,8 @@ import { from } from 'rxjs';
 import { UploadimagebannerModule } from './mapping/uploadimagebanner/uploadimagebanner.module';
 import { SkiperTariffsModule } from './mapping/skiper-tariffs/skiper-tariffs.module';
 import { HandlebarsAdapter, MailerModule } from '@nest-modules/mailer';
+import { PackageAlypayRechargeModule } from './mapping/package-alypay-recharge/package-alypay-recharge.module';
+import { BillingConceptModule } from './mapping/billing-concept/billing-concept.module';
 // var multerGoogleStorage = require("multer-google-storage")
 
 @Module({
@@ -199,7 +201,9 @@ import { HandlebarsAdapter, MailerModule } from '@nest-modules/mailer';
     ExchangeRateModule,
     UploadImgAgentModule,
     UploadimagebannerModule,
-    SkiperTariffsModule
+    SkiperTariffsModule,
+    PackageAlypayRechargeModule,
+    BillingConceptModule
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,

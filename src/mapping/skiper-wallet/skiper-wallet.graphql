@@ -116,19 +116,21 @@ type SkiperWalletCryptoDto {
 
 type SendDataForPayCrypto {
     crypto:String
+    concept:String
     company:String
     walletReceive:String
     amounSend:Float
     numberFact:Int
     nameUser:String
     state:Boolean
+    priceUsd:Float
 }
 
 type Query {
     skiperwallets: [SkiperWalletDto!]!
     getAllSkiperWalletsByUserId(iduser: Int!): [SkiperWalletCryptoDto!]!
     searchSkiperWallet(id:Int):SkiperWalletDto
-    getAmountByCrypto(crypto:String, amount:Float, iduser:Int,idcountry:Int, idpackage:Int):SendDataForPayCrypto
+    getAmountByCrypto(crypto:Int!, concept:Int!, amount:Float!, iduser:Int!,idcountry:Int!, idpackage:Int!):SendDataForPayCrypto
 }
 type Mutation {
     registerSkiperLocalWallet(input: SkiperWalletCreateInput!):String
@@ -137,4 +139,5 @@ type Mutation {
     registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!, is_user:Boolean,description:String!): SkiperWalletDto
     requestWithdrawalOrTransactionReversed(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, amount:Float!, description:String!): SkiperWalletDto
     validateHash(hash:String!, crypto:String!, total_real:Float, total_crypto:Float, lat:Float, long:Float, ip:String, email:String, is_user:Boolean):SkiperWalletDto
+    validateHashBuyAlycoin(hash:String!, invoice:Int!, lat:Float!, long:Float!, packageId:Int!, userId:Int!):Boolean
 }

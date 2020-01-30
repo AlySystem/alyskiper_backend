@@ -1,7 +1,7 @@
 import { Resolver, Query, Args, Mutation } from '@nestjs/graphql';
 import { SkiperWalletService } from './skiper-wallet.service';
 import { ParseIntPipe } from '@nestjs/common';
-import { SkiperWalletInput,SkiperWalletCreateInput } from './skiper-wallet.dto';
+import { SkiperWalletInput, SkiperWalletCreateInput } from './skiper-wallet.dto';
 require('isomorphic-fetch');
 
 @Resolver('SkiperWallet')
@@ -14,12 +14,13 @@ export class SkiperWalletResolver {
     }
 
     @Query()
-    async getAmountByCrypto(@Args('crypto') crypto: string,
+    async getAmountByCrypto(@Args('crypto') crypto: number,
+        @Args('concept') concept: number,
         @Args('amount') amount: number,
         @Args('iduser') iduser: number,
         @Args('idcountry') idcountry: number,
         @Args('idpackage') idpackage: number) {
-        return this.skiperWalletService.getAmountByCrypto(crypto, amount, iduser, idcountry, idpackage);
+        return this.skiperWalletService.getAmountByCrypto(crypto, concept, amount, iduser, idcountry, idpackage);
     }
 
 
@@ -46,6 +47,17 @@ export class SkiperWalletResolver {
         @Args('invoice') invoice: number = 0,
         @Args('is_user') is_user: boolean = false) {
         return this.skiperWalletService.validateHash(hash, crypto, invoice, total_real, total_crypto, lat, long, ip, email, is_user);
+    }
+
+    @Mutation()
+    validateHashBuyAlycoin(
+        @Args('hash') hash: string,       
+        @Args('invoice') invoice: number,           
+        @Args('lat') lat: number,
+        @Args('long') long: number,
+        @Args('packageId') packageId: number,      
+        @Args('userId') userId: number) {
+        return this.skiperWalletService.validateHashBuyAlycoin(hash, invoice,  lat, long, packageId,  userId);
     }
 
     @Mutation()

@@ -6,6 +6,13 @@ export class DetailAlycoinInvoiceInput {
     idinvoice: number;
     idpackage: number;
     total: number;
+    amountCrypto: number;
+    priceCryptoUSD: number;
+    receivedCurrencyId: number;
+    sendCurrencyId: number;
+    amountSendAlycoin
+    sent: boolean;
+    dateIn: Date;
 }
 
 @ObjectType()
@@ -14,4 +21,11 @@ export class DetailAlycoinInvoiceDto {
     idinvoice: number;
     idpackage: number;
     total: number;
+    amountCrypto: number;
+    priceCryptoUSD: number;
+    receivedCurrencyId: number;
+    sendCurrencyId: number;
+    amountSendAlycoin
+    sent: boolean;
+    dateIn: Date;
 }

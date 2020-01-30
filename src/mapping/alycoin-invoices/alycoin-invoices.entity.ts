@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToOne } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Countrie } from '../countries/countrie.entity';
+import { DetailAlycoinIinvoice } from '../detail-alycoin-invoice/detail-alycoin-invoice.entity';
 
 @Entity('alycoin_invoices')
 export class AlycoinInvoices {
@@ -15,5 +16,6 @@ export class AlycoinInvoices {
     @JoinColumn({ name: 'iduser' }) user: User;
     @ManyToOne(type => Countrie, { nullable: false })
     @JoinColumn({ name: 'idcountry' }) country: Countrie;
+    @OneToOne(type => DetailAlycoinIinvoice, detailInvoice => detailInvoice.alycoinInvoices) detailAlycoinInvoice: DetailAlycoinIinvoice;
 
 }
