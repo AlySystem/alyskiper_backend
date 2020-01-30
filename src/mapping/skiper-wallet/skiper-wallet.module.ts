@@ -12,8 +12,10 @@ import { CurrencyModule } from '../currency/currency.module';
 import { PackageAlycoinModule } from '../package-alycoin/package-alycoin.module';
 import { DetailAlycoinInvoiceModule } from '../detail-alycoin-invoice/detail-alycoin-invoice.module';
 import {AlycoinInvoicesModule} from '../alycoin-invoices/alycoin-invoices.module';
+import {HashConfirmedService} from '../hash-confirmed/hash-confirmed.service';
 @Module({
   imports: [
+    HashConfirmedModule,
     AlycoinInvoicesModule,
     DetailAlycoinInvoiceModule,
     PackageAlycoinModule,

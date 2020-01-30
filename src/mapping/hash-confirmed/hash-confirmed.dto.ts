@@ -3,15 +3,17 @@ import { InputType, ObjectType } from 'type-graphql';
 @InputType()
 export class HashConfirmedInput {
     id: number;
-    invoice: number;
+    invoiceId: number;
+    urlCheck: string;
     hash: string;
     date_in: Date;
 }
 
 @ObjectType()
-export class HashConfimedDto{
+export class HashConfimedDto {
     id: number;
-    invoice: number;
+    invoiceId: number;
+    urlCheck: string;
     hash: string;
     date_in: Date;
 }

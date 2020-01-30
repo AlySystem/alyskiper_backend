@@ -30,6 +30,7 @@ import { CurrencyService } from '../currency/currency.service';
 import { PackageAlycoinService } from '../package-alycoin/package-alycoin.service';
 import { DetailAlycoinInvoiceService } from '../detail-alycoin-invoice/detail-alycoin-invoice.service';
 import { AlycoinInvoicesService } from '../alycoin-invoices/alycoin-invoices.service';
+import { HashConfirmedInput } from '../hash-confirmed/hash-confirmed.dto';
 
 @Injectable()
 export class SkiperWalletService {
@@ -45,7 +46,8 @@ export class SkiperWalletService {
         private readonly mailerservice: MailerService,
         private readonly packageAlycoinservice: PackageAlycoinService,
         private readonly detailalycoininvoiceservice: DetailAlycoinInvoiceService,
-        private readonly alycoinInvoiceService: AlycoinInvoicesService
+        private readonly alycoinInvoiceService: AlycoinInvoicesService,
+        private readonly hashconfirmedservice: HashConfirmedService
 
     ) { }
 
@@ -833,7 +835,6 @@ export class SkiperWalletService {
             );
         }
         let wallet = await this.walletservice.getWalletByCrypto(getDetailInvoice.receiveCurrency.name.toLowerCase());
-
         if (validaHas != undefined) {
             throw new HttpException(
                 'hash has already been confirmed',
@@ -859,7 +860,12 @@ export class SkiperWalletService {
                         if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
                             updateInvoice.state = true;
-                            this.alycoinInvoiceService.update(updateInvoice)
+                            this.alycoinInvoiceService.update(updateInvoice);
+                            let hasconfirmedinput = new HashConfirmedInput();
+                            hasconfirmedinput.invoiceId = invoice;
+                            hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                            hasconfirmedinput.hash = hash;
+                            this.hashconfirmedservice.regiterHash(hasconfirmedinput);
                             this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
                             return true;
                         } else {
@@ -902,6 +908,11 @@ export class SkiperWalletService {
                             let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
                             updateInvoice.state = true;
                             this.alycoinInvoiceService.update(updateInvoice)
+                            let hasconfirmedinput = new HashConfirmedInput();
+                            hasconfirmedinput.invoiceId = invoice;
+                            hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                            hasconfirmedinput.hash = hash;
+                            this.hashconfirmedservice.regiterHash(hasconfirmedinput);
                             this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
                             return true;
                         } else {
@@ -943,7 +954,12 @@ export class SkiperWalletService {
                         if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
                             updateInvoice.state = true;
-                            this.alycoinInvoiceService.update(updateInvoice)
+                            this.alycoinInvoiceService.update(updateInvoice);
+                            let hasconfirmedinput = new HashConfirmedInput();
+                            hasconfirmedinput.invoiceId = invoice;
+                            hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                            hasconfirmedinput.hash = hash;
+                            this.hashconfirmedservice.regiterHash(hasconfirmedinput);
                             this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
                             return true;
                         } else {
@@ -987,6 +1003,11 @@ export class SkiperWalletService {
                             let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
                             updateInvoice.state = true;
                             this.alycoinInvoiceService.update(updateInvoice)
+                            let hasconfirmedinput = new HashConfirmedInput();
+                            hasconfirmedinput.invoiceId = invoice;
+                            hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                            hasconfirmedinput.hash = hash;
+                            this.hashconfirmedservice.regiterHash(hasconfirmedinput);
                             this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
                             return true;
                         } else {
@@ -1236,27 +1257,6 @@ export class SkiperWalletService {
         }
     }
 
-    private async regiterHash(invoice: number, hash: string) {
-        let connection = getConnection();
-        let queryRunner = connection.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-        let hashConfirmed = new HashConfirmed();
-
-        try {
-            hashConfirmed.invoice = invoice;
-            hashConfirmed.hash = hash;
-            hashConfirmed.date_in = new Date();
-            await queryRunner.manager.save(hashConfirmed);
-            await queryRunner.commitTransaction;
-
-        } catch (error) {
-            await queryRunner.rollbackTransaction;
-        } finally {
-            await queryRunner.release;
-        }
-
-    }
 
     async requestWithdrawals(id: number, idtransaction: number, idpayment_method: number, amount: number, description: string) {
 
