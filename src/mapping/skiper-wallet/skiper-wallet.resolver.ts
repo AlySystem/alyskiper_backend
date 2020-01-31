@@ -51,13 +51,14 @@ export class SkiperWalletResolver {
 
     @Mutation()
     validateHashBuyAlycoin(
-        @Args('hash') hash: string,       
-        @Args('invoice') invoice: number,           
+        @Args('hash') hash: string,
+        @Args('invoice') invoice: number,
         @Args('lat') lat: number,
         @Args('long') long: number,
-        @Args('packageId') packageId: number,      
-        @Args('userId') userId: number) {
-        return this.skiperWalletService.validateHashBuyAlycoin(hash, invoice,  lat, long, packageId,  userId);
+        @Args('packageId') packageId: number,
+        @Args('userId') userId: number,
+        @Args('walletAly') walletAly: string) {
+        return this.skiperWalletService.validateHashBuyAlycoin(hash, invoice, lat, long, packageId, userId,walletAly);
     }
 
     @Mutation()

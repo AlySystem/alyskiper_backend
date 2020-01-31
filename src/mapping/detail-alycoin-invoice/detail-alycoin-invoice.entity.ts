@@ -15,12 +15,13 @@ export class DetailAlycoinIinvoice {
     @Column('double') priceCryptoUSD: number;
     @Column('int') receivedCurrencyId: number;
     @Column('int') sendCurrencyId: number;
+    @Column('text') walletAly: string;
     @Column('double') amountSendAlycoin: number;
     @Column('boolean') sent: boolean;
     @Column('datetime') dateIn: Date;
 
     @OneToOne(type => AlycoinInvoices, alycoinvoice => alycoinvoice)
-    @JoinColumn({name:"idinvoice"}) alycoinInvoices: AlycoinInvoices;
+    @JoinColumn({ name: "idinvoice" }) alycoinInvoices: AlycoinInvoices;
 
 
     @ManyToOne(type => Currency, { nullable: false })
