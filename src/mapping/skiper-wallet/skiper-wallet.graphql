@@ -138,6 +138,6 @@ type Mutation {
     updateSkiperWallet(input: SkiperWalletInput): SkiperWalletDto
     registerDepositWallet(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, deposit:Float!, is_user:Boolean,description:String!): SkiperWalletDto
     requestWithdrawalOrTransactionReversed(idwallet: Int!,idtransaction: Int!,idpayment_method:Int!, amount:Float!, description:String!): SkiperWalletDto
-    validateHash(hash:String!, crypto:String!, total_real:Float, total_crypto:Float, lat:Float, long:Float, ip:String, email:String, is_user:Boolean):SkiperWalletDto
+    validateHash(hash:String!, lat:Float!, long:Float!, packageId:Int!, userId:Int!, email:String!,invoice:Int!, is_user:Boolean!):SkiperWalletDto
     validateHashBuyAlycoin(hash:String!, invoice:Int!, lat:Float!, long:Float!, packageId:Int!, userId:Int!, walletAly:String!):Boolean
 }

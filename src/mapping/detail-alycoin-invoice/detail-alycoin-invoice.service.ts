@@ -15,7 +15,15 @@ export class DetailAlycoinInvoiceService {
     return await this.service.findOne(id);
   }
 
-  async getDetailByNumfact(numFact: number) {
+  async getDetailByNumfact(numFact: number, concept?) {
+    if (concept == 1) {
+      return await createQueryBuilder(DetailAlycoinIinvoice, "DetailAlycoinIinvoice")
+        .innerJoinAndSelect("DetailAlycoinIinvoice.alycoinInvoices", "alycoinInvoices")
+        .innerJoinAndSelect("DetailAlycoinIinvoice.receiveCurrency", "receiveCurrency")
+        .innerJoinAndSelect("DetailAlycoinIinvoice.billingconcept", "billingconcept")
+        .where("alycoinInvoices.numfac = :numfac", { numfac: numFact })
+        .andWhere("alycoinInvoices.state = 0").getOne();
+    }
     return await createQueryBuilder(DetailAlycoinIinvoice, "DetailAlycoinIinvoice")
       .innerJoinAndSelect("DetailAlycoinIinvoice.alycoinInvoices", "alycoinInvoices")
       .innerJoinAndSelect("DetailAlycoinIinvoice.receiveCurrency", "receiveCurrency")
@@ -23,6 +31,7 @@ export class DetailAlycoinInvoiceService {
       .innerJoinAndSelect("DetailAlycoinIinvoice.sendCurrency", "sendCurrency")
       .where("alycoinInvoices.numfac = :numfac", { numfac: numFact })
       .andWhere("alycoinInvoices.state = 0").getOne();
+
   }
 
   async update(input: DetailAlycoinInvoiceInput): Promise<DetailAlycoinIinvoice> {

@@ -43,10 +43,16 @@ export class SkiperWalletResolver {
         return this.skiperWalletService.registerSkiperLocalwallet(input);
     }
     @Mutation()
-    validateHash(@Args('hash') hash: string, @Args('crypto') crypto: string, @Args('total_real') total_real: number, @Args('total_crypto') total_crypto: number, @Args('lat') lat: number, @Args('long') long: number, @Args('ip') ip: string, @Args('email') email: string,
-        @Args('invoice') invoice: number = 0,
+    validateHash(
+        @Args('hash') hash: string,     
+        @Args('lat') lat: number,
+        @Args('long') long: number,
+        @Args('packageId') packageId: number,
+        @Args('userId') userId:number,
+        @Args('email') email: string,
+        @Args('invoice') invoice: number,
         @Args('is_user') is_user: boolean = false) {
-        return this.skiperWalletService.validateHash(hash, crypto, invoice, total_real, total_crypto, lat, long, ip, email, is_user);
+        return this.skiperWalletService.validateHash(hash, invoice, lat, long, packageId, userId, email, is_user);
     }
 
     @Mutation()
@@ -58,7 +64,7 @@ export class SkiperWalletResolver {
         @Args('packageId') packageId: number,
         @Args('userId') userId: number,
         @Args('walletAly') walletAly: string) {
-        return this.skiperWalletService.validateHashBuyAlycoin(hash, invoice, lat, long, packageId, userId,walletAly);
+        return this.skiperWalletService.validateHashBuyAlycoin(hash, invoice, lat, long, packageId, userId, walletAly);
     }
 
     @Mutation()

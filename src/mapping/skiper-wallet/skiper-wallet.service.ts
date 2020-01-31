@@ -159,8 +159,7 @@ export class SkiperWalletService {
         }
     }
 
-    async validateHash(hash: string, crypto: string, invoice: number, total_real: number, total_crypto: number, lat: number, long: number, ip: string, email: string, is_user: boolean) {
-
+    async validateHash(hash: string, invoice: number, lat: number, long: number, packageId: number, userId: number, email: string, is_user: boolean) {
         var options = {
             provider: 'google',
             httpAdapter: 'https', // Default
@@ -168,14 +167,22 @@ export class SkiperWalletService {
             formatter: 'json' // 'gpx', 'string', ...
         };
         var geocoder = node_geocoder(options);
-        var datecountry = await geocoder.reverse({ lat: lat, lon: long })
-
         let zonahoraria = geotz(lat, long)
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
-        let wallet = await this.walletservice.getWalletByCrypto(crypto);
         let paymethodCrypto = await this.getPaymentMethodBYName();
-        let validaHas = await this.hashconfirmed.getByHash(hash);
-
+        var datecountry = await geocoder.reverse({ lat: lat, lon: long });               
+        let user = await this.userservice.getUserById(userId);
+        let packageA = await this.packageAlycoinservice.getById(packageId);
+         let validaHas = await this.hashconfirmed.getByHash(hash);
+        let getDetailInvoice = await this.detailalycoininvoiceservice.getDetailByNumfact(invoice, 1);               
+        if (getDetailInvoice == undefined) {
+            throw new HttpException(
+                'no data invoice',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+        let wallet = await this.walletservice.getWalletByCrypto(getDetailInvoice.receiveCurrency.name.toLowerCase());
+        
         if (validaHas != undefined) {
             throw new HttpException(
                 'hash has already been confirmed',
@@ -183,7 +190,7 @@ export class SkiperWalletService {
             );
         }
         let arraymi = new Array();
-        switch (crypto) {
+        switch (getDetailInvoice.receiveCurrency.name.toLowerCase()) {
             case 'bitcoin':
                 let url = `https://api.blockcypher.com/v1/btc/main/txs/${hash}`;
                 let cryptodate = await fetch(url)
@@ -198,18 +205,30 @@ export class SkiperWalletService {
                     })
 
                     if (cryptodate.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total_crypto.toString())) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
                                 if (is_user == false) {
                                     crypto = undefined;
                                 }
-                                let wallet = await this.getWalletsByEmailUser(email, crypto);
+                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                    let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
+                                    let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    if (result) {
+                                        let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                                        updateInvoice.state = true;
+                                        this.alycoinInvoiceService.update(updateInvoice);
+
+                                        let hasconfirmedinput = new HashConfirmedInput();
+                                        hasconfirmedinput.invoiceId = invoice;
+                                        hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                                        hasconfirmedinput.hash = hash;
+                                        this.hashconfirmedservice.regiterHash(hasconfirmedinput);
+                                        return result;
+                                    }
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -254,15 +273,28 @@ export class SkiperWalletService {
                     })
 
                     if (cryptodate2.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total_crypto.toString())) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, crypto);
+                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                    let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
+                                    let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+
+                                    if (result) {
+                                        let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                                        updateInvoice.state = true;
+                                        this.alycoinInvoiceService.update(updateInvoice);
+
+                                        let hasconfirmedinput = new HashConfirmedInput();
+                                        hasconfirmedinput.invoiceId = invoice;
+                                        hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                                        hasconfirmedinput.hash = hash;
+                                        this.hashconfirmedservice.regiterHash(hasconfirmedinput);
+                                        return result;
+                                    }
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -308,15 +340,28 @@ export class SkiperWalletService {
                     })
 
                     if (cryptodate3.addresses.includes(wallet.txt)) {
-                        if (arraymi.includes(total_crypto.toString())) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, crypto);
+                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                    let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
+                                    let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+
+                                    if (result) {
+                                        let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                                        updateInvoice.state = true;
+                                        this.alycoinInvoiceService.update(updateInvoice);
+
+                                        let hasconfirmedinput = new HashConfirmedInput();
+                                        hasconfirmedinput.invoiceId = invoice;
+                                        hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                                        hasconfirmedinput.hash = hash;
+                                        this.hashconfirmedservice.regiterHash(hasconfirmedinput);
+                                        return result;
+                                    }
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -362,15 +407,27 @@ export class SkiperWalletService {
                     var wcompanystring = wallet.txt
                     var wcompay = wcompanystring.substr(2);
                     if (cryptodate4.addresses.includes(wcompay.toLowerCase())) {
-                        if (arraymi.includes(total_crypto.toString())) {
+                        if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, crypto);
+                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                    let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
+                                    let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    if (result) {
+                                        let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                                        updateInvoice.state = true;
+                                        this.alycoinInvoiceService.update(updateInvoice);
+
+                                        let hasconfirmedinput = new HashConfirmedInput();
+                                        hasconfirmedinput.invoiceId = invoice;
+                                        hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                                        hasconfirmedinput.hash = hash;
+                                        this.hashconfirmedservice.regiterHash(hasconfirmedinput);
+                                        return result;
+                                    }
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -762,15 +819,27 @@ export class SkiperWalletService {
                     var wcompay = wcompanystring.substr(2);
                     if (result.inputs[0] == wcompay.toLowerCase()) {
                         let amountFromContract = parseFloat(result.inputs[1].words[0]) / 10000;
-                        if (amountFromContract <= total_crypto) {
+                        if (amountFromContract <= getDetailInvoice.amountCrypto) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, crypto);
+                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
                                     let transactiontype = await this.getTransactionType('RECARGA SALDO')
-                                    let exchanging = (total_real * exchance).toFixed(2);
-                                    return await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), total_crypto, is_user, "Recarga credito");
+                                    let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    if (result) {
+                                        let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
+                                        updateInvoice.state = true;
+                                        this.alycoinInvoiceService.update(updateInvoice);
+
+                                        let hasconfirmedinput = new HashConfirmedInput();
+                                        hasconfirmedinput.invoiceId = invoice;
+                                        hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
+                                        hasconfirmedinput.hash = hash;
+                                        this.hashconfirmedservice.regiterHash(hasconfirmedinput);
+                                        return result;
+                                    }
                                 }
                                 throw new HttpException(
                                     `error wallet is not exist `,
@@ -1066,12 +1135,40 @@ export class SkiperWalletService {
 
     }
 
+    private async sendInvoiceRechargeCryptoByEmail(nameCrypto: string, email: string, hash: string, hashtxt: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, amountAly: number, country: string, ) {
+        this.mailerservice.sendMail({
+            to: `${email}, gerencia@alysystem.com`,
+            from: 'Alypay <gerencia@alysystem.com>',
+            subject: 'Has recibido factura por recarga en alypay',
+            template: 'sendInvoiceRechargeAlypay',
+            context: {
+                hashtxt: hashtxt,
+                hash: hash,
+                name: name,
+                lastname: lastname,
+                invoiceNumber: invoicenumber,
+                date: date,
+                package: packageName,
+                amountCrypto: amountCrypto,
+                amountReal: amountReal.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
+                nameCrypto: nameCrypto,
+                priceUSD: priceUSD.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
+                country: country
+            }
+        }).then(result => {
+            if (result) {
+                return true;
+            }
+            return false;
+        });
+    }
+
     private async sendInvoiceAlypayByEmail(nameCrypto: string, email: string, hash: string, hashtxt: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, amountAly: number, country: string, alyWallet: string) {
         this.mailerservice.sendMail({
             to: `${email}, gerencia@alysystem.com`,
             from: 'Alycoin <gerencia@alysystem.com>',
             subject: 'Has recibido factura por tu compra en alyskiper',
-            template: 'sendInvoiceAlypay',
+            template: 'sendInvoiceBuyAlycoin',
             context: {
                 hashtxt: hashtxt,
                 sendwallet: alyWallet,
@@ -1085,7 +1182,7 @@ export class SkiperWalletService {
                 amountReal: amountReal.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
                 nameCrypto: nameCrypto,
                 priceUSD: priceUSD.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
-                cantAly: (amountAly/100000000),
+                cantAly: (amountAly / 100000000),
                 country: country
             }
         }).then(result => {
@@ -1260,13 +1357,14 @@ export class SkiperWalletService {
     }
 
 
-    async registerDeposit(id: number, idtransaction: number, idpayment_method: number, deposit: number, depositCrypto: number, is_user: boolean, description: string) {
+    async registerDeposit(id: number, idtransaction: number, idpayment_method: number, deposit: number, depositCrypto: number, is_user: boolean, description: string, getDetailInvoice?, packageA?, user?, hash?, date?, datecountry?, invoice?) {
         try {
             let result;
             let wallet = await this.repository.findOneOrFail({ id });
             if (is_user) {
                 result = await this.walletDepositTransactionCryptoCurrency(wallet, depositCrypto, idtransaction, idpayment_method, description);
                 if (result) {
+                    this.sendInvoiceRechargeCryptoByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
                     return await this.getById(result.id);
                 }
             } else {

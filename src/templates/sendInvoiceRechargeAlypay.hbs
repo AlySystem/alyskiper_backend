@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>AlySystem</title>
+</head>
+
+<body
+    style="background-color: #000024; padding: 0 10px; margin: 0; font-family: Arial, Helvetica, sans-serif; font-weight: normal;">
+    <div style="border: 1px solid #FFF; padding: 10px;">
+        <table style="padding: 0px;width: 100%; margin: 0px; color: #FFF;">
+            <tr>
+                <th style="width: 80%; text-align: left;">
+                    <p>Alysystem</p>
+                    <p>{{country}}</p>
+                    <p>RUC: J0310000371555</p>
+                    <p>Cliente: {{name}} {{lastname}}</p>
+                </th>
+
+                <th style="text-align: center;">
+                    <img src="https://lh3.googleusercontent.com/cBArbE4mS7088btVCmOqR0DTt8fqOCv0BlsMKwqnSf7qVdj5PNgIR0M_K7L-QOkojWZiF8_8HeoXbJpE3evxJiQDJkgBuCV7caAKh5cXCPc_aLttkC7TrOdWZGa5PSh3rwVo3QdYRH0EH9ch4At3QibeHxEi4zPtZPRE7wbt6-LRi-N3z_RWHMcAoM9MsnvPEAO3UMFCBrEeyiNffULb2ad-n93IiKvrNttcvswRDVE9JVz8iiTqY2A3h79yGes2ORanUdEiQuwHAhXU_kquZ4hATl6wVK2hMaRwWQ0WkBaLXzN-VY9ObyrGR8dvqYujMSazDF3P6djBOoWFmd1-hKqA4ubmqafpItGqU5oMT_0wTuymtSTGfX6bC0EXtUnnK71VRuR-ZNTLhIW9lZqUpmXknHuKthRplh6VVaw4UbAgWieeFKvTh6UDGjdRK1NDqiLtMMaitjGe5dUBbWOuCJ9aphetJvvQrWTnX5YNI2JupOIvTr3lD_YbfjSFtbKTo1S9BQ3FWC1YU-p2r58--Kl6WUOS4Wm7HtSq84wzfGlqO9gFY42dxRA8WMisdbgGIz-NqtwJWZYVknhyMjsgzYw3Mj7xzjjRhcG6GJ6OUFH16JIqmXYaM6iwhfTFTEYBQPoRqPB5GZJQtbyxsAYclar2z3KJnjQS9LqKjG4r29waX78_4Q3C_bbFIjv2sCs=w1600-h828-ft"
+                        style="
+              width: 100%;" alt="">
+                </th>
+            </tr>
+
+            <tr style="height: 10px;" />
+
+        </table>
+
+        <table style="padding: 0px;width: 100%; margin: 0px; color: #FFF; border-collapse:  collapse;">
+            <tr style="height: 10px;" />
+
+            <tr>
+                <th style="text-align: left;">
+                    <p>Numero de factura: {{invoiceNumber}}</p>
+                    <p>Fecha de facturacion: {{date}}</p>
+                    <p>Precio del {{nameCrypto}}: {{priceUSD}}</p>
+                </th>
+            </tr>
+
+            <tr style="height: 10px;" />
+
+            <tr style="height: 50px; text-align: left; border-bottom: solid thin;">
+                <th>
+                    <span>Items</span>
+                </th>
+
+                <th>
+                    <span>Descripcion</span>
+                </th>
+
+                <th style="text-align: right;">
+                    <span>Total</span>
+                </th>
+            </tr>
+
+            <tr style="text-align: left; margin: 10px 0; border-bottom: solid thin">
+                <th>
+                    <p>
+                        Paquete {{package}}
+                    </p>
+                </th>
+
+                <th>
+                    <p>
+                        {{amountCrypto}} monedas de {{nameCrypto}} al precio de {{priceUSD}}
+                    </p>
+                </th>
+
+                <th style="width: 100px; text-align: right;">
+                    <p>
+                        {{amountReal}}
+                    </p>
+                </th>
+            </tr>
+            <tr style="text-align: left; margin: 10px 0; border-bottom: solid thin">
+                <th colspan="3" style="width: 100px; text-align: left;">
+                    Hacer click para validar: <a href="{{hash}}">{{hashtxt}}</a>
+                </th>
+            </tr>
+
+            <tr style="height: 50px;">
+                <th></th>
+
+                <th style="text-align: right;">
+                    <p>
+                        Total en dólares
+                    </p>
+                </th>
+
+                <th style="width: 100px; text-align: right;">
+                    <p>
+                        {{amountReal}}
+                    </p>
+                </th>
+            </tr>
+
+            <tr style="height: 50px;">
+                <th></th>
+
+                <th style="text-align: right;">
+                    <p>
+                        Total en {{nameCrypto}}
+                    </p>
+                </th>
+
+                <th style="width: 100px; text-align: right;">
+                    <p>
+                        {{amountCrypto}}
+                    </p>
+                </th>
+            </tr>
+
+            <tr style="height: 50px; text-align: left;">
+                <th>
+                    AlyPay 2020
+                </th>
+            </tr>
+
+            <tr style="height: 20px;" />
+
+        </table>
+    </div>
+</body>
+
+</html>
