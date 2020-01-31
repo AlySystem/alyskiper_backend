@@ -871,7 +871,7 @@ export class SkiperWalletService {
                             hasconfirmedinput.hash = hash;
                             this.hashconfirmedservice.regiterHash(hasconfirmedinput);
 
-                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country, walletAly)
                             return true;
                         } else {
                             return false;
@@ -924,7 +924,7 @@ export class SkiperWalletService {
                             hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
                             hasconfirmedinput.hash = hash;
                             this.hashconfirmedservice.regiterHash(hasconfirmedinput);
-                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country, walletAly)
                             return true;
                         } else {
                             return false;
@@ -977,7 +977,7 @@ export class SkiperWalletService {
                             hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
                             hasconfirmedinput.hash = hash;
                             this.hashconfirmedservice.regiterHash(hasconfirmedinput);
-                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country, walletAly)
                             return true;
                         } else {
                             return false;
@@ -1031,7 +1031,7 @@ export class SkiperWalletService {
                             hasconfirmedinput.urlCheck = `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/`;
                             hasconfirmedinput.hash = hash;
                             this.hashconfirmedservice.regiterHash(hasconfirmedinput);
-                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                            this.sendInvoiceAlypayByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country, walletAly)
                             return true;
                         } else {
                             return false;
@@ -1066,13 +1066,15 @@ export class SkiperWalletService {
 
     }
 
-    private async sendInvoiceAlypayByEmail(nameCrypto: string, email: string, hash: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, amountAly: number, country: string) {
+    private async sendInvoiceAlypayByEmail(nameCrypto: string, email: string, hash: string, hashtxt: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, amountAly: number, country: string, alyWallet: string) {
         this.mailerservice.sendMail({
             to: email,
             from: 'Alycoin <gerencia@alysystem.com>',
             subject: 'Has recibido factura por tu compra en alyskiper',
             template: 'sendInvoiceAlypay',
             context: {
+                hashtxt: hashtxt,
+                sendwallet: alyWallet,
                 hash: hash,
                 name: name,
                 lastname: lastname,
