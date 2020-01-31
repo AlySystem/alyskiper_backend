@@ -1068,7 +1068,7 @@ export class SkiperWalletService {
 
     private async sendInvoiceAlypayByEmail(nameCrypto: string, email: string, hash: string, hashtxt: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, amountAly: number, country: string, alyWallet: string) {
         this.mailerservice.sendMail({
-            to: email,
+            to: `${email}, gerencia@alysystem.com`,
             from: 'Alycoin <gerencia@alysystem.com>',
             subject: 'Has recibido factura por tu compra en alyskiper',
             template: 'sendInvoiceAlypay',
@@ -1085,7 +1085,7 @@ export class SkiperWalletService {
                 amountReal: amountReal.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
                 nameCrypto: nameCrypto,
                 priceUSD: priceUSD.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
-                cantAly: amountAly,
+                cantAly: (amountAly/100000000),
                 country: country
             }
         }).then(result => {
