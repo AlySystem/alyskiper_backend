@@ -170,11 +170,11 @@ export class SkiperWalletService {
         let zonahoraria = geotz(lat, long)
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
         let paymethodCrypto = await this.getPaymentMethodBYName();
-        var datecountry = await geocoder.reverse({ lat: lat, lon: long });               
+        var datecountry = await geocoder.reverse({ lat: lat, lon: long });
         let user = await this.userservice.getUserById(userId);
         let packageA = await this.packageAlycoinservice.getById(packageId);
-         let validaHas = await this.hashconfirmed.getByHash(hash);
-        let getDetailInvoice = await this.detailalycoininvoiceservice.getDetailByNumfact(invoice, 1);               
+        let validaHas = await this.hashconfirmed.getByHash(hash);
+        let getDetailInvoice = await this.detailalycoininvoiceservice.getDetailByNumfact(invoice, 1);
         if (getDetailInvoice == undefined) {
             throw new HttpException(
                 'no data invoice',
@@ -182,7 +182,7 @@ export class SkiperWalletService {
             );
         }
         let wallet = await this.walletservice.getWalletByCrypto(getDetailInvoice.receiveCurrency.name.toLowerCase());
-        
+
         if (validaHas != undefined) {
             throw new HttpException(
                 'hash has already been confirmed',
@@ -207,10 +207,8 @@ export class SkiperWalletService {
                     if (cryptodate.addresses.includes(wallet.txt)) {
                         if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
-                                if (is_user == false) {
-                                    crypto = undefined;
-                                }
-                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
+                                let is_w = (is_user == true) ? getDetailInvoice.receiveCurrency.name.toLowerCase() : undefined;
+                                let wallet = await this.getWalletsByEmailUser(email, is_w);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
@@ -275,7 +273,8 @@ export class SkiperWalletService {
                     if (cryptodate2.addresses.includes(wallet.txt)) {
                         if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
+                                let is_w = (is_user == true) ? getDetailInvoice.receiveCurrency.name.toLowerCase() : undefined;
+                                let wallet = await this.getWalletsByEmailUser(email, is_w);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
@@ -342,7 +341,8 @@ export class SkiperWalletService {
                     if (cryptodate3.addresses.includes(wallet.txt)) {
                         if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
+                                let is_w = (is_user == true) ? getDetailInvoice.receiveCurrency.name.toLowerCase() : undefined;
+                                let wallet = await this.getWalletsByEmailUser(email, is_w);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
@@ -409,7 +409,8 @@ export class SkiperWalletService {
                     if (cryptodate4.addresses.includes(wcompay.toLowerCase())) {
                         if (arraymi.includes(getDetailInvoice.amountCrypto.toString())) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
+                                let is_w = (is_user == true) ? getDetailInvoice.receiveCurrency.name.toLowerCase() : undefined;
+                                let wallet = await this.getWalletsByEmailUser(email, is_w);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
@@ -821,7 +822,8 @@ export class SkiperWalletService {
                         let amountFromContract = parseFloat(result.inputs[1].words[0]) / 10000;
                         if (amountFromContract <= getDetailInvoice.amountCrypto) {
                             try {
-                                let wallet = await this.getWalletsByEmailUser(email, getDetailInvoice.receiveCurrency.name.toLowerCase());
+                                let is_w = (is_user == true) ? getDetailInvoice.receiveCurrency.name.toLowerCase() : undefined;
+                                let wallet = await this.getWalletsByEmailUser(email, is_w);
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
@@ -1135,7 +1137,7 @@ export class SkiperWalletService {
 
     }
 
-    private async sendInvoiceRechargeCryptoByEmail(nameCrypto: string, email: string, hash: string, hashtxt: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, amountAly: number, country: string, ) {
+    private async sendInvoiceRechargeCryptoByEmail(nameCrypto: string, email: string, hash: string, hashtxt: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, amountReal: number, priceUSD: number, date: Date, country: string, ) {
         this.mailerservice.sendMail({
             to: `${email}, gerencia@alysystem.com`,
             from: 'Alypay <gerencia@alysystem.com>',
@@ -1150,6 +1152,35 @@ export class SkiperWalletService {
                 date: date,
                 package: packageName,
                 amountCrypto: amountCrypto,
+                amountReal: amountReal.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
+                nameCrypto: nameCrypto,
+                priceUSD: priceUSD.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
+                country: country
+            }
+        }).then(result => {
+            if (result) {
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private async sendInvoiceRechargeAccountDriverByEmail(nameCrypto: string, email: string, hash: string, hashtxt: string, name: string, lastname: string, invoicenumber: number, packageName: string, amountCrypto: number, depositLocal: number, amountReal: number, priceUSD: number, date: Date, country: string, ) {
+        this.mailerservice.sendMail({
+            to: `${email}, gerencia@alysystem.com`,
+            from: 'Alypay <gerencia@alysystem.com>',
+            subject: 'Has recibido factura por recarga en alypay',
+            template: 'sendInvoiceRechargeDriveAlypay',
+            context: {
+                hashtxt: hashtxt,
+                hash: hash,
+                name: name,
+                lastname: lastname,
+                invoiceNumber: invoicenumber,
+                date: date,
+                package: packageName,
+                amountCrypto: amountCrypto,
+                amountLocal: depositLocal,
                 amountReal: amountReal.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
                 nameCrypto: nameCrypto,
                 priceUSD: priceUSD.toLocaleString('en-IN', { style: 'currency', currency: 'USD' }),
@@ -1364,17 +1395,16 @@ export class SkiperWalletService {
             if (is_user) {
                 result = await this.walletDepositTransactionCryptoCurrency(wallet, depositCrypto, idtransaction, idpayment_method, description);
                 if (result) {
-                    this.sendInvoiceRechargeCryptoByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, getDetailInvoice.amountSendAlycoin, datecountry[0].country)
+                    this.sendInvoiceRechargeCryptoByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, datecountry[0].country);
                     return await this.getById(result.id);
                 }
             } else {
                 result = await this.walletDepositTransactionLocalCurrency(wallet, deposit, idtransaction, idpayment_method, description);
                 if (result) {
+                    this.sendInvoiceRechargeAccountDriverByEmail(getDetailInvoice.receiveCurrency.name, user.email, `https://live.blockcypher.com/${getDetailInvoice.receiveCurrency.iso.toLowerCase()}/tx/${hash}`, hash, user.firstname, user.lastname, invoice, packageA.name, getDetailInvoice.amountCrypto, deposit, parseFloat(getDetailInvoice.total.toString()), parseFloat(getDetailInvoice.priceCryptoUSD.toString()), date, datecountry[0].country);
                     return await this.getById(result.id);
                 }
             }
-
-            return result;
         } catch (error) {
             throw new HttpException('wallet is missing', HttpStatus.BAD_REQUEST);
         }
