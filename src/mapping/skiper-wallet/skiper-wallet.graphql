@@ -131,6 +131,7 @@ type Query {
     getAllSkiperWalletsByUserId(iduser: Int!): [SkiperWalletCryptoDto!]!
     searchSkiperWallet(id:Int):SkiperWalletDto
     getAmountByCrypto(crypto:Int!, concept:Int!, amount:Float!, iduser:Int!,idcountry:Int!, idpackage:Int!):SendDataForPayCrypto
+    convertBalance(amount: Float!, isoCrypto: String!, lat: Float!, long: Float): Float
 }
 type Mutation {
     registerSkiperLocalWallet(input: SkiperWalletCreateInput!):String

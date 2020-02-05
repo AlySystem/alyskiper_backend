@@ -85,43 +85,7 @@ export class SkiperWalletsHistoryService {
         }
         return (result === undefined) ? null : result;
     }
-
-    async convertBalance(amount: number, isoCrypto: string, lat: number, long: number) {
-        var options = {
-            provider: 'google',
-            httpAdapter: 'https', // Default
-            apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
-            formatter: 'json' // 'gpx', 'string', ...
-        };
-        var geocoder = node_geocoder(options);
-        let zonahoraria = geotz(lat, long)
-        let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
-        var datecountry = await geocoder.reverse({ lat: lat, lon: long });
-        let exchangeUSD = await this.getExchange(datecountry[0].country, date);
-        let validateValue = (exchangeUSD != undefined && exchangeUSD.value != null) ? exchangeUSD.value : 0;
-        const requestOptions = {
-            method: 'GET',
-            uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
-            qs: {
-                'symbol': `${isoCrypto}`
-            },
-
-            headers: {
-                'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
-            },
-            json: true,
-            gzip: true
-        };
-
-        return rp(requestOptions).then(response => {
-            let converToUSD = (amount / validateValue).toFixed(2);
-            let convertToCRYPTO = parseFloat(converToUSD) / response.data[`${isoCrypto}`].quote.USD.price.toFixed(2);
-            return convertToCRYPTO.toFixed(8);
-        }).catch((err) => {
-            console.log('API call error:', err.message);
-        });
-    }
-
+  
     async getSaldoHabilitado(idwallet: number, lat: number, long: number) {
         var options = {
             provider: 'google',

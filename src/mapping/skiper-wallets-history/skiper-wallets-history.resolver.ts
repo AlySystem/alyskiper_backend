@@ -34,11 +34,6 @@ export class SkiperWalletsHistoryResolver {
         return this.skiperWalletHistoryService.getSaldoHabilitado(idwallet, lat, long);
     }
 
-    @Query()
-    convertBalance(@Args('amount') amount: number, @Args('isoCrypto') isoCrypto: string, @Args('lat') lat: number, @Args('long') long: number) {
-        return this.skiperWalletHistoryService.convertBalance(amount, isoCrypto, lat, long);
-    }
-
     @Mutation()
     registerSkiperWalletHistory(@Args('input') input: SkiperWalletsHistoryInput) {
         return this.skiperWalletHistoryService.registerSkiperWalletHistory(input);

@@ -34,6 +34,11 @@ export class SkiperWalletResolver {
         return this.skiperWalletService.getById(id);
     }
 
+    @Query()
+    convertBalance(@Args('amount') amount: number, @Args('isoCrypto') isoCrypto: string, @Args('lat') lat: number, @Args('long') long: number) {
+        return this.skiperWalletService.convertBalance(amount, isoCrypto, lat, long);
+    }
+
     @Mutation()
     registerSkiperCryptoWallet(@Args('input') input: SkiperWalletCreateInput) {
         return this.skiperWalletService.registerSkiperCryptowallet(input);
