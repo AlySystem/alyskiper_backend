@@ -31,5 +31,6 @@ type CurrencyWhitWalletDto {
 type Query {
     currency: [CurrencyDto!]!
     Cryptocurrency: [CurrencyDto!]!
+    CryptocurrencyForTransfer: [CurrencyDto!]!
     searchcurrency(id:Int): CurrencyDto
 }
