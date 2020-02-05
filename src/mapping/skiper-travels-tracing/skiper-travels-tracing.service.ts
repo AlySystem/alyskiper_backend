@@ -221,7 +221,7 @@ export class SkiperTravelsTracingService {
             let userAgent = await this.getSponsorByidUser(user.sponsor_id);
             let taxcountry = await this.getCountryByDrive(user.id);
             let getTax = (taxcountry.tax == null) ? 0 : taxcountry.tax;
-            let amoutcommision = await this.skiperCatTrevelsService.getById(travel.idcattravel);
+            let commision = await this.skiperCatTrevelsService.getById(travel.idcattravel);
             let wallet = await this.getWalletFromDriver(user.id, travel.idcurrency);
             if (wallet == undefined) {
                 throw new HttpException(
@@ -229,31 +229,32 @@ export class SkiperTravelsTracingService {
                     HttpStatus.BAD_REQUEST
                 )
             }
-            let transactiontype = await this.getTransactionType("DEBITO X VIAJE");
-            let transactiontype2 = await this.getTransactionType("CREDITO");
-            let valorviaje = (parseFloat(travel.total.toString()) * parseFloat(transactiontype.sign.toString()));
-            let subtotaldebit = valorviaje * (parseInt(amoutcommision.paycommission.toString()) / 100);
-            let commisionexecutive = subtotaldebit * (parseInt(amoutcommision.percentageagent.toString()) / 100)
+            let debito = await this.getTransactionType("DB");
+            let credito = await this.getTransactionType("CR"); 
+
+            let subtotaldebit = travel.total * (parseInt(commision.paycommission.toString()) / 100);
+            let commisionexecutive = subtotaldebit * (parseInt(commision.percentageagent.toString()) / 100)
             let calciva = subtotaldebit * (parseInt(getTax.toString()) / 100);
             let totaldebit = subtotaldebit + calciva;
             wallet.amount = parseFloat(wallet.amount.toString()) + totaldebit;
-            let walletHistory = new SkiperWalletsHistory();
-            walletHistory.idskiperwallet = wallet.id;
-            walletHistory.idtransactiontype = transactiontype.id;
-            walletHistory.amount = -(totaldebit);
-            walletHistory.idpayment_methods = travel.idpayment_methods;
-            walletHistory.description = `Deduccion por el viaje ${travel.id}`;
-            walletHistory.date_in = new Date();
-            walletHistory.idcurrency = travel.idcurrency;
 
-            let walletHistory2 = new SkiperWalletsHistory();
-            walletHistory2.idskiperwallet = wallet.id;
-            walletHistory2.idtransactiontype = transactiontype2.id;
-            walletHistory2.amount = -(valorviaje - totaldebit);
-            walletHistory2.idpayment_methods = travel.idpayment_methods;
-            walletHistory2.description = `Ganancia del viaje numero ${travel.id}`;
-            walletHistory2.date_in = new Date();
-            walletHistory2.idcurrency = travel.idcurrency;
+            let walletHistoryDeduction = new SkiperWalletsHistory();
+            walletHistoryDeduction.idskiperwallet = wallet.id;
+            walletHistoryDeduction.idtransactiontype = debito.id;
+            walletHistoryDeduction.amount = -(totaldebit);
+            walletHistoryDeduction.idpayment_methods = travel.idpayment_methods;
+            walletHistoryDeduction.description = `Deduccion por el viaje ${travel.id}`;
+            walletHistoryDeduction.date_in = new Date();
+            walletHistoryDeduction.idcurrency = travel.idcurrency;
+
+            let walletHistoryCredit = new SkiperWalletsHistory();
+            walletHistoryCredit.idskiperwallet = wallet.id;
+            walletHistoryCredit.idtransactiontype = credito.id;
+            walletHistoryCredit.amount = travel.total - totaldebit;
+            walletHistoryCredit.idpayment_methods = travel.idpayment_methods;
+            walletHistoryCredit.description = `Ganancia por viaje numero ${travel.id}`;
+            walletHistoryCredit.date_in = new Date();
+            walletHistoryCredit.idcurrency = travel.idcurrency;
 
             let changestatetravel = await queryRunner.manager.findOne(SkiperTravels, { where: { id: travel.id } });
             changestatetravel.state = true;
@@ -288,11 +289,11 @@ export class SkiperTravelsTracingService {
             skiperinvoicedetail.idanyservice = travel.id;
             skiperinvoicedetail.total = travel.total;
 
-            await queryRunner.manager.save(walletHistory2)
+            await queryRunner.manager.save(walletHistoryCredit)
             await queryRunner.manager.save(skiperinvoicedetail);
             await queryRunner.manager.save(executivecommision);
             await queryRunner.manager.save(wallet);
-            await queryRunner.manager.save(walletHistory);
+            await queryRunner.manager.save(walletHistoryDeduction);
 
             await queryRunner.manager.save(changestatetravel);
 
@@ -370,9 +371,9 @@ export class SkiperTravelsTracingService {
 
     }
 
-    private async getTransactionType(name: string): Promise<TransactionType> {
+    private async getTransactionType(code: string): Promise<TransactionType> {
         return await createQueryBuilder(TransactionType, "TransactionType")
-            .where("TransactionType.name = :name", { name })
+            .where("TransactionType.code = :code", { code })
             .getOne();
     }
 }

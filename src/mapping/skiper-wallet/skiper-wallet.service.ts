@@ -63,6 +63,10 @@ export class SkiperWalletService {
         }
     }
 
+    async TransferToBalanceOf(){
+        
+    }
+
     async getAmountByCrypto(cryptoId: number, concept: number, amount: number, iduser: number, idcountry: number, idpackage: number) {
         try {
             let currency = await this.currency.getById(cryptoId);
@@ -212,9 +216,9 @@ export class SkiperWalletService {
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
-                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let transactiontype = await this.getTransactionType('RS')
                                     let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
-                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, `Recarga saldo de ${getDetailInvoice.receiveCurrency.name.toLowerCase()}`, getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
                                     if (result) {
                                         let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
                                         updateInvoice.state = true;
@@ -278,9 +282,9 @@ export class SkiperWalletService {
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
-                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let transactiontype = await this.getTransactionType('RS')
                                     let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
-                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, `Recarga saldo de ${getDetailInvoice.receiveCurrency.name.toLowerCase()}`, getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
 
                                     if (result) {
                                         let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
@@ -346,9 +350,9 @@ export class SkiperWalletService {
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
-                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let transactiontype = await this.getTransactionType('RS')
                                     let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
-                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, `Recarga saldo de ${getDetailInvoice.receiveCurrency.name.toLowerCase()}`, getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
 
                                     if (result) {
                                         let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
@@ -414,9 +418,9 @@ export class SkiperWalletService {
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
-                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let transactiontype = await this.getTransactionType('RS')
                                     let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
-                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, `Recarga saldo de ${getDetailInvoice.receiveCurrency.name.toLowerCase()}`, getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
                                     if (result) {
                                         let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
                                         updateInvoice.state = true;
@@ -827,9 +831,9 @@ export class SkiperWalletService {
                                 if (wallet != undefined) {
                                     let typeChangeByCountry = await this.getExchange(datecountry[0].country, date);
                                     let exchance = (typeChangeByCountry != undefined && typeChangeByCountry.value != null) ? typeChangeByCountry.value : 0;
-                                    let transactiontype = await this.getTransactionType('RECARGA SALDO')
+                                    let transactiontype = await this.getTransactionType('RS')
                                     let exchanging = (getDetailInvoice.total * exchance).toFixed(2);
-                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, "Recarga credito", getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
+                                    let result = await this.registerDeposit(wallet.id, transactiontype.id, paymethodCrypto.id, parseFloat(exchanging), getDetailInvoice.amountCrypto, is_user, `Recarga saldo de ${getDetailInvoice.receiveCurrency.name.toLowerCase()}`, getDetailInvoice, packageA, user, hash, date, datecountry, invoice);
                                     if (result) {
                                         let updateInvoice = await this.alycoinInvoiceService.getByNumFact(invoice);
                                         updateInvoice.state = true;
@@ -1224,9 +1228,9 @@ export class SkiperWalletService {
         });
     }
 
-    private async getTransactionType(name: string): Promise<TransactionType> {
+    private async getTransactionType(code: string): Promise<TransactionType> {
         return await createQueryBuilder(TransactionType, "TransactionType")
-            .where("TransactionType.name = :name", { name })
+            .where("TransactionType.code = :code", { code })
             .getOne();
     }
 
@@ -1429,7 +1433,6 @@ export class SkiperWalletService {
 
     }
 
-
     private async WithdrawalsorReversed(wallet: SkiperWallet, amount: number, idtransaction: number, idpayment_method: number, description: string): Promise<SkiperWallet> {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
@@ -1538,7 +1541,7 @@ export class SkiperWalletService {
         let walletHistory = new SkiperWalletsHistory();
         try {
             let transacionType = await queryRunner.manager.findOneOrFail(TransactionType, { where: { id: idtransaction } });
-            walletHistory.amount = deposit * transacionType.sign;
+            walletHistory.amount = deposit;
             walletHistory.idcurrency = wallet.idcurrency;
             walletHistory.idskiperwallet = wallet.id;
             walletHistory.idpayment_methods = idpayment_method;

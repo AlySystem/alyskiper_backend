@@ -30,8 +30,8 @@ export class SkiperWalletsHistoryResolver {
     }
 
     @Query()
-    getBalanceEnabled(@Args('idwallet') idwallet: number) {
-        return this.skiperWalletHistoryService.getSaldoHabilitado(idwallet);
+    getBalanceEnabled(@Args('idwallet') idwallet: number, @Args('lat') lat: number, @Args('long') long: number) {
+        return this.skiperWalletHistoryService.getSaldoHabilitado(idwallet, lat, long);
     }
 
     @Mutation()

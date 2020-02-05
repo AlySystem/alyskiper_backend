@@ -24,14 +24,19 @@ type GananciaDelDia {
 }
 
 type Balance {
-    benabled: Float
+     balanceLocal: Float!
+     balanceUSD: Float!
+     balanceInBTC: Float!
+     balanceInLTC: Float!
+     balanceInETH: Float!
+     balanceInDASH:Float!
 }
 
 type Query {
     SkiperWalletsHistory: [SkiperWalletsHistoryDto]
     searchSkiperWalletHistory(id: Int!): SkiperWalletsHistoryDto
     getGanaciaDelDia(idwallet: Int!,lat: Float!,lng: Float!,flat: Boolean): GananciaDelDia
-    getBalanceEnabled(idwallet: Int!): Balance
+    getBalanceEnabled(idwallet: Int!, lat:Float!, long:Float!): Balance
 }
 
 type Mutation {
