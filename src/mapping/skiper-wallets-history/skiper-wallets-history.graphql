@@ -32,11 +32,13 @@ type Balance {
      balanceInDASH:Float!
 }
 
+
 type Query {
     SkiperWalletsHistory: [SkiperWalletsHistoryDto]
     searchSkiperWalletHistory(id: Int!): SkiperWalletsHistoryDto
     getGanaciaDelDia(idwallet: Int!,lat: Float!,lng: Float!,flat: Boolean): GananciaDelDia
-    getBalanceEnabled(idwallet: Int!, lat:Float!, long:Float!): Balance
+    getBalanceEnabled(idwallet: Int!, lat:Float!, long:Float!): Balance  
+    convertBalance(amount: Float!, isoCrypto: String!, lat: Float!, long: Float): Float
 }
 
 type Mutation {
