@@ -1,6 +1,9 @@
 {
 	"name": "backend-alysystem",
 	"version": "0.0.1",
+	"engines": {
+		"node": "12.12.0"
+	},
 	"description": "API REST - Backend AlySkiper",
 	"author": "Rolando Jose Sanchez Baltodano",
 	"license": "MIT",
