@@ -80,9 +80,8 @@ export class PaymentMethodsService {
                 bitcoin.id = result[1].currency[0].id;
                 bitcoin.name = result[1].currency[0].name;
                 bitcoin.url_img = result[1].currency[0].url_img;
-                let btc_amount = parseFloat(result[2].amount).toFixed(8);
-                console.log(btc_amount)
-                bitcoin.amount_crypto = parseFloat(btc_amount);
+                let btc_amount: any = parseFloat(result[2].amount).toFixed(8);
+                bitcoin.amount_crypto = btc_amount;
                 bitcoin.price_usd = result[2].price_usd;
                 let btc_local = bitcoin.price_usd * result[7].value
                 bitcoin.price_local = parseFloat(btc_local.toFixed(2));
@@ -91,7 +90,6 @@ export class PaymentMethodsService {
                 let incryptob = parseFloat(usdb.toFixed(2)) / bitcoin.price_crypto;
                 bitcoin.priceTravel = parseFloat(incryptob.toFixed(8));
                 bitcoin.change24h = result[2].change24h;
-
 
                 let ethereum = new Ethereum();
                 ethereum.id = result[1].currency[1].id;

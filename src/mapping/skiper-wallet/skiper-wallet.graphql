@@ -47,7 +47,7 @@ type pruebaDto {
 
 type Alycoin {
     id: Int
-    amount_crypto:Float    
+    amount_crypto:String    
     name:String
     url_img:String
     price_usd:Float
@@ -58,7 +58,7 @@ type Alycoin {
 
 type Dash {
     id: Int
-    amount_crypto:Float    
+    amount_crypto:String    
     name:String
     url_img:String
     price_usd:Float
@@ -70,7 +70,7 @@ type Dash {
 
 type LiteCoin {
     id: Int
-    amount_crypto:Float    
+    amount_crypto:String    
     name:String
     url_img:String
     price_usd:Float
@@ -82,7 +82,7 @@ type LiteCoin {
 
 type Bitcoin {
     id: Int
-    amount_crypto:Float
+    amount_crypto:String
     name:String   
     url_img:String 
     price_usd:Float 
@@ -93,7 +93,7 @@ type Bitcoin {
 }
 type Ethereum {
     id: Int
-    amount_crypto:Float    
+    amount_crypto:String    
     name:String
     url_img:String
     price_usd:Float

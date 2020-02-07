@@ -72,7 +72,7 @@ export class pruebaDto {
 @ObjectType()
 export class Bitcoin {
     id: number;
-    amount_crypto: number;
+    amount_crypto: string;
     name: string;
     url_img: string;
     price_usd: number;
@@ -85,7 +85,7 @@ export class Bitcoin {
 @ObjectType()
 export class Ethereum {
     id: number;
-    amount_crypto: number;
+    amount_crypto: string;
     name: string;
     url_img: string;
     price_usd: number;
@@ -98,7 +98,7 @@ export class Ethereum {
 @ObjectType()
 export class LiteCoin {
     id: number;
-    amount_crypto: number;
+    amount_crypto: string;
     name: string;
     url_img: string;
     price_usd: number;
@@ -111,7 +111,7 @@ export class LiteCoin {
 @ObjectType()
 export class Dash {
     id: number;
-    amount_crypto: number;
+    amount_crypto: string;
     name: string;
     url_img: string;
     price_usd: number;
@@ -124,7 +124,7 @@ export class Dash {
 @ObjectType()
 export class Alycoin {
     id: number;
-    amount_crypto: number;
+    amount_crypto: string;
     name: string;
     url_img: string;
     price_usd: number;
