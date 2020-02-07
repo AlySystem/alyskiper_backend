@@ -64,7 +64,11 @@ export class SkiperWalletService {
     }
 
     async TransferToBalanceOf(amount: number, userId: number, isoCurrency: string) {
+        try {
+            console.log('prueba de transaccion')
+        } catch (error) {
 
+        }
     }
     private doTransaction() {
 
