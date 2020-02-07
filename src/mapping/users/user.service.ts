@@ -208,18 +208,18 @@ export class UserService {
             let bitcoin = new Bitcoin();
             bitcoin.id = result[1][0].id;
             bitcoin.name = result[1][0].name;
-            bitcoin.url_img = result[1][0].url_img;
+            bitcoin.url_img = result[1][0].url_img;            
             bitcoin.amount_crypto = result[2].amount;
             bitcoin.price_usd = result[2].price_usd;
             let btc_local = bitcoin.price_usd * result[0].value
             bitcoin.price_local = parseFloat(btc_local.toFixed(2));
             bitcoin.price_crypto = result[2].price_crypto;
-
+           
             let ethereum = new Ethereum();
             ethereum.id = result[1][1].id;
             ethereum.name = result[1][1].name;
             ethereum.url_img = result[1][1].url_img;
-            ethereum.amount_crypto = result[3].amount;
+            ethereum.amount_crypto = result[3].amount;;
             ethereum.price_usd = result[3].price_usd;
             let eth_local = ethereum.price_usd * result[0].value
             ethereum.price_local = parseFloat(eth_local.toFixed(2));
@@ -262,7 +262,7 @@ export class UserService {
             cryptosDto.dash = dash;
             cryptosDto.ethereum = ethereum;
             cryptosDto.litecoin = litecoin;
-
+            console.log(cryptosDto)
             return cryptosDto;
         })
 

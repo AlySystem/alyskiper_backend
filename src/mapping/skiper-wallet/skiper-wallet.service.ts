@@ -63,7 +63,10 @@ export class SkiperWalletService {
         }
     }
 
-    async TransferToBalanceOf(){
+    async TransferToBalanceOf(amount: number, userId: number, isoCurrency: string) {
+
+    }
+    private doTransaction() {
 
     }
 
