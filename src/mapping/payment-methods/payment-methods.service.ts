@@ -11,8 +11,7 @@ import { UserService } from '../users/user.service';
 import geotz from 'geo-tz';
 import momentTimeZone from 'moment-timezone';
 import { SkiperWalletService } from '../skiper-wallet/skiper-wallet.service';
-const { decodeConstructorArgs } = require('canoe-solidity');
-const InputDataDecoder = require('ethereum-input-data-decoder');
+
 
 @Injectable()
 export class PaymentMethodsService {
