@@ -90,7 +90,7 @@ export class PaymentMethodsService {
                 let incryptob = parseFloat(usdb.toFixed(2)) / bitcoin.price_crypto;
                 bitcoin.priceTravel = parseFloat(incryptob.toFixed(8));
                 bitcoin.change24h = result[2].change24h;
-
+                console.log(bitcoin)
                 let ethereum = new Ethereum();
                 ethereum.id = result[1].currency[1].id;
                 ethereum.name = result[1].currency[1].name;
