@@ -65,6 +65,12 @@ export class SkiperWalletDto {
     countryID: countrieDto;
 }
 @ObjectType()
+export class dataConvert {
+    amountCrypto:number;
+    amountUsd:number;
+    priceCrypto:number;
+}
+@ObjectType()
 export class pruebaDto {
     id: number;
 }

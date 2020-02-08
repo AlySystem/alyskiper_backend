@@ -49,11 +49,11 @@ export class SkiperWalletResolver {
     }
     @Mutation()
     validateHash(
-        @Args('hash') hash: string,     
+        @Args('hash') hash: string,
         @Args('lat') lat: number,
         @Args('long') long: number,
         @Args('packageId') packageId: number,
-        @Args('userId') userId:number,
+        @Args('userId') userId: number,
         @Args('email') email: string,
         @Args('invoice') invoice: number,
         @Args('is_user') is_user: boolean = false) {
@@ -101,6 +101,13 @@ export class SkiperWalletResolver {
         } catch (error) {
             console.error(error);
         }
+    }
+    @Mutation()
+    async WithdrawalToOtherWallet(
+        @Args('emailTransfer') emailTransfer: string,
+        @Args('currencyId') currencyId: number
+    ) {
+        return await this.skiperWalletService.WithdrawalToOtherWallet(emailTransfer, currencyId)
     }
 
 
