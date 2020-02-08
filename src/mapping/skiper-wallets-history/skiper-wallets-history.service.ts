@@ -23,16 +23,22 @@ export class SkiperWalletsHistoryService {
     ) { }
 
     async WithdrawalToInternalWallet(walletId: number) {
-        let wallet = await this.walletservice.getById(walletId)
-        this.ExecuteWithdrawalToInternalWallet(wallet);
+        let wallet = await this.walletservice.getById(walletId);
+        if (wallet == undefined) {
+            throw new HttpException(
+                "wallet not exist!",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        return this.ExecuteWithdrawalToInternalWallet(wallet);
     }
 
-    private async ExecuteWithdrawalToInternalWallet(wallet: SkiperWallet):Promise<Boolean> {
+    private async ExecuteWithdrawalToInternalWallet(wallet: SkiperWallet): Promise<Boolean> {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
-
+        let result;
         try {
             let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
                 .select("IFNULL(SUM(SkiperWalletsHistory.amount), 0)", "benabled")
@@ -79,7 +85,7 @@ export class SkiperWalletsHistoryService {
             let fees = ((totalPaid.benabled * retiro.fees) / 100).toFixed(2);
             let total = (totalPaid.benabled - parseFloat(fees));
             verifiedWallet.amount = parseFloat(verifiedWallet.amount.toString()) + (total);
-            await queryRunner.manager.save(verifiedWallet);
+            result = await queryRunner.manager.save(verifiedWallet);
 
             let registerReferenceTransactionWalletHistoryTransfer = new SkiperWalletsHistory();
             registerReferenceTransactionWalletHistoryTransfer.amount = (totalPaid.benabled - ((totalPaid.benabled * retiro.fees) / 100));
@@ -105,10 +111,10 @@ export class SkiperWalletsHistoryService {
         } catch (error) {
             console.log(error)
             await queryRunner.rollbackTransaction();
-            return false;
+            return null;
         } finally {
             await queryRunner.release();
-            return true;
+            return result;
         }
     }
 

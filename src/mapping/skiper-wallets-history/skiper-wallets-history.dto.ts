@@ -18,6 +18,11 @@ export class SkiperWalletsHistoryInput {
     paidout: boolean;
 }
 
+@ObjectType()
+export class SkiperWallet {
+    id: number;
+    amount: number;
+}
 
 @ObjectType()
 export class SkiperWalletsHistoryDto {

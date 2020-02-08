@@ -31,6 +31,10 @@ type Balance {
      balanceInETH: Float!
      balanceInDASH:Float!
 }
+type SkiperWallet {
+    id: Int
+    amount: Float
+}
 
 
 type Query {
@@ -42,5 +46,5 @@ type Query {
 
 type Mutation {
     registerSkiperWalletHistory(input: SkiperWalletsHistoryInput): SkiperWalletsHistoryDto
-    WithdrawalToInternalWallet(walletId:Int):Boolean
+    WithdrawalToInternalWallet(walletId:Int):SkiperWallet!
 }
