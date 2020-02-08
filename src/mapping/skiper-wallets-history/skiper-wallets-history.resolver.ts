@@ -40,7 +40,9 @@ export class SkiperWalletsHistoryResolver {
     }
 
     @Mutation()
-    WithdrawalToInternalWallet(@Args('walletId') walletId: number) {
-        return this.skiperWalletHistoryService.WithdrawalToInternalWallet(walletId);
+    async WithdrawalToInternalWallet(@Args('walletId') walletId: number) {
+        let r = await this.skiperWalletHistoryService.WithdrawalToInternalWallet(walletId);
+        console.log(r);
+        return r;
     }
 }

@@ -42,5 +42,5 @@ type Query {
 
 type Mutation {
     registerSkiperWalletHistory(input: SkiperWalletsHistoryInput): SkiperWalletsHistoryDto
-    WithdrawalToInternalWallet(walletId:Int):String
+    WithdrawalToInternalWallet(walletId:Int):Boolean
 }

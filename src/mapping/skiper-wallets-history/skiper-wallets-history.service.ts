@@ -27,12 +27,11 @@ export class SkiperWalletsHistoryService {
         this.ExecuteWithdrawalToInternalWallet(wallet);
     }
 
-    private async ExecuteWithdrawalToInternalWallet(wallet: SkiperWallet): Promise<SkiperWallet> {
+    private async ExecuteWithdrawalToInternalWallet(wallet: SkiperWallet):Promise<Boolean> {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
-        let result;
 
         try {
             let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
@@ -76,12 +75,12 @@ export class SkiperWalletsHistoryService {
             registerFeeWalletHistoryTransfer.date_in = new Date();
 
             await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
-            
-            let fees = ((totalPaid.benabled * retiro.fees)/100).toFixed(2);
+
+            let fees = ((totalPaid.benabled * retiro.fees) / 100).toFixed(2);
             let total = (totalPaid.benabled - parseFloat(fees));
-            verifiedWallet.amount = parseFloat(verifiedWallet.amount.toString()) + (total);           
-            result = await queryRunner.manager.save(verifiedWallet);
-          
+            verifiedWallet.amount = parseFloat(verifiedWallet.amount.toString()) + (total);
+            await queryRunner.manager.save(verifiedWallet);
+
             let registerReferenceTransactionWalletHistoryTransfer = new SkiperWalletsHistory();
             registerReferenceTransactionWalletHistoryTransfer.amount = (totalPaid.benabled - ((totalPaid.benabled * retiro.fees) / 100));
             registerReferenceTransactionWalletHistoryTransfer.idcurrency = wallet.idcurrency;
@@ -106,11 +105,10 @@ export class SkiperWalletsHistoryService {
         } catch (error) {
             console.log(error)
             await queryRunner.rollbackTransaction();
-            return null;
-
+            return false;
         } finally {
             await queryRunner.release();
-            return result;
+            return true;
         }
     }
 
