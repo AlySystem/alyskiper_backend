@@ -62,7 +62,7 @@ export class SkiperWalletService {
             console.log(error);
         }
     }
-
+    
     async TransferToBalanceOf(amount: number, userId: number, isoCurrency: string) {
         try {
             console.log('prueba de transaccion no se q pasa')
@@ -71,6 +71,10 @@ export class SkiperWalletService {
         }
     }
     private doTransaction() {
+
+    }
+
+    async WithdrawalToInternalBalance() {
 
     }
 
@@ -1468,80 +1472,16 @@ export class SkiperWalletService {
                 HttpStatus.BAD_REQUEST
             );
         }
-        let result = await this.WithdrawalsorReversed(wallet, amount, idtransaction, idpayment_method, description);
+        //   let result = await this.WithdrawalsorReversed(wallet, amount, idtransaction, idpayment_method, description);
 
-        if (result) {
-            return await this.getById(result.id);
-        }
-        return result;
-
-    }
-
-    private async WithdrawalsorReversed(wallet: SkiperWallet, amount: number, idtransaction: number, idpayment_method: number, description: string): Promise<SkiperWallet> {
-        let connection = getConnection();
-        let queryRunner = connection.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-
-        let result;
-        let walletHistory = new SkiperWalletsHistory();
-
-        let transacionType = await queryRunner.manager.findOne(TransactionType, { where: { id: idtransaction } });
-        let verifywallet = await queryRunner.manager.findOneOrFail(SkiperWallet, { where: { id: wallet.id } });
-        walletHistory.amount = amount;
-        walletHistory.idcurrency = wallet.idcurrency;
-        walletHistory.idskiperwallet = wallet.id;
-        walletHistory.idpayment_methods = idpayment_method;
-        walletHistory.description = description;
-        walletHistory.idtransactiontype = idtransaction;
-        walletHistory.date_in = new Date();
-
-        if (parseFloat(verifywallet.amount.toString()) < parseFloat(walletHistory.amount.toString())) {
-            throw new HttpException(
-                'you dont have enough balance for this transaction',
-                HttpStatus.BAD_REQUEST
-            );
-        }
-
-        if (parseFloat(verifywallet.amount.toString()) <= 0) {
-            throw new HttpException(
-                'there are not enough funds',
-                HttpStatus.BAD_REQUEST
-            );
-        }
-
-        if (transacionType == undefined) {
-            throw new HttpException('transaction type not exist', HttpStatus.BAD_REQUEST)
-        }
-
-        if (parseInt(transacionType.id.toString()) == 3 || parseInt(transacionType.id.toString()) == 6) {
-            if (parseInt(transacionType.id.toString()) == 3) {
-                walletHistory.paidout = false;
-            }
-            if (parseInt(transacionType.id.toString()) == 6) {
-                walletHistory.paidout = true;
-            }
-        } else {
-            throw new HttpException('transaction type is not available', HttpStatus.BAD_REQUEST)
-        }
-
-
-        try {
-            wallet.amount = (parseFloat(wallet.amount.toString()) - parseFloat(walletHistory.amount.toString()));
-            result = await queryRunner.manager.save(wallet);
-            await queryRunner.manager.save(walletHistory);
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            console.log(error)
-            await queryRunner.rollbackTransaction();
-            return null;
-
-        } finally {
-            await queryRunner.release();
-            return result;
-        }
+        // if (result) {
+        //     return await this.getById(result.id);
+        // }
+        // return result;
 
     }
+
+
 
     private async walletDepositTransactionCryptoCurrency(wallet: SkiperWallet, deposit: number, idtransaction: number, idpayment_method: number, description: string): Promise<SkiperWallet> {
         let connection = getConnection();

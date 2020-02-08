@@ -43,7 +43,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
   sendCryptoDate(client: Socket): void {
     setInterval(() => {
       if (client.connected) {
-        rp(requestOptions).then(response => {          
+        rp(requestOptions).then(response => {
           let PriceCrypto = {
             BTC: response.data['BTC'].quote.USD.price.toFixed(2),
             ETH: response.data['ETH'].quote.USD.price.toFixed(2),
@@ -52,6 +52,7 @@ export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGateway
           }
           console.log(PriceCrypto);
           this.wss.emit('msgToCrypto', PriceCrypto);
+
         }).catch((err) => {
           console.log('API call error:', err.message);
         });
