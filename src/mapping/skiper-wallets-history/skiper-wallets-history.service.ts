@@ -43,13 +43,13 @@ export class SkiperWalletsHistoryService {
             //AND SkiperWalletsHistory.idskiperwallet = ${wallet.id}
             let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
-                .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")                
+                .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
                 .select(`
                 SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
                 SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
                 SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)      
-                .where("SkiperWalletsHistory.idskiperwallet = :wallet",{wallet:wallet.id})                    
+                SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
+                .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
                 .getRawOne();
             console.log(totalPaid)
 
@@ -172,22 +172,36 @@ export class SkiperWalletsHistoryService {
             start.setHours(0, 0, 0, 0);
             let end = new Date(start);
             end.setDate(start.getDate() + 1);
-            //Haciendo la busqueda
+            /*`
+        SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
+        SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+        SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+        SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`*/
             result = await createQueryBuilder("SkiperWalletsHistory")
-                .select("IFNULL(ROUND(SUM(SkiperWalletsHistory.amount),2), 0)", "ganancia")
-                .addSelect("COUNT(1)", "viajes")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
+                .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
+                .select(`IFNULL(ROUND(
+                    SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END)-
+                    SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                    SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                    SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)
+                    ,2), 0)`, "ganancia")
+                .addSelect("COUNT(1)", "viajes")
                 .where(`SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}'`, { fecha })
                 .andWhere("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
-                .andWhere("TransactionType.name = :tipotransaccion", { tipotransaccion: "CREDITO" })
                 .getRawOne();
         } else {
             result = await createQueryBuilder("SkiperWalletsHistory")
-                .select("IFNULL(ROUND(SUM(SkiperWalletsHistory.amount),2), 0)", "ganancia")
-                .addSelect("COUNT(1)", "viajes")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
+                .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
+                .select(`IFNULL(ROUND(
+                SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END)-
+                SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)
+                ,2), 0)`, "ganancia")
+                .addSelect("COUNT(1)", "viajes")                
                 .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
-                .andWhere("TransactionType.name = :tipotransaccion", { tipotransaccion: "CREDITO" })
                 .getRawOne();
         }
         return (result === undefined) ? null : result;
@@ -207,16 +221,16 @@ export class SkiperWalletsHistoryService {
         let exchangeUSD = await this.getExchange(datecountry[0].country, date);
         let validateValue = (exchangeUSD != undefined && exchangeUSD.value != null) ? exchangeUSD.value : 0;
         let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
-        .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
-        .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")                
-        .select(`
+            .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
+            .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
+            .select(`
         SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
         SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
         SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-        SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)      
-        .where("SkiperWalletsHistory.idskiperwallet = :wallet",{wallet:idwallet})                    
-        .getRawOne();   
-           
+        SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
+            .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: idwallet })
+            .getRawOne();
+
         let converToUSD = totalPaid.balance / validateValue;
         const requestOptions = {
             method: 'GET',
