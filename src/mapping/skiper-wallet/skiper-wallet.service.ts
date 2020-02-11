@@ -1631,15 +1631,15 @@ export class SkiperWalletService {
 
             await queryRunner.manager.save(registerReferenceTransactionWalletHistoryTransfer);
 
-            let whistoryUpdateRecord = await createQueryBuilder(SkiperWalletsHistory, "SkiperWalletsHistory")
-                .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
-                .where("SkiperWalletsHistory.idskiperwallet = :walletId", { walletId: walletHistory.idskiperwallet })
-                .andWhere("TransactionType.code = :tipotransaccion", { tipotransaccion: "CR" })
-                .andWhere('SkiperWalletsHistory.paidout = 0').getMany();
-            for (let i = 0; i < whistoryUpdateRecord.length; i++) {
-                whistoryUpdateRecord[i].paidout = true;
-            }
-            await queryRunner.manager.save(whistoryUpdateRecord);
+            // let whistoryUpdateRecord = await createQueryBuilder(SkiperWalletsHistory, "SkiperWalletsHistory")
+            //     .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
+            //     .where("SkiperWalletsHistory.idskiperwallet = :walletId", { walletId: walletHistory.idskiperwallet })
+            //     .andWhere("TransactionType.code = :tipotransaccion", { tipotransaccion: "CR" })
+            //     .andWhere('SkiperWalletsHistory.paidout = 0').getMany();
+            // for (let i = 0; i < whistoryUpdateRecord.length; i++) {
+            //     whistoryUpdateRecord[i].paidout = true;
+            // }
+            // await queryRunner.manager.save(whistoryUpdateRecord);
             await queryRunner.commitTransaction();
         } catch (error) {
             console.log(error)

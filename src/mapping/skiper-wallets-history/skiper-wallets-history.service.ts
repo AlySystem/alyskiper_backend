@@ -22,7 +22,7 @@ export class SkiperWalletsHistoryService {
         private readonly walletservice: SkiperWalletService
     ) { }
 
-    async WithdrawalToInternalWallet(walletId: number) {
+    async WithdrawalToInternalWallet(walletId: number, amount: number) {
         let wallet = await this.walletservice.getById(walletId);
         if (wallet == undefined) {
             throw new HttpException(
@@ -30,89 +30,82 @@ export class SkiperWalletsHistoryService {
                 HttpStatus.BAD_REQUEST,
             );
         }
-        return this.RechargeInternalWallet(wallet);
+        return this.RechargeInternalWallet(wallet, amount);
     }
 
-    private async RechargeInternalWallet(wallet: SkiperWallet): Promise<Boolean> {
+    private async RechargeInternalWallet(wallet: SkiperWallet, amount: number): Promise<Boolean> {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
         await queryRunner.startTransaction();
         let result;
-        try {
-            //AND SkiperWalletsHistory.idskiperwallet = ${wallet.id}
-            let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
-                .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
-                .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
-                .select(`
+        let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
+            .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
+            .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
+            .select(`
                 SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
                 SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
                 SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
                 SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
-                .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
-                .getRawOne();
-            console.log(totalPaid)
+            .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
+            .getRawOne();
 
-            // if (totalPaid.benabled == 0) {
-            //     throw new HttpException(
-            //         "you have no withdrawal balance",
-            //         HttpStatus.BAD_REQUEST,
-            //     );
-            // }
-            // let retiro = await queryRunner.manager.findOne(TransactionType, { where: { code: 'RT' } });
-            // let credito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'CR' } });
-            // let debito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'DB' } });
-            // let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
-            // let verifiedWallet = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
+        let recargaSaldo = await queryRunner.manager.findOne(TransactionType, { where: { code: 'RS' } });
+        let debito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'DB' } });
+        let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
+        let verifiedWallet = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
+        let amountPlusfees = amount + (amount * recargaSaldo.fees) / 100;
 
-            // let registeWalletsHistoryTransfer = new SkiperWalletsHistory();
-            // registeWalletsHistoryTransfer.amount = totalPaid.benabled;
-            // registeWalletsHistoryTransfer.idcurrency = wallet.idcurrency;
-            // registeWalletsHistoryTransfer.idskiperwallet = verifiedWallet.id;
-            // registeWalletsHistoryTransfer.idpayment_methods = paymentMethod.id;
-            // registeWalletsHistoryTransfer.description = 'Retiro a Balance Interno AlyPay';
-            // registeWalletsHistoryTransfer.idtransactiontype = retiro.id;
-            // registeWalletsHistoryTransfer.date_in = new Date();
+        if (totalPaid.balance == 0) {
+            throw new HttpException(
+                "you have no withdrawal balance",
+                HttpStatus.FORBIDDEN,
+            );
+        }
+        if (totalPaid.balance < amountPlusfees) {
+            throw new HttpException(
+                "your funds are not enough",
+                HttpStatus.FORBIDDEN
+            )
+        }
+        try {
+            let registeWalletsHistoryTransfer = new SkiperWalletsHistory();
+            registeWalletsHistoryTransfer.amount = amount;
+            registeWalletsHistoryTransfer.idcurrency = wallet.idcurrency;
+            registeWalletsHistoryTransfer.idskiperwallet = verifiedWallet.id;
+            registeWalletsHistoryTransfer.idpayment_methods = paymentMethod.id;
+            registeWalletsHistoryTransfer.description = 'Retiro a Balance Interno AlyPay';
+            registeWalletsHistoryTransfer.idtransactiontype = debito.id;
+            registeWalletsHistoryTransfer.date_in = new Date();
+            let walletHistory = await queryRunner.manager.save(registeWalletsHistoryTransfer)
 
-            // let walletHistory = await queryRunner.manager.save(registeWalletsHistoryTransfer)
+            let registerFeeWalletHistoryTransfer = new SkiperWalletsHistory();
+            let fees = (amount * recargaSaldo.fees) / 100;
+            registerFeeWalletHistoryTransfer.amount = Number(fees.toFixed(2));
+            registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
+            registerFeeWalletHistoryTransfer.idskiperwallet = verifiedWallet.id;
+            registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
+            registerFeeWalletHistoryTransfer.description = 'Comisión por servicio Alypay';
+            registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
+            registerFeeWalletHistoryTransfer.date_in = new Date();
+            await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
 
-            // let registerFeeWalletHistoryTransfer = new SkiperWalletsHistory();
-            // registerFeeWalletHistoryTransfer.amount = (totalPaid.benabled * retiro.fees) / 100;
-            // registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
-            // registerFeeWalletHistoryTransfer.idskiperwallet = verifiedWallet.id;
-            // registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
-            // registerFeeWalletHistoryTransfer.description = 'Debito por retiro a balance interno';
-            // registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
-            // registerFeeWalletHistoryTransfer.date_in = new Date();
 
-            // await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
+            verifiedWallet.amount = parseFloat(verifiedWallet.amount.toString()) + amount;
+            result = await queryRunner.manager.save(verifiedWallet);
 
-            // let fees = ((totalPaid.benabled * retiro.fees) / 100).toFixed(2);
-            // let total = (totalPaid.benabled - parseFloat(fees));
-            // verifiedWallet.amount = parseFloat(verifiedWallet.amount.toString()) + (total);
-            // result = await queryRunner.manager.save(verifiedWallet);
+            let registerReferenceTransactionWalletHistoryTransfer = new SkiperWalletsHistory();
+            registerReferenceTransactionWalletHistoryTransfer.amount = amount;
+            registerReferenceTransactionWalletHistoryTransfer.idcurrency = wallet.idcurrency;
+            registerReferenceTransactionWalletHistoryTransfer.idskiperwallet = verifiedWallet.id;
+            registerReferenceTransactionWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
+            registerReferenceTransactionWalletHistoryTransfer.description = 'Saldo acreditado';
+            registerReferenceTransactionWalletHistoryTransfer.idtransactiontype = recargaSaldo.id;
+            registerReferenceTransactionWalletHistoryTransfer.date_in = new Date();
 
-            // let registerReferenceTransactionWalletHistoryTransfer = new SkiperWalletsHistory();
-            // registerReferenceTransactionWalletHistoryTransfer.amount = (totalPaid.benabled - ((totalPaid.benabled * retiro.fees) / 100));
-            // registerReferenceTransactionWalletHistoryTransfer.idcurrency = wallet.idcurrency;
-            // registerReferenceTransactionWalletHistoryTransfer.idskiperwallet = verifiedWallet.id;
-            // registerReferenceTransactionWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
-            // registerReferenceTransactionWalletHistoryTransfer.description = 'Saldo acreditado por retiro en saldo habilitado';
-            // registerReferenceTransactionWalletHistoryTransfer.idtransactiontype = credito.id;
-            // registerReferenceTransactionWalletHistoryTransfer.date_in = new Date();
+            await queryRunner.manager.save(registerReferenceTransactionWalletHistoryTransfer);
 
-            // await queryRunner.manager.save(registerReferenceTransactionWalletHistoryTransfer);
-
-            // // let whistoryUpdateRecord = await createQueryBuilder(SkiperWalletsHistory, "SkiperWalletsHistory")
-            // //     .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
-            // //     .where("SkiperWalletsHistory.idskiperwallet = :walletId", { walletId: walletHistory.idskiperwallet })
-            // //     .andWhere("TransactionType.code = :tipotransaccion", { tipotransaccion: "CR" })
-            // //     .andWhere('SkiperWalletsHistory.paidout = 0').getMany();
-            // // for (let i = 0; i < whistoryUpdateRecord.length; i++) {
-            // //     whistoryUpdateRecord[i].paidout = true;
-            // // }
-            // // await queryRunner.manager.save(whistoryUpdateRecord);
-            // await queryRunner.commitTransaction();
+            await queryRunner.commitTransaction();
         } catch (error) {
             console.log(error)
             await queryRunner.rollbackTransaction();
@@ -200,7 +193,7 @@ export class SkiperWalletsHistoryService {
                 SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
                 SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)
                 ,2), 0)`, "ganancia")
-                .addSelect("COUNT(1)", "viajes")                
+                .addSelect("COUNT(1)", "viajes")
                 .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
                 .getRawOne();
         }
