@@ -47,4 +47,5 @@ type Query {
 type Mutation {
     registerSkiperWalletHistory(input: SkiperWalletsHistoryInput): SkiperWalletsHistoryDto
     WithdrawalToInternalWallet(walletId:Int!, amount:Float!):SkiperWallet!
+    TransferToOtherUser(emailTo:String!, walletId:Int!, amount:Float!, isoTo:String!, lat:Float!, long:Float!):String
 }

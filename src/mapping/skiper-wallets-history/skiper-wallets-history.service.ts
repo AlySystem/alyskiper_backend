@@ -22,6 +22,165 @@ export class SkiperWalletsHistoryService {
         private readonly walletservice: SkiperWalletService
     ) { }
 
+    async TransferToOtherUser(emailTo: string, walletId: number, amount: number, iso: string, lat: number, long: number) {
+        let wallet = await this.walletservice.getById(walletId);
+        let walletTo = await this.getWalletsByEmailUser(emailTo, iso.toUpperCase())
+        let amoutConverted;
+        if (wallet == undefined) {
+            throw new HttpException(
+                "wallet not exist!",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        if (walletTo == undefined) {
+            throw new HttpException(
+                "wallet to transfer not exist!",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        if (wallet.currencyID.isCrypto) {
+            var options = {
+                provider: 'google',
+                httpAdapter: 'https', // Default
+                apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
+                formatter: 'json' // 'gpx', 'string', ...
+            };
+            var geocoder = node_geocoder(options);
+            let zonahoraria = geotz(lat, long)
+            let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
+            var datecountry = await geocoder.reverse({ lat: lat, lon: long });
+            const requestOptions = {
+                method: 'GET',
+                uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
+                qs: {
+                    'symbol': `${iso.toUpperCase()}`
+                },
+                headers: {
+                    'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
+                },
+                json: true,
+                gzip: true
+            };
+            let exchangeUSD = await this.getExchange(datecountry[0].country, date);
+            let validateValue = (exchangeUSD != undefined && exchangeUSD.value != null) ? exchangeUSD.value : 0;
+            amoutConverted = await rp(requestOptions).then(result => {
+                let amoutUsd = (amount / validateValue);
+                let priceCryptoUsd = parseFloat(result.data[`${iso.toUpperCase()}`].quote.USD.price.toFixed(2));
+                let amountCrypto = (parseFloat(amoutUsd.toFixed(2)) / priceCryptoUsd)
+                return amountCrypto.toFixed(8);
+            })
+        } else {
+            amoutConverted = amount;
+        }
+
+        return this.ExecuteTransfer(wallet, walletTo, amoutConverted,amount);
+    }
+    private async ExecuteTransfer(wallet: SkiperWallet, walletTo: SkiperWallet, amoutConverted: number, amount:number) {
+        let connection = getConnection();
+        let queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        let result;
+        let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
+            .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
+            .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
+            .select(`
+                SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
+                SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
+            .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
+            .getRawOne();
+
+        let transferencia = await queryRunner.manager.findOne(TransactionType, { where: { code: 'TF' } });
+        let debito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'DB' } });
+        let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
+        let walletFrom = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
+        let walletT = await queryRunner.manager.findOne(SkiperWallet, { where: { id: walletTo.id } });
+        let amountPlusfees = amount + (amount * transferencia.fees) / 100;
+
+        if (totalPaid.balance == 0) {
+            throw new HttpException(
+                "you have no withdrawal balance",
+                HttpStatus.FORBIDDEN,
+            );
+        }
+        if (totalPaid.balance < amountPlusfees) {
+            throw new HttpException(
+                "your funds are not enough",
+                HttpStatus.FORBIDDEN
+            )
+        }
+        try {
+            let registeWalletsHistoryTransfer = new SkiperWalletsHistory();
+            registeWalletsHistoryTransfer.amount = amount;
+            registeWalletsHistoryTransfer.idcurrency = wallet.idcurrency;
+            registeWalletsHistoryTransfer.idskiperwallet = walletFrom.id;
+            registeWalletsHistoryTransfer.idpayment_methods = paymentMethod.id;
+            registeWalletsHistoryTransfer.description = 'Retiro a Balance Interno AlyPay';
+            registeWalletsHistoryTransfer.idtransactiontype = debito.id;
+            registeWalletsHistoryTransfer.date_in = new Date();
+            let walletHistory = await queryRunner.manager.save(registeWalletsHistoryTransfer)
+
+            let registerFeeWalletHistoryTransfer = new SkiperWalletsHistory();
+            let fees = (amount * transferencia.fees) / 100;
+            registerFeeWalletHistoryTransfer.amount = Number(fees.toFixed(2));
+            registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
+            registerFeeWalletHistoryTransfer.idskiperwallet = transferencia.id;
+            registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
+            registerFeeWalletHistoryTransfer.description = 'Comisión por servicio Alypay';
+            registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
+            registerFeeWalletHistoryTransfer.date_in = new Date();
+            await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
+
+            //actualizo la wallet del usaurio que recibio
+            if (walletT.currencyID.isCrypto) {
+                walletT.amount_crypto = parseFloat(walletT.amount_crypto.toString()) + amoutConverted;
+                result = await queryRunner.manager.save(wallet);
+            } else {
+                walletT.amount = parseFloat(walletT.amount.toString()) + amount;
+                result = await queryRunner.manager.save(wallet);
+            }
+            //aqui realizo el registro al historial de la transferencia del usuario que recibio
+            let registerReferenceTransactionWalletHistoryTransfer = new SkiperWalletsHistory();
+            if (walletT.currencyID.isCrypto) {
+                registerReferenceTransactionWalletHistoryTransfer.amount_crypto = amoutConverted;
+            } else {
+                registerReferenceTransactionWalletHistoryTransfer.amount = amount;
+            }
+            registerReferenceTransactionWalletHistoryTransfer.idcurrency = walletT.idcurrency;
+            registerReferenceTransactionWalletHistoryTransfer.idskiperwallet = walletT.id;
+            registerReferenceTransactionWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
+            registerReferenceTransactionWalletHistoryTransfer.description = `Transferencia recibida de: ${wallet.userID.firstname + wallet.userID.lastname}`;
+            registerReferenceTransactionWalletHistoryTransfer.idtransactiontype = transferencia.id;
+            registerReferenceTransactionWalletHistoryTransfer.date_in = new Date();
+
+            await queryRunner.manager.save(registerReferenceTransactionWalletHistoryTransfer);
+
+            await queryRunner.commitTransaction();
+        } catch (error) {
+            console.log(error)
+            await queryRunner.rollbackTransaction();
+            return null;
+        } finally {
+            await queryRunner.release();
+            return result;
+        }
+    }
+    private async getWalletsByEmailUser(email: string, iso: string) {
+        try {
+            return await createQueryBuilder(SkiperWallet, "SkiperWallet")
+                .innerJoinAndSelect("SkiperWallet.userID", "userID")
+                .innerJoinAndSelect("SkiperWallet.currencyID", "currencyID")
+                .where("currencyID.iso = :iso", { iso: iso })
+                .andWhere("userID.email = :email and userID.idcountry = SkiperWallet.idcountry", { email: email })
+                .getOne();
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     async WithdrawalToInternalWallet(walletId: number, amount: number) {
         let wallet = await this.walletservice.getById(walletId);
         if (wallet == undefined) {

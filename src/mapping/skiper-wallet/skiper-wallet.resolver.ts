@@ -102,13 +102,4 @@ export class SkiperWalletResolver {
             console.error(error);
         }
     }
-    @Mutation()
-    async WithdrawalToOtherWallet(
-        @Args('emailTransfer') emailTransfer: string,
-        @Args('currencyId') currencyId: number
-    ) {
-        return await this.skiperWalletService.WithdrawalToOtherWallet(emailTransfer, currencyId)
-    }
-
-
 }
