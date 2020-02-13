@@ -221,7 +221,7 @@ export class AuthService {
     // ------------------------------------------------------------------------------------------
     private async CurrencyByQueryBuilder(idcountry: number) {
         let sw = await createQueryBuilder("Currency")
-            .where("Currency.isCrypto = 1 || Currency.idcountry = :idcountry", { idcountry: idcountry })
+            .where("Currency.idcountry = :idcountry", { idcountry: idcountry })
             .getMany();
         return sw;
     }

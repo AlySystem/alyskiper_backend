@@ -73,9 +73,9 @@ export class SkiperWalletsHistoryService {
             amoutConverted = amount;
         }
 
-        return this.ExecuteTransfer(wallet, walletTo, amoutConverted,amount);
+        return this.ExecuteTransfer(wallet, walletTo, amoutConverted, amount);
     }
-    private async ExecuteTransfer(wallet: SkiperWallet, walletTo: SkiperWallet, amoutConverted: number, amount:number) {
+    private async ExecuteTransfer(wallet: SkiperWallet, walletTo: SkiperWallet, amoutConverted: number, amount: number) {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
