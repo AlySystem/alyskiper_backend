@@ -53,7 +53,7 @@ type Subscription {
 }
 
 type Mutation {
-  signin(input: signInDto!, lat:Float!, long:Float!): SignResponse!
+  signin(input: signInDto!, lat:Float!, lng:Float!): SignResponse!
   signup(input: UserInput!): SignResponse!
   send_code(sendcode: twilioDto!): ErrorResponse!
   verify_code(verifycode: twilioDto!): ErrorResponse!
