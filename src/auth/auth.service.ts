@@ -222,7 +222,7 @@ export class AuthService {
     private async CurrencyByQueryBuilder(idcountry: number) {
         let sw = await createQueryBuilder("Currency")
             .where("Currency.idcountry = :idcountry", { idcountry: idcountry })
-            .getMany();
+            .getOne();
         return sw;
     }
 
