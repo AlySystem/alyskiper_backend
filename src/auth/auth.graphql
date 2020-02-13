@@ -33,7 +33,7 @@ type SignInOk {
   commerce: CommerceDto
   vehicle: SkiperVehicleDto
   wallet: SkiperWalletDto
-  currency:[CurrencyDto]
+  currency:CurrencyDto
   active_city: Boolean
 }
 

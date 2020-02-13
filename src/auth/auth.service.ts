@@ -68,8 +68,7 @@ export class AuthService {
                     result.lastname, result.user,
                     result.email, result.phone, result.avatar, result.country, co, ve, wallet, currency, active_city,
                     result.city
-                ), null);
-                console.log(t);
+                ), null);                
                 return t;
             } catch (error) {
                 console.log(error)
