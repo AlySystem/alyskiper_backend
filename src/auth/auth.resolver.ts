@@ -21,8 +21,8 @@ export class AuthResolver {
     async signin(
         @Args('input') input: signInDto,
         @Args('lat') lat: number,
-        @Args('long') long: number) {
-        let result = await this.authService.login(input, lat, long);
+        @Args('long') lng: number) {
+        let result = await this.authService.login(input, lat, lng);
         pubSub.publish('userLogged', { userLogged: result });
         return result;
     }
