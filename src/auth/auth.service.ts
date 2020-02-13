@@ -10,6 +10,9 @@ import { createQueryBuilder } from 'typeorm';
 import { ErrorResponse, SignResponse, SignInOk, twilioDto, ResetDto } from './auth.dto';
 import { UserInput } from '../mapping/users/user.dto';
 import { SkiperAgentService } from '../mapping/skiper-agent/skiper-agent.service';
+import node_geocoder from 'node-geocoder';
+import geotz from 'geo-tz';
+import momentTimeZone from 'moment-timezone';
 
 @Injectable()
 export class AuthService {
@@ -30,15 +33,17 @@ export class AuthService {
     // ------------------------------------------------------------------------------------------
     // Metodo para el login del usuario
     // ------------------------------------------------------------------------------------------
-    async login(sign: any): Promise<SignResponse> {
+    async login(sign: any, lat: number, long: number): Promise<SignResponse> {
         let result = await this.validate(sign.email);
+        let country = await this.userService.getCountryByCordenates(lat, long);
+
         if (result == undefined) {
             return new SignResponse(null, new ErrorResponse('The email or password is incorrect', 400, false));
         } else {
             if (!bcrypt.compareSync(sign.password, result.password)) {
                 return new SignResponse(null, new ErrorResponse('The email or password is incorrect', 400, false));
             }
-            let co, ve, wallet;
+            let co, ve, wallet, currency;
             let active_city = false;
             try {
                 let agent = await this.agentService.getByUser(result);
@@ -46,11 +51,13 @@ export class AuthService {
                     co = null;
                     ve = null;
                     wallet = null;
+                    currency = null;
                 }
                 else {
                     co = await this.commerceByQueryBuilder(result);
                     ve = await this.vehicleByQueryBuilder(result);
                     wallet = await this.walletByQueryBuilder(result);
+                    currency = await this.CurrencyByQueryBuilder(country.id)
 
                 }
                 if (await this.validateUserInActiveCity(result.id) !== undefined) {
@@ -59,7 +66,7 @@ export class AuthService {
                 let t = new SignResponse(new SignInOk(
                     await this.tokenGenerated(result), result.firstname,
                     result.lastname, result.user,
-                    result.email, result.phone, result.avatar, result.country, co, ve, wallet, active_city,
+                    result.email, result.phone, result.avatar, result.country, co, ve, wallet, currency, active_city,
                     result.city
                 ), null);
                 console.log(t);
@@ -206,6 +213,16 @@ export class AuthService {
             .innerJoinAndSelect("SkiperWallet.userID", "userID")
             .where("userID.id = :id ", { id: result.id })
             .getOne();
+        return sw;
+    }
+
+    // ------------------------------------------------------------------------------------------
+    // Obtener currency
+    // ------------------------------------------------------------------------------------------
+    private async CurrencyByQueryBuilder(idcountry: number) {
+        let sw = await createQueryBuilder("Currency")
+            .where("Currency.isCrypto = 1 || Currency.idcountry = :idcountry", { idcountry: idcountry })
+            .getMany();
         return sw;
     }
 

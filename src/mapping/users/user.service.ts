@@ -39,6 +39,20 @@ export class UserService {
 
     ) { }
 
+    async getCountryByCordenates(lat: number, long: number) {
+        var options = {
+            provider: 'google',
+            httpAdapter: 'https', // Default
+            apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
+            formatter: 'json' // 'gpx', 'string', ...
+        };
+        var geocoder = node_geocoder(options);
+        let zonahoraria = geotz(lat, long)
+        let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
+        var datecountry = await geocoder.reverse({ lat: lat, lon: long });
+        return await this.country.getCountrieByName(datecountry[0].country);
+    }
+
     async validateCode(email: string, code: number, lat: number, long: number) {
         let zonahoraria = geotz(lat, long);
         let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD HH:mm:ss");
@@ -208,13 +222,13 @@ export class UserService {
             let bitcoin = new Bitcoin();
             bitcoin.id = result[1][0].id;
             bitcoin.name = result[1][0].name;
-            bitcoin.url_img = result[1][0].url_img;            
+            bitcoin.url_img = result[1][0].url_img;
             bitcoin.amount_crypto = result[2].amount;
             bitcoin.price_usd = result[2].price_usd;
             let btc_local = bitcoin.price_usd * result[0].value
             bitcoin.price_local = parseFloat(btc_local.toFixed(2));
             bitcoin.price_crypto = result[2].price_crypto;
-           
+
             let ethereum = new Ethereum();
             ethereum.id = result[1][1].id;
             ethereum.name = result[1][1].name;
@@ -323,7 +337,7 @@ export class UserService {
                     amount: null,
                     price_usd: 0,
                     price_crypto: parseFloat(response.data[`${crypto}`].quote.USD.price).toFixed(2),
-                    change24h: (response.data[`${crypto}`].quote.USD.percent_change_24h) 
+                    change24h: (response.data[`${crypto}`].quote.USD.percent_change_24h)
                 }
                 return cryptodate;
             }).catch((err) => {

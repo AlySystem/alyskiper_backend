@@ -18,8 +18,11 @@ export class AuthResolver {
     ) { }
 
     @Mutation()
-    async signin(@Args('input') input: signInDto) {
-        let result = await this.authService.login(input);
+    async signin(
+        @Args('input') input: signInDto,
+        @Args('lat') lat: number,
+        @Args('long') long: number) {
+        let result = await this.authService.login(input, lat, long);
         pubSub.publish('userLogged', { userLogged: result });
         return result;
     }

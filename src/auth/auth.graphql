@@ -33,6 +33,7 @@ type SignInOk {
   commerce: CommerceDto
   vehicle: SkiperVehicleDto
   wallet: SkiperWalletDto
+  currency:[CurrencyDto]
   active_city: Boolean
 }
 
@@ -52,7 +53,7 @@ type Subscription {
 }
 
 type Mutation {
-  signin(input: signInDto!): SignResponse!
+  signin(input: signInDto!, lat:Float!, long:Float!): SignResponse!
   signup(input: UserInput!): SignResponse!
   send_code(sendcode: twilioDto!): ErrorResponse!
   verify_code(verifycode: twilioDto!): ErrorResponse!
