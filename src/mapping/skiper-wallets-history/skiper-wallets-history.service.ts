@@ -162,10 +162,10 @@ export class SkiperWalletsHistoryService {
         } catch (error) {
             console.log(error)
             await queryRunner.rollbackTransaction();
-            return null;
+            return false;
         } finally {
             await queryRunner.release();
-            return result;
+            return true;
         }
     }
     private async getWalletsByEmailUser(email: string, iso: string) {
@@ -269,10 +269,10 @@ export class SkiperWalletsHistoryService {
         } catch (error) {
             console.log(error)
             await queryRunner.rollbackTransaction();
-            return null;
+            return false;
         } finally {
             await queryRunner.release();
-            return result;
+            return true;
         }
     }
 
