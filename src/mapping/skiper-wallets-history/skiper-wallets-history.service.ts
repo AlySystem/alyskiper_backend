@@ -86,17 +86,17 @@ export class SkiperWalletsHistoryService {
             .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
             .select(`
                 SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
-                SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
+                SUM(CASE WHEN TransactionType.code = 'DB'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'DV'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'RT'  THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
             .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
             .getRawOne();
 
         let transferencia = await queryRunner.manager.findOne(TransactionType, { where: { code: 'TF' } });
         let debito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'DB' } });
         let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
-        let walletFrom = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
-        let walletT = await queryRunner.manager.findOne(SkiperWallet, { where: { id: walletTo.id } });
+        // let walletFrom = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
+        // let walletT = await queryRunner.manager.findOne(SkiperWallet, { relations:[], where: { id: walletTo.id } });
         let amountPlusfees = amount + (amount * transferencia.fees) / 100;
 
         if (totalPaid.balance == 0) {
@@ -115,7 +115,7 @@ export class SkiperWalletsHistoryService {
             let registeWalletsHistoryTransfer = new SkiperWalletsHistory();
             registeWalletsHistoryTransfer.amount = amount;
             registeWalletsHistoryTransfer.idcurrency = wallet.idcurrency;
-            registeWalletsHistoryTransfer.idskiperwallet = walletFrom.id;
+            registeWalletsHistoryTransfer.idskiperwallet = wallet.id;
             registeWalletsHistoryTransfer.idpayment_methods = paymentMethod.id;
             registeWalletsHistoryTransfer.description = 'Retiro a Balance Interno AlyPay';
             registeWalletsHistoryTransfer.idtransactiontype = debito.id;
@@ -126,30 +126,31 @@ export class SkiperWalletsHistoryService {
             let fees = (amount * transferencia.fees) / 100;
             registerFeeWalletHistoryTransfer.amount = Number(fees.toFixed(2));
             registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
-            registerFeeWalletHistoryTransfer.idskiperwallet = transferencia.id;
+            registerFeeWalletHistoryTransfer.idskiperwallet = wallet.id;
             registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
             registerFeeWalletHistoryTransfer.description = 'Comisión por servicio Alypay';
             registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
             registerFeeWalletHistoryTransfer.date_in = new Date();
             await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
 
-            //actualizo la wallet del usaurio que recibio
-            if (walletT.currencyID.isCrypto) {
-                walletT.amount_crypto = parseFloat(walletT.amount_crypto.toString()) + amoutConverted;
-                result = await queryRunner.manager.save(wallet);
+            //actualizo la wallet del usaurio que recibio   
+
+            if (walletTo.currencyID.isCrypto) {
+                walletTo.amount_crypto = parseFloat(walletTo.amount_crypto.toString()) + amoutConverted;
+                result = await queryRunner.manager.save(walletTo);
             } else {
-                walletT.amount = parseFloat(walletT.amount.toString()) + amount;
-                result = await queryRunner.manager.save(wallet);
+                walletTo.amount = parseFloat(walletTo.amount.toString()) + amount;
+                result = await queryRunner.manager.save(walletTo);
             }
             //aqui realizo el registro al historial de la transferencia del usuario que recibio
             let registerReferenceTransactionWalletHistoryTransfer = new SkiperWalletsHistory();
-            if (walletT.currencyID.isCrypto) {
+            if (walletTo.currencyID.isCrypto) {
                 registerReferenceTransactionWalletHistoryTransfer.amount_crypto = amoutConverted;
             } else {
                 registerReferenceTransactionWalletHistoryTransfer.amount = amount;
             }
-            registerReferenceTransactionWalletHistoryTransfer.idcurrency = walletT.idcurrency;
-            registerReferenceTransactionWalletHistoryTransfer.idskiperwallet = walletT.id;
+            registerReferenceTransactionWalletHistoryTransfer.idcurrency = walletTo.idcurrency;
+            registerReferenceTransactionWalletHistoryTransfer.idskiperwallet = walletTo.id;
             registerReferenceTransactionWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
             registerReferenceTransactionWalletHistoryTransfer.description = `Transferencia recibida de: ${wallet.userID.firstname + wallet.userID.lastname}`;
             registerReferenceTransactionWalletHistoryTransfer.idtransactiontype = transferencia.id;
@@ -203,9 +204,9 @@ export class SkiperWalletsHistoryService {
             .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
             .select(`
                 SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
-                SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
+                SUM(CASE WHEN TransactionType.code = 'DB' THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'DV' THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'RT' THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
             .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
             .getRawOne();
 
@@ -334,9 +335,9 @@ export class SkiperWalletsHistoryService {
                 .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
                 .select(`IFNULL(ROUND(
                     SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END)-
-                    SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                    SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                    SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)
+                    SUM(CASE WHEN TransactionType.code = 'DB'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                    SUM(CASE WHEN TransactionType.code = 'DV'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                    SUM(CASE WHEN TransactionType.code = 'RT'  THEN  SkiperWalletsHistory.amount ELSE 0 END)
                     ,2), 0)`, "ganancia")
                 .addSelect("COUNT(1)", "viajes")
                 .where(`SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}'`, { fecha })
@@ -348,9 +349,9 @@ export class SkiperWalletsHistoryService {
                 .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
                 .select(`IFNULL(ROUND(
                 SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END)-
-                SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)
+                SUM(CASE WHEN TransactionType.code = 'DB'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'DV'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+                SUM(CASE WHEN TransactionType.code = 'RT'  THEN  SkiperWalletsHistory.amount ELSE 0 END)
                 ,2), 0)`, "ganancia")
                 .addSelect("COUNT(1)", "viajes")
                 .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
@@ -377,9 +378,9 @@ export class SkiperWalletsHistoryService {
             .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
             .select(`
         SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END) - 
-        SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.typeUser = 1  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-        SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-        SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.typeUser = 1 THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
+        SUM(CASE WHEN TransactionType.code = 'DB'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+        SUM(CASE WHEN TransactionType.code = 'DV'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
+        SUM(CASE WHEN TransactionType.code = 'RT'  THEN  SkiperWalletsHistory.amount ELSE 0 END)  balance`)
             .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: idwallet })
             .getRawOne();
 
