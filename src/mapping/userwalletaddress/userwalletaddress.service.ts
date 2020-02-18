@@ -23,6 +23,15 @@ export class UserwalletaddressService {
         return await this.repository.findOne(id);
     }
 
+    async getPaymentWithdrawalMethodByUserId(userId: number): Promise<UserWalletAddress[]> {
+        return await this.repository.find({
+            relations: ['user', 'currency', 'paymentMethod'],
+            where: {
+                userId: userId
+            }
+        });       
+    }
+
     async create(input: UserWalletAddressInput): Promise<UserWalletAddress> {
         let user = await this.userRepository.getUserById(input.userId);
         let paymentMethod = await this.paymentMethodRepository.getById(input.paymentId);

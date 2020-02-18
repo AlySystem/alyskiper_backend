@@ -23,5 +23,6 @@ type Mutation {
 type Query {
     getUserWallet:UserWalletAddressDto
     getUserWalletById(id:Int!):UserWalletAddressDto
+    getPaymentWithdrawalMethodByUserId(userId:Int!):[UserWalletAddressDto]
 
 }
