@@ -77,6 +77,7 @@ import { SkiperTariffsModule } from './mapping/skiper-tariffs/skiper-tariffs.mod
 import { HandlebarsAdapter, MailerModule } from '@nest-modules/mailer';
 import { PackageAlypayRechargeModule } from './mapping/package-alypay-recharge/package-alypay-recharge.module';
 import { BillingConceptModule } from './mapping/billing-concept/billing-concept.module';
+import { UserwalletaddressModule } from './mapping/userwalletaddress/userwalletaddress.module';
 
 // var multerGoogleStorage = require("multer-google-storage")
 
@@ -204,7 +205,8 @@ import { BillingConceptModule } from './mapping/billing-concept/billing-concept.
     UploadimagebannerModule,
     SkiperTariffsModule,
     PackageAlypayRechargeModule,
-    BillingConceptModule,    
+    BillingConceptModule,
+    UserwalletaddressModule,    
     // ExecutiveCommissionsModule,
     //PaymentCryptoCurrencyModule,
     //CountryPaymentCurrencyModule,

@@ -17,8 +17,7 @@ export class PaymentMethodDto {
     name: string;
     pay_commissions: boolean;
     active: boolean;
-    urlImg: string;
-    currency: CurrencyDto;
+    urlImg: string;  
 }
 
 @ObjectType()

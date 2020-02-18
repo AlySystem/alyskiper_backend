@@ -1,0 +1,25 @@
+input UserWalletAddressInput {
+    id: Int
+    payaddress: String
+    userId: Int
+    paymentId: Int
+    currencyId: Int     
+}
+
+type UserWalletAddressDto {
+    id: Int
+    payaddress: String
+    user: UserDto
+    paymentMethod: PaymentMethodDto
+    currency:CurrencyDto
+}
+
+type Mutation {
+    UpdateUserWallet(id:Int!):UserWalletAddressDto
+    RegisterUserWallet(input:UserWalletAddressInput!):UserWalletAddressDto    
+}
+type Query {
+    getUserWallet:UserWalletAddressDto
+    getUserWalletById(id:Int!):UserWalletAddressDto
+
+}
