@@ -24,7 +24,7 @@ export class UserwalletaddressResolver {
         return this.service.create(input);
     }
     @Mutation()
-    async UpdateUserWallet(@Args('id') id: number) {
-        return this.service.update(id);
+    async UpdateUserWallet(@Args('input') input: UserWalletAddressInput) {
+        return this.service.update(input);
     }
 }

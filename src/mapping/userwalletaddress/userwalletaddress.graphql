@@ -1,6 +1,7 @@
 input UserWalletAddressInput {
     id: Int
     payaddress: String
+    platformName: String
     userId: Int
     paymentId: Int
     currencyId: Int     
@@ -9,13 +10,14 @@ input UserWalletAddressInput {
 type UserWalletAddressDto {
     id: Int
     payaddress: String
+    platformName: String
     user: UserDto
     paymentMethod: PaymentMethodDto
     currency:CurrencyDto
 }
 
 type Mutation {
-    UpdateUserWallet(id:Int!):UserWalletAddressDto
+    UpdateUserWallet(input:UserWalletAddressInput!):UserWalletAddressDto
     RegisterUserWallet(input:UserWalletAddressInput!):UserWalletAddressDto    
 }
 type Query {

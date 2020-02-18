@@ -10,6 +10,7 @@ export class UserWalletAddress {
     @Column('int', { nullable: false }) paymentId: number;
     @Column('int', { nullable: false }) currencyId: number;
     @Column('text') payaddress: string;    
+    @Column('text') platformName:string;
     @ManyToOne(type => User, { nullable: false })
     @JoinColumn({ name: 'userId' }) user: User;
 
