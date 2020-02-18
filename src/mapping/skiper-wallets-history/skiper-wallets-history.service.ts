@@ -346,10 +346,7 @@ export class SkiperWalletsHistoryService {
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
                 .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
                 .select(`IFNULL(ROUND(
-                    SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END)-
-                    SUM(CASE WHEN TransactionType.code = 'DB'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                    SUM(CASE WHEN TransactionType.code = 'DV'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                    SUM(CASE WHEN TransactionType.code = 'RT'  THEN  SkiperWalletsHistory.amount ELSE 0 END)
+                    SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'  THEN  SkiperWalletsHistory.amount ELSE 0 END)                   
                     ,2), 0)`, "ganancia")
                 .addSelect("COUNT(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay' THEN 1 END)", "viajes")
                 .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
