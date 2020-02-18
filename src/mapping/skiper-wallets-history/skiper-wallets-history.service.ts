@@ -328,22 +328,19 @@ export class SkiperWalletsHistoryService {
             let start = new Date(fecha);
             start.setHours(0, 0, 0, 0);
             let end = new Date(start);
-            end.setDate(start.getDate() + 1);            
+            end.setDate(start.getDate() + 1);
             result = await createQueryBuilder("SkiperWalletsHistory")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
                 .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
                 .select(`IFNULL(ROUND(
                     SUM(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay' 
-                        AND SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}' THEN  SkiperWalletsHistory.amount ELSE 0 END)-
-                    SUM(CASE WHEN TransactionType.code = 'DB' AND SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}'  THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                    SUM(CASE WHEN TransactionType.code = 'DV' AND SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}' THEN  SkiperWalletsHistory.amount ELSE 0 END) -
-                    SUM(CASE WHEN TransactionType.code = 'RT' AND SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}' THEN  SkiperWalletsHistory.amount ELSE 0 END)
+                        AND SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}' THEN  SkiperWalletsHistory.amount ELSE 0 END)
                     ,2), 0)`, "ganancia")
                 .addSelect(`COUNT(CASE WHEN TransactionType.code = 'CR' AND paymentmethod.name = 'AlyPay'
                             AND SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}' THEN 1 END)`, "viajes")
                 //.where(`SkiperWalletsHistory.date_in BETWEEN '${start.toISOString()}' AND '${end.toISOString()}'`, { fecha })
                 .where("SkiperWalletsHistory.idskiperwallet = :idwallet", { idwallet })
-                .getRawOne();           
+                .getRawOne();
         } else {
             result = await createQueryBuilder("SkiperWalletsHistory")
                 .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
