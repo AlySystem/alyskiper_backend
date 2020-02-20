@@ -38,9 +38,9 @@ export class UserwalletaddressService {
     async create(input: UserWalletAddressInput, lat: number, lng: number): Promise<boolean> {
         let validateCurrency = await this.currencyRepository.getById(input.currencyId);
         if (validateCurrency.isCrypto) {
-            let ifExistToRefuse = await this.repository.findOne({ where: { currency: validateCurrency } });
+            let user = await this.userRepository.getUserById(input.userId);
+            let ifExistToRefuse = await this.repository.findOne({ where: { currency: validateCurrency, userId: user.id } });
             if (ifExistToRefuse == undefined) {
-                let user = await this.userRepository.getUserById(input.userId);
                 let paymentMethod = await createQueryBuilder(PaymentMethods, "PaymentMethods")
                     .where("PaymentMethods.name = :name", { name: "AlyPay" }).getOne();
                 let parse = this.parseUserWalletAddress(input, user, paymentMethod, validateCurrency);
@@ -66,9 +66,9 @@ export class UserwalletaddressService {
                 .innerJoinAndSelect("Currency.country", "country")
                 .andWhere("country.name = :name", { name: String(dateCountry[0].country).toUpperCase() }).getOne();
             if (ifLocalcurrency.country.name.toString() == validateCurrency.country.name.toString()) {
-                let ifExistToRefuse = await this.repository.findOne({ where: { currency: ifLocalcurrency } });
+                let user = await this.userRepository.getUserById(input.userId);
+                let ifExistToRefuse = await this.repository.findOne({ where: { currency: ifLocalcurrency, userId: user.id } });
                 if (ifExistToRefuse == undefined) {
-                    let user = await this.userRepository.getUserById(input.userId);
                     let paymentMethod = await createQueryBuilder(PaymentMethods, "PaymentMethods")
                         .where("PaymentMethods.name = :name", { name: "Banco" }).getOne();
                     let parse = this.parseUserWalletAddress(input, user, paymentMethod, ifLocalcurrency);

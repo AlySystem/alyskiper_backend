@@ -26,53 +26,18 @@ export class SkiperWalletsHistoryService {
         let wallet = await this.walletservice.getById(walletId);
         if (wallet == undefined) {
             throw new HttpException(
-                "sender wallet not exist!",
+                "No tienes billetera!",
                 HttpStatus.BAD_REQUEST,
             );
         }
         return this.ExecuteWithdrawalToExternalWallet(wallet)
-        // if (wallet.currencyID.isCrypto) {
-        //     var options = {
-        //         provider: 'google',
-        //         httpAdapter: 'https', // Default
-        //         apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
-        //         formatter: 'json' // 'gpx', 'string', ...
-        //     };
-        //     var geocoder = node_geocoder(options);
-        //     let zonahoraria = geotz(lat, lng)
-        //     let date = momentTimeZone().tz(zonahoraria.toString()).format("YYYY-MM-DD")
-        //     var datecountry = await geocoder.reverse({ lat: lat, lon: lng });
-        //     const requestOptions = {
-        //         method: 'GET',
-        //         uri: 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest',
-        //         qs: {
-        //             'symbol': `${iso.toUpperCase()}`
-        //         },
-        //         headers: {
-        //             'X-CMC_PRO_API_KEY': 'f78fa793-b95e-4a58-a0ef-760f070defb0'
-        //         },
-        //         json: true,
-        //         gzip: true
-        //     };
-        //     let exchangeUSD = await this.getExchange(datecountry[0].country, date);
-        //     let validateValue = (exchangeUSD != undefined && exchangeUSD.value != null) ? exchangeUSD.value : 0;
-        //     amountConverted = await rp(requestOptions).then(result => {
-        //         let amoutUsd = (amount / validateValue);
-        //         let priceCryptoUsd = parseFloat(result.data[`${iso.toUpperCase()}`].quote.USD.price.toFixed(2));
-        //         let amountCrypto = (parseFloat(amoutUsd.toFixed(2)) / priceCryptoUsd)
-        //         return amountCrypto.toFixed(8);
-        //     })
-        // } else {
-        //     amountConverted = amount;
-        // }
     }
 
     async ExecuteWithdrawalToExternalWallet(wallet: SkiperWallet) {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
-        await queryRunner.startTransaction();
-        let result;
+        await queryRunner.startTransaction();        
         let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
             .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
             .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
@@ -83,58 +48,59 @@ export class SkiperWalletsHistoryService {
                 SUM(CASE WHEN TransactionType.code = 'RT'  THEN  SkiperWalletsHistory.amount ELSE 0 END),2),0)  balance`)
             .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
             .getRawOne();
+        console.log(totalPaid)
 
-        let transferencia = await queryRunner.manager.findOne(TransactionType, { where: { code: 'TF' } });
-        let debito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'DB' } });
-        let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
-        // let walletFrom = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
-        // let walletT = await queryRunner.manager.findOne(SkiperWallet, { relations:[], where: { id: walletTo.id } });
-        let amountPlusfees = totalPaid + (totalPaid * transferencia.fees) / 100;
+        // // let transferencia = await queryRunner.manager.findOne(TransactionType, { where: { code: 'TF' } });
+        // // let debito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'DB' } });
+        // // let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
+        // // // let walletFrom = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
+        // // // let walletT = await queryRunner.manager.findOne(SkiperWallet, { relations:[], where: { id: walletTo.id } });
+        // // let amountPlusfees = totalPaid + (totalPaid * transferencia.fees) / 100;
 
-        if (totalPaid.balance == 0) {
-            throw new HttpException(
-                "you have no withdrawal balance",
-                HttpStatus.FORBIDDEN,
-            );
-        }
-        if (totalPaid.balance < amountPlusfees) {
-            throw new HttpException(
-                "your funds are not enough",
-                HttpStatus.FORBIDDEN
-            )
-        }
-        try {
-            //////Desde aqui registro debitos y comisiones del usuario que esta enviando
-            let registeWalletsHistoryTransfer = new SkiperWalletsHistory();
-            registeWalletsHistoryTransfer.amount = totalPaid;
-            registeWalletsHistoryTransfer.idcurrency = wallet.idcurrency;
-            registeWalletsHistoryTransfer.idskiperwallet = wallet.id;
-            registeWalletsHistoryTransfer.idpayment_methods = paymentMethod.id;
-            registeWalletsHistoryTransfer.description = ``;
-            registeWalletsHistoryTransfer.idtransactiontype = debito.id;
-            registeWalletsHistoryTransfer.date_in = new Date();
-            let walletHistory = await queryRunner.manager.save(registeWalletsHistoryTransfer)
+        // // if (totalPaid.balance == 0) {
+        // //     throw new HttpException(
+        // //         "you have no withdrawal balance",
+        // //         HttpStatus.FORBIDDEN,
+        // //     );
+        // // }
+        // // if (totalPaid.balance < amountPlusfees) {
+        // //     throw new HttpException(
+        // //         "your funds are not enough",
+        // //         HttpStatus.FORBIDDEN
+        // //     )
+        // // }
+        // // try {
+        // //     //////Desde aqui registro debitos y comisiones del usuario que esta enviando
+        // //     let registeWalletsHistoryTransfer = new SkiperWalletsHistory();
+        // //     registeWalletsHistoryTransfer.amount = totalPaid;
+        // //     registeWalletsHistoryTransfer.idcurrency = wallet.idcurrency;
+        // //     registeWalletsHistoryTransfer.idskiperwallet = wallet.id;
+        // //     registeWalletsHistoryTransfer.idpayment_methods = paymentMethod.id;
+        // //     registeWalletsHistoryTransfer.description = ``;
+        // //     registeWalletsHistoryTransfer.idtransactiontype = debito.id;
+        // //     registeWalletsHistoryTransfer.date_in = new Date();
+        // //     let walletHistory = await queryRunner.manager.save(registeWalletsHistoryTransfer)
 
-            let registerFeeWalletHistoryTransfer = new SkiperWalletsHistory();
-            let fees = (totalPaid * transferencia.fees) / 100;
-            registerFeeWalletHistoryTransfer.amount = Number(fees.toFixed(2));
-            registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
-            registerFeeWalletHistoryTransfer.idskiperwallet = wallet.id;
-            registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
-            registerFeeWalletHistoryTransfer.description = 'Comisión por servicio Alypay';
-            registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
-            registerFeeWalletHistoryTransfer.date_in = new Date();
-            await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
+        // //     let registerFeeWalletHistoryTransfer = new SkiperWalletsHistory();
+        // //     let fees = (totalPaid * transferencia.fees) / 100;
+        // //     registerFeeWalletHistoryTransfer.amount = Number(fees.toFixed(2));
+        // //     registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
+        // //     registerFeeWalletHistoryTransfer.idskiperwallet = wallet.id;
+        // //     registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
+        // //     registerFeeWalletHistoryTransfer.description = 'Comisión por servicio Alypay';
+        // //     registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
+        // //     registerFeeWalletHistoryTransfer.date_in = new Date();
+        // //     await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
 
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            console.log(error)
-            await queryRunner.rollbackTransaction();
-            return false;
-        } finally {
-            await queryRunner.release();
-            return true;
-        }
+        // //     await queryRunner.commitTransaction();
+        // } catch (error) {
+        //     console.log(error)
+        //     await queryRunner.rollbackTransaction();
+        //     return false;
+        // } finally {
+        //     await queryRunner.release();
+        //     return true;
+        // }
 
     }
 
