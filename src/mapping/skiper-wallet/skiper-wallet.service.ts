@@ -63,20 +63,6 @@ export class SkiperWalletService {
         }
     }
 
-    async TransferToBalanceOf(amount: number, userId: number, isoCurrency: string) {
-        try {
-            console.log('prueba de transaccion no se q pasa')
-        } catch (error) {
-
-        }
-    }
-    private doTransaction() {
-
-    }
-
-    async WithdrawalToInternalBalance() {
-
-    }
 
     async getAmountByCrypto(cryptoId: number, concept: number, amount: number, iduser: number, idcountry: number, idpackage: number) {
         try {

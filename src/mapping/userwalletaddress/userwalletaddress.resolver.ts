@@ -21,17 +21,20 @@ export class UserwalletaddressResolver {
 
     @Query()
     async getPaymentWithdrawalMethodByUserId(
-        @Args('userId') userId:number
-    ){
-       return this.service.getPaymentWithdrawalMethodByUserId(userId)
+        @Args('userId') userId: number
+    ) {
+        return this.service.getPaymentWithdrawalMethodByUserId(userId)
     }
 
     @Mutation()
-    async RegisterUserWallet(@Args('input') input: UserWalletAddressInput) {
-        return this.service.create(input);
+    async RegisterUserWallet(
+        @Args('input') input: UserWalletAddressInput,
+        @Args('lat') lat: number,
+        @Args('long') long: number) {
+        return this.service.create(input, lat, long);
     }
-    @Mutation()
-    async UpdateUserWallet(@Args('input') input: UserWalletAddressInput) {
-        return this.service.update(input);
-    }
+    // @Mutation()
+    // async UpdateUserWallet(@Args('input') input: UserWalletAddressInput) {
+    //     return this.service.update(input);
+    // }
 }

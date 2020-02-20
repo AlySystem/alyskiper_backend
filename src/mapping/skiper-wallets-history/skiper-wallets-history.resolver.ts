@@ -54,4 +54,14 @@ export class SkiperWalletsHistoryResolver {
         @Args('long') long: number) {
         return await this.skiperWalletHistoryService.TransferToOtherUser(emailTo, walletId, amount, isoTo, lat, long);
     }
+
+    @Mutation()
+    async withdrawalToExternalWallet(
+        @Args('walletId') walletId: number,
+        @Args('isoTo') isoTo: string = "",
+        @Args('lat') lat: number,
+        @Args('lng') lng: number
+    ) {
+        return this.skiperWalletHistoryService.withdrawalToExternalWallet(walletId, isoTo, lat, lng)
+    }
 }

@@ -10,8 +10,8 @@ export class UserWalletAddressInput {
     payaddress: string;
     platformName: string;
     userId: number;
-    paymentId: number;
     currencyId: number;
+    paymentId:number;
 }
 
 @InputType()
@@ -20,6 +20,6 @@ export class UserWalletAddressDto {
     payaddress: string;
     platformName: string;
     user: UserDto;
-    paymentMethod: PaymentMethodDto;
     currency: CurrencyDto;
+    paymentMethod: PaymentMethodDto;
 }
