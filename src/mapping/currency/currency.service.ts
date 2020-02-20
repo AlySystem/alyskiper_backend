@@ -15,19 +15,19 @@ export class CurrencyService {
     }
 
     async getAllCrypto(): Promise<Currency[]> {
-        return await this.repository.find({relations:['country'], where: { isCrypto: 1 } })
+        return await this.repository.find({ relations: ['country'], where: { isCrypto: 1 } })
     }
 
     async getAllCryptoForTransfer(): Promise<Currency[]> {
         return await this.repository.createQueryBuilder("Currency")
-        .where("Currency.isCrypto = 1")
-        .andWhere("Currency.name <>'Alycoin'")
-        .getMany();
+            .where("Currency.isCrypto = 1")
+            .andWhere("Currency.name <>'Alycoin'")
+            .getMany();
 
     }
 
     async getById(id: number): Promise<Currency> {
-        return await this.repository.findOneOrFail({ where: { id } });
+        return await this.repository.findOneOrFail({ relations: ['country'], where: { id } });
     }
 
     async registerCurrency(input: CurrencyInput) {

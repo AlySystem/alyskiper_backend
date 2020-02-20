@@ -33,8 +33,8 @@ export class UserwalletaddressResolver {
         @Args('long') long: number) {
         return this.service.create(input, lat, long);
     }
-    // @Mutation()
-    // async UpdateUserWallet(@Args('input') input: UserWalletAddressInput) {
-    //     return this.service.update(input);
-    // }
+    @Mutation()
+    async DeleteUserWallet(@Args('id') id:number) {
+        return this.service.delete(id);
+    }
 }

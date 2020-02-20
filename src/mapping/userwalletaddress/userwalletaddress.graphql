@@ -15,7 +15,7 @@ type UserWalletAddressDto {
 }
 
 type Mutation {
-    UpdateUserWallet(input:UserWalletAddressInput!):Boolean
+    DeleteUserWallet(id:Int!):Boolean
     RegisterUserWallet(input:UserWalletAddressInput!,lat:Float!,long:Float!):Boolean    
 }
 type Query {

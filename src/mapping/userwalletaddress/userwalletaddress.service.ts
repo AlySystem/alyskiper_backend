@@ -36,63 +36,76 @@ export class UserwalletaddressService {
     }
 
     async create(input: UserWalletAddressInput, lat: number, lng: number): Promise<boolean> {
-        let options = {
-            provider: 'google',
-            httpAdapter: 'https', // Default
-            apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
-            formatter: 'json' // 'gpx', 'string', ...
-        };
-        let geocoder = node_geocoder(options);
-        let dateCountry = await geocoder.reverse({ lat: lat, lon: lng });
-        let currency = await createQueryBuilder(Currency, "Currency")
-            .innerJoinAndSelect("Currency.country", "country")
-            .where("country.is")
-            .andWhere("country.name = :name", { name: String(dateCountry[0].country).toUpperCase() }).getOne();
-        console.log(currency)
-        return true
-        // let getExistingCurrency = await this.repository.findOne({
-        //     where: { currency: currency }
-        // });
+        let validateCurrency = await this.currencyRepository.getById(input.currencyId);
+        if (validateCurrency.isCrypto) {
+            let ifExistToRefuse = await this.repository.findOne({ where: { currency: validateCurrency } });
+            if (ifExistToRefuse == undefined) {
+                let user = await this.userRepository.getUserById(input.userId);
+                let paymentMethod = await createQueryBuilder(PaymentMethods, "PaymentMethods")
+                    .where("PaymentMethods.name = :name", { name: "AlyPay" }).getOne();
+                let parse = this.parseUserWalletAddress(input, user, paymentMethod, validateCurrency);
+                let result = this.repository.save(parse);
+                if (result) {
+                    return true
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            let options = {
+                provider: 'google',
+                httpAdapter: 'https', // Default
+                apiKey: 'AIzaSyDJqxifvNO50af0t6Y9gaPCJ8hYtkbOmQ8', // for Mapquest, OpenCage, Google Premier
+                formatter: 'json' // 'gpx', 'string', ...
+            };
+            let geocoder = node_geocoder(options);
+            let dateCountry = await geocoder.reverse({ lat: lat, lon: lng });
+            let ifLocalcurrency = await createQueryBuilder(Currency, "Currency")
+                .innerJoinAndSelect("Currency.country", "country")
+                .andWhere("country.name = :name", { name: String(dateCountry[0].country).toUpperCase() }).getOne();
+            if (ifLocalcurrency.country.name.toString() == validateCurrency.country.name.toString()) {
+                let ifExistToRefuse = await this.repository.findOne({ where: { currency: ifLocalcurrency } });
+                if (ifExistToRefuse == undefined) {
+                    let user = await this.userRepository.getUserById(input.userId);
+                    let paymentMethod = await createQueryBuilder(PaymentMethods, "PaymentMethods")
+                        .where("PaymentMethods.name = :name", { name: "Banco" }).getOne();
+                    let parse = this.parseUserWalletAddress(input, user, paymentMethod, ifLocalcurrency);
+                    let result = this.repository.save(parse);
+                    if (result) {
+                        return true
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
 
-        // if (getExistingCurrency == undefined) {
-
-
-        //     // let user = await this.userRepository.getUserById(input.userId);
-        //     // let paymentMethod = await createQueryBuilder(PaymentMethods, "PaymentMethods")
-        //     //     .where("PaymentMethods.name = :name", { name: "Banco" }).getOne();
-        //     // let parse = this.parseUserWalletAddress(input, user, paymentMethod, currency);
-        //     // let result = this.repository.save(parse);
-        //     // if (result) {
-        //     //     return true
-        //     // } else {
-        //     //     return false;
-        //     // }
-        // } else {
-        //     return false;
-        // }
+            } else {
+                return false;
+            }
+        }
     }
 
 
-    // async update(input: UserWalletAddressInput): Promise<boolean> {
-    //     let searchUserWallet = await this.getById(input.id);
-    //     if (searchUserWallet != undefined) {
-    //         let user = await this.userRepository.getUserById(searchUserWallet.userId);
-    //         let currency = await this.currencyRepository.getById(searchUserWallet.currencyId);
-    //         let parse = this.parseUserWalletAddress(input, user, currency);
-    //         let result = this.repository.save(parse);
-    //         if (result) {
-    //             return true;
-    //         } else {
-    //             return false;
-    //         }
-    //     } else {
-    //         throw new HttpException(
-    //             'Error transaction',
-    //             HttpStatus.BAD_REQUEST
-    //         );
-    //     }
+    async delete(id: number): Promise<boolean> {
+        let searchUserWallet = await this.getById(id);
+        if (searchUserWallet != undefined) {
+            let result = this.repository.remove(searchUserWallet);
+            if (result) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            throw new HttpException(
+                'Error transaction',
+                HttpStatus.BAD_REQUEST
+            );
+        }
 
-    // }
+    }
 
     private parseUserWalletAddress(input: UserWalletAddressInput, user?, paymentMethod?, currency?): UserWalletAddress {
         let userwalletAddress: UserWalletAddress = new UserWalletAddress();
