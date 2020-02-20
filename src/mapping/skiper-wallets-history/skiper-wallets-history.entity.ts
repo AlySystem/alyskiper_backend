@@ -27,6 +27,8 @@ export class SkiperWalletsHistory {
 
     @Column({ nullable: false }) typeUser: boolean;
 
+    @Column({ nullable: true }) paidout: boolean;
+
     @ManyToOne(type => SkiperWallet, { nullable: false })
     @JoinColumn({ name: 'idskiperwallet' }) skiperwallet: SkiperWallet;
 

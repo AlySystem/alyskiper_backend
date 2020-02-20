@@ -58,10 +58,8 @@ export class SkiperWalletsHistoryResolver {
     @Mutation()
     async withdrawalToExternalWallet(
         @Args('walletId') walletId: number,
-        @Args('isoTo') isoTo: string = "",
-        @Args('lat') lat: number,
-        @Args('lng') lng: number
+        @Args('userwalletAddressId') userwalletAddressId: number
     ) {
-        return this.skiperWalletHistoryService.withdrawalToExternalWallet(walletId, isoTo, lat, lng)
+        return this.skiperWalletHistoryService.withdrawalToExternalWallet(walletId, userwalletAddressId)
     }
 }

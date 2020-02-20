@@ -11,6 +11,7 @@ import { SkiperWallet } from '../skiper-wallet/skiper-wallet.entity';
 import { SkiperWalletService } from '../skiper-wallet/skiper-wallet.service';
 import { TransactionType } from '../transaction-type/transaction-type.entity';
 import { PaymentMethods } from '../payment-methods/payment-methods.entity';
+import { UserWalletAddress } from '../userwalletaddress/userwalletaddress.entity';
 
 const rp = require('request-promise');
 
@@ -22,7 +23,7 @@ export class SkiperWalletsHistoryService {
         private readonly walletservice: SkiperWalletService
     ) { }
 
-    async withdrawalToExternalWallet(walletId: number, iso: string, lat: number, lng: number) {
+    async withdrawalToExternalWallet(walletId: number, userwalletAddressId: number) {
         let wallet = await this.walletservice.getById(walletId);
         if (wallet == undefined) {
             throw new HttpException(
@@ -30,14 +31,14 @@ export class SkiperWalletsHistoryService {
                 HttpStatus.BAD_REQUEST,
             );
         }
-        return this.ExecuteWithdrawalToExternalWallet(wallet)
+        return this.ExecuteWithdrawalToExternalWallet(wallet, userwalletAddressId)
     }
 
-    async ExecuteWithdrawalToExternalWallet(wallet: SkiperWallet) {
+    async ExecuteWithdrawalToExternalWallet(wallet: SkiperWallet, userwalletAddressId: number) {
         let connection = getConnection();
         let queryRunner = connection.createQueryRunner();
         await queryRunner.connect();
-        await queryRunner.startTransaction();        
+        await queryRunner.startTransaction();
         let totalPaid = await createQueryBuilder("SkiperWalletsHistory")
             .innerJoin("SkiperWalletsHistory.transactiontype", "TransactionType")
             .innerJoin("SkiperWalletsHistory.paymentmethod", "paymentmethod")
@@ -48,59 +49,56 @@ export class SkiperWalletsHistoryService {
                 SUM(CASE WHEN TransactionType.code = 'RT'  THEN  SkiperWalletsHistory.amount ELSE 0 END),2),0)  balance`)
             .where("SkiperWalletsHistory.idskiperwallet = :wallet", { wallet: wallet.id })
             .getRawOne();
-        console.log(totalPaid)
+        if (totalPaid.balance == 0) {
+            throw new HttpException(
+                "Usted no cuenta con suficiente saldo para realizar la transacción",
+                HttpStatus.FORBIDDEN,
+            );
+        }
 
-        // // let transferencia = await queryRunner.manager.findOne(TransactionType, { where: { code: 'TF' } });
-        // // let debito = await queryRunner.manager.findOne(TransactionType, { where: { code: 'DB' } });
-        // // let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
-        // // // let walletFrom = await queryRunner.manager.findOne(SkiperWallet, { where: { id: wallet.id } });
-        // // // let walletT = await queryRunner.manager.findOne(SkiperWallet, { relations:[], where: { id: walletTo.id } });
-        // // let amountPlusfees = totalPaid + (totalPaid * transferencia.fees) / 100;
+        let withdrawal = await queryRunner.manager.findOneOrFail(TransactionType, { where: { code: 'RT' } });
+        let debito = await queryRunner.manager.findOneOrFail(TransactionType, { where: { code: 'DB' } });
+        let paymentMethod = await queryRunner.manager.findOne(PaymentMethods, { where: { name: 'AlyPay', active: true } });
+        let fees = (totalPaid.balance * withdrawal.fees) / 100;
+        let amountWithdrawal = parseFloat(totalPaid.balance) - parseFloat(fees.toFixed(2));
+        let userwalletAddress = await queryRunner.manager.findOne(UserWalletAddress, { where: { id: userwalletAddressId } });
 
-        // // if (totalPaid.balance == 0) {
-        // //     throw new HttpException(
-        // //         "you have no withdrawal balance",
-        // //         HttpStatus.FORBIDDEN,
-        // //     );
-        // // }
-        // // if (totalPaid.balance < amountPlusfees) {
-        // //     throw new HttpException(
-        // //         "your funds are not enough",
-        // //         HttpStatus.FORBIDDEN
-        // //     )
-        // // }
-        // // try {
-        // //     //////Desde aqui registro debitos y comisiones del usuario que esta enviando
-        // //     let registeWalletsHistoryTransfer = new SkiperWalletsHistory();
-        // //     registeWalletsHistoryTransfer.amount = totalPaid;
-        // //     registeWalletsHistoryTransfer.idcurrency = wallet.idcurrency;
-        // //     registeWalletsHistoryTransfer.idskiperwallet = wallet.id;
-        // //     registeWalletsHistoryTransfer.idpayment_methods = paymentMethod.id;
-        // //     registeWalletsHistoryTransfer.description = ``;
-        // //     registeWalletsHistoryTransfer.idtransactiontype = debito.id;
-        // //     registeWalletsHistoryTransfer.date_in = new Date();
-        // //     let walletHistory = await queryRunner.manager.save(registeWalletsHistoryTransfer)
+        try {
+            //////Desde aqui registro debitos y comisiones del usuario que esta enviando
+            let registeWalletsHistoryWithdrawal = new SkiperWalletsHistory();
+            registeWalletsHistoryWithdrawal.amount = amountWithdrawal;
+            registeWalletsHistoryWithdrawal.idcurrency = wallet.idcurrency;
+            registeWalletsHistoryWithdrawal.idskiperwallet = wallet.id;
+            registeWalletsHistoryWithdrawal.idpayment_methods = paymentMethod.id;
+            registeWalletsHistoryWithdrawal.description = `Retiro saldo total habilitado`;
+            registeWalletsHistoryWithdrawal.idtransactiontype = withdrawal.id;
+            registeWalletsHistoryWithdrawal.date_in = new Date();
+            registeWalletsHistoryWithdrawal.paidout = false;
+            await queryRunner.manager.save(registeWalletsHistoryWithdrawal);
 
-        // //     let registerFeeWalletHistoryTransfer = new SkiperWalletsHistory();
-        // //     let fees = (totalPaid * transferencia.fees) / 100;
-        // //     registerFeeWalletHistoryTransfer.amount = Number(fees.toFixed(2));
-        // //     registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
-        // //     registerFeeWalletHistoryTransfer.idskiperwallet = wallet.id;
-        // //     registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
-        // //     registerFeeWalletHistoryTransfer.description = 'Comisión por servicio Alypay';
-        // //     registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
-        // //     registerFeeWalletHistoryTransfer.date_in = new Date();
-        // //     await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
+            let registerFeeWalletHistoryTransfer = new SkiperWalletsHistory();
+            registerFeeWalletHistoryTransfer.amount = parseFloat(fees.toFixed(2));
+            registerFeeWalletHistoryTransfer.idcurrency = wallet.idcurrency;
+            registerFeeWalletHistoryTransfer.idskiperwallet = wallet.id;
+            registerFeeWalletHistoryTransfer.idpayment_methods = paymentMethod.id;
+            registerFeeWalletHistoryTransfer.description = 'Comisión por servicio Alypay';
+            registerFeeWalletHistoryTransfer.idtransactiontype = debito.id;
+            registerFeeWalletHistoryTransfer.date_in = new Date();
+            await queryRunner.manager.save(registerFeeWalletHistoryTransfer);
 
-        // //     await queryRunner.commitTransaction();
-        // } catch (error) {
-        //     console.log(error)
-        //     await queryRunner.rollbackTransaction();
-        //     return false;
-        // } finally {
-        //     await queryRunner.release();
-        //     return true;
-        // }
+            userwalletAddress.active = true;
+            await queryRunner.manager.save(userwalletAddress);
+
+
+            await queryRunner.commitTransaction();
+        } catch (error) {
+            console.log(error)
+            await queryRunner.rollbackTransaction();
+            return false;
+        } finally {
+            await queryRunner.release();
+            return true;
+        }
 
     }
 

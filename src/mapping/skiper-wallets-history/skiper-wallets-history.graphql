@@ -48,5 +48,5 @@ type Mutation {
     registerSkiperWalletHistory(input: SkiperWalletsHistoryInput): SkiperWalletsHistoryDto
     WithdrawalToInternalWallet(walletId:Int!, amount:Float!):Boolean
     TransferToOtherUser(emailTo:String!, walletId:Int!, amount:Float!, isoTo:String!, lat:Float!, long:Float!):Boolean
-    withdrawalToExternalWallet(walletId:Int!, isoTo:String!,lat:Float!, long:Float!):Boolean
+    withdrawalToExternalWallet(walletId:Int!, userwalletAddressId:Int!):Boolean
 }

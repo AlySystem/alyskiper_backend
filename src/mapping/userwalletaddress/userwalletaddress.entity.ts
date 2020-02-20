@@ -11,6 +11,7 @@ export class UserWalletAddress {
     @Column('text') payaddress: string;
     @Column('text') platformName: string;
     @Column('int') paymentId: number;
+    @Column('boolean') active: boolean;
 
     @ManyToOne(type => User, { nullable: false })
     @JoinColumn({ name: 'userId' }) user: User;
